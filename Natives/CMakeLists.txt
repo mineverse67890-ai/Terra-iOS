@@ -302,6 +302,7 @@ target_link_libraries(audio_capture
 # ============================================================================
 
 set(AME_TABBAR_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/AmeTabBar.swift")
+set(AME_DASHBOARD_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/LauncherDashboardView.swift")
 
 # 架构:C 侧统一走 CMAKE_OSX_ARCHITECTURES(Makefile 传 arm64);缺省退回宿主架构
 set(AME_SWIFT_ARCH "${CMAKE_OSX_ARCHITECTURES}")
@@ -352,11 +353,10 @@ else()
   set(AME_TABBAR_NEEDS_BUILD TRUE)
 endif()
 
-# Swift 现在是底栏的唯一实现(LauncherMenuViewController.m 直接引用 AmeTabBarHost),
-# 编不出来就会在链接期报 undefined symbol ⇒ 这里直接给出可读的失败原因。
-if(AME_TABBAR_NEEDS_BUILD AND NOT AME_SWIFTC)
-  message(FATAL_ERROR "★ [SWIFT-BAR] 找不到 swiftc。AmeTabBar.swift(底栏)必须用 Swift 编译;"
-                      "请安装 Xcode / Command Line Tools,或确认 `xcrun -f swiftc` 可用。")
+# Swift sources are linked into the app; report a clear error if either object cannot be built.
+if(NOT AME_SWIFTC)
+  message(FATAL_ERROR "SwiftUI sources require swiftc. Install Xcode / Command Line Tools "
+                      "or ensure `xcrun -f swiftc` is available.")
 endif()
 
 if(AME_TABBAR_NEEDS_BUILD)
@@ -374,8 +374,24 @@ if(AME_TABBAR_NEEDS_BUILD)
   add_custom_target(AmeTabBarSwift DEPENDS "${AME_TABBAR_OBJ}")
 endif()
 
+# The dashboard is hosted from Objective-C and compiled alongside the Swift tab bar.
+set(AME_DASHBOARD_OBJ "${CMAKE_CURRENT_BINARY_DIR}/LauncherDashboardView.o")
+add_custom_command(
+  OUTPUT  "${AME_DASHBOARD_OBJ}"
+  COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object
+          -target "${AME_SWIFT_TRIPLE}"
+          -sdk "${CMAKE_OSX_SYSROOT}"
+          ${AME_SWIFT_OPT_FLAGS}
+          -o "${AME_DASHBOARD_OBJ}"
+          "${AME_DASHBOARD_SWIFT_SRC}"
+  DEPENDS "${AME_DASHBOARD_SWIFT_SRC}"
+  COMMENT "SwiftUI dashboard: swiftc ${AME_SWIFT_TRIPLE} -> LauncherDashboardView.o"
+  VERBATIM)
+add_custom_target(AmeDashboardSwift DEPENDS "${AME_DASHBOARD_OBJ}")
+
 # 外部对象:CMake 只把它放进链接行,不去「编译」它
 set_source_files_properties("${AME_TABBAR_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
+set_source_files_properties("${AME_DASHBOARD_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 message(STATUS "★ [SWIFT-BAR] swiftc=${AME_SWIFTC} triple=${AME_SWIFT_TRIPLE} obj=${AME_TABBAR_OBJ} swiftlib=${AME_SWIFT_LIBDIR} build=${AME_TABBAR_NEEDS_BUILD}")
 
 # Angel Aura Amethyst
@@ -643,6 +659,7 @@ add_executable(AngelAuraAmethyst
 
   # ★ [SWIFT-BAR] SwiftUI 底部标签栏目标文件(swiftc 产出;只追加,不动上面既有 OBJC 顺序)
   ${AME_TABBAR_OBJ}
+  ${AME_DASHBOARD_OBJ}
   # ★ [ROOTTAB] 根标签栏控制器(真正的 UITabBarController;音乐/LiveContainer 同构)
   AmeRootTabController.m
 )
@@ -651,6 +668,7 @@ add_executable(AngelAuraAmethyst
 if(AME_TABBAR_NEEDS_BUILD)
   add_dependencies(AngelAuraAmethyst AmeTabBarSwift)
 endif()
+add_dependencies(AngelAuraAmethyst AmeDashboardSwift)
 
 # Add ModLoaderIcons PNG files into the app bundle Resources/ModLoaderIcons so they are available at runtime.
 # This will copy all *.png under Natives/ModLoaderIcons into the bundle at Resources/ModLoaderIcons/<name>.png

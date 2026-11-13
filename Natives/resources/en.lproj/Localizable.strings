@@ -2084,6 +2084,10 @@
 "tab.resources" = "Resources";
 "tab.instances" = "Instances";
 "tab.settings" = "Settings";
+"dashboard.title" = "Minecraft";
+"dashboard.version.label" = "SELECTED VERSION";
+"dashboard.launch" = "Launch Minecraft 26.3";
+"dashboard.settings" = "Settings";
 
 
 /* ★ [I18N] key-set alignment vs zh-Hans base; English placeholder pending translation */

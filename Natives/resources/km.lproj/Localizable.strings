@@ -1880,6 +1880,10 @@
 "tab.resources" = "ធនធាន";
 "tab.instances" = "ករណី";
 "tab.settings" = "ការកំណត់";
+"dashboard.title" = "Minecraft";
+"dashboard.version.label" = "កំណែដែលបានជ្រើស";
+"dashboard.launch" = "បើក Minecraft 26.3";
+"dashboard.settings" = "ការកំណត់";
 "preference.lang.title" = "ភាសា";
 "preference.lang.follow_system" = "តាមប្រព័ន្ធ";
 "preference.lang.section.system" = "ប្រព័ន្ធ";

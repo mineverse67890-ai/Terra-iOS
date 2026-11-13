@@ -2066,6 +2066,10 @@
 "tab.resources" = "资源";
 "tab.instances" = "实例";
 "tab.settings" = "设置";
+"dashboard.title" = "Minecraft";
+"dashboard.version.label" = "当前版本";
+"dashboard.launch" = "启动 Minecraft 26.3";
+"dashboard.settings" = "设置";
 
 
 /* ★ [I18N] key-set alignment vs zh-Hans base; English placeholder pending translation */

@@ -1,5 +1,6 @@
 #import "LauncherNewsViewController.h"
 #import "HomeCustomizeViewController.h"
+#import "LauncherPreferencesViewController.h"
 #import "authenticator/BaseAuthenticator.h"
 #import "LauncherPreferences.h"
 #import "ModsManagerViewController.h"
@@ -23,6 +24,12 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UIKit+GlassSurface.h"   // ★ [HOME6] 液态玻璃四要素(运行时取 UIGlassEffect,不用 iOS26 编译期符号)
 #import "LauncherRightPanelViewController.h"   // ★ [NORIGHT] 右栏状态广播 / 动作转发入口
+
+@interface AmeLauncherDashboardHostController : UIViewController
++ (instancetype)makeHostWithLaunchHandler:(void (^)(void))launchHandler
+             settingsControllerProvider:(UIViewController * (^)(void))settingsControllerProvider;
+- (void)updateVersionText:(NSString *)versionText launchEnabled:(BOOL)launchEnabled;
+@end
 
 // MARK: - Shortcut Action Constants
 
@@ -71,12 +78,6 @@ static NSString * const kAmeHomeCardLayoutKey = @"ameHomeCardLayout";
 
 // ★ [HOMEWIRE] 自定义面板保存后广播的通知名:主页监听 ⇒ 重读 home_tiles_config + ameHomeCardLayout 并重排。
 static NSString * const AmeHomeCardLayoutChangedNotification = @"AmeHomeCardLayoutChanged";
-
-// ★ [NORIGHT] 主页底部「启动游戏」紧凑胶囊(右栏启动键搬家;用户明确:「大色块干掉」⇒
-//   横竖屏都用紧凑胶囊,不再是整条大渐变底)。数值取自 mix.html 的竖屏 A 方案:
-//   真机高 ≈32~36pt、胶囊圆角 = 高/2、淡底 + 细描边 + ▶ 图标。
-static const CGFloat kNoRightCapsuleHeight = 36.0;
-static const CGFloat kNoRightCapsuleMaxW   = 320.0;   // 横屏不要拉成整条 ⇒ 上限 320 居中
 
 // ★ [TOPBAR2] 顶栏右侧动作 pill 排:JIT 状态 · 执行 Jar · 选择版本 · 下载中心 · ⚙自定义。
 //   相邻 pill 的水平间距：横竖屏同一值 ⇒ 一条链式约束即可两朝向通用(无同属性双钉)。
@@ -1288,6 +1289,8 @@ static NSString *festivalGreeting(void) {
 @property (nonatomic, strong) UIView *headerView;
 @property (nonatomic, strong) UILabel *headerTitleLabel;
 @property (nonatomic, strong) UIButton *customizeButton;
+@property (nonatomic, strong) UIView *dashboardContainerView;
+@property (nonatomic, strong) AmeLauncherDashboardHostController *dashboardHostController;
 
 // ★ [HOME6] 两套头部约束集(竖/横),同一属性只被一套钉住
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *headerPortraitConstraints;
@@ -1318,11 +1321,10 @@ static NSString *festivalGreeting(void) {
 @property (nonatomic, strong, nullable) MinecraftNewsItem *latestNewsItem;
 @property (nonatomic, assign) BOOL isLoadingNews;
 
-// ★ [NORIGHT] 右栏卡片下线后的三个新入口(+ 状态镜像)
+// ★ [NORIGHT] 右栏卡片下线后的入口与状态镜像
 @property (nonatomic, strong) UILabel *norightJITPill;          // 顶栏右侧 JIT 状态 pill(「⚙自定义」左侧)
-@property (nonatomic, strong) UIButton *norightLaunchCapsule;   // 主页底部「启动游戏」紧凑胶囊
-@property (nonatomic, strong) NSLayoutConstraint *norightCapsuleWidth;
 @property (nonatomic, copy)   NSString *norightVersionText;     // 欢迎卡里的版本号(来自右栏状态广播)
+@property (nonatomic, assign) BOOL dashboardLaunchEnabled;
 
 // ★ [TOPBAR2] 顶栏动作 pill 排(JIT 状态侧边;JIT pill 本身仍是 norightJITPill)。
 //   三个动作 pill 全部只转发右栏原方法;下载中心的角标/百分比来自 AmeRightPanelStateNotification。
@@ -1375,6 +1377,7 @@ static NSString *festivalGreeting(void) {
 - (void)homeEditUpdateResizeAtPoint:(CGPoint)point;
 - (void)homeEditRebuildAllConfigsFromVisibleOrder;
 - (void)homeEditPersistLayout;
+- (void)setupDashboard;
 
 @end
 
@@ -1395,6 +1398,7 @@ static NSString *festivalGreeting(void) {
         self.homeMoveActive = NO;
         self.homeResizeActive = NO;
         self.homeResizeIndex = -1;
+        self.dashboardLaunchEnabled = YES;
     }
     return self;
 }
@@ -1416,6 +1420,7 @@ static NSString *festivalGreeting(void) {
     [self rebuildDisplaySections];
     
     [self setupHeader];
+    [self setupDashboard];
     [self setupCollectionView];
     [self applyHomeSafeAreaInsets];   // ★ [HOME6] 首次按实时安全区铺一次(竖/横通用)
     [self updateSkinDisplay];
@@ -1451,29 +1456,23 @@ static NSString *festivalGreeting(void) {
                                                  name:AmeHomeCardLayoutChangedNotification
                                                object:nil];
 
-    // ★ [NORIGHT] 右栏状态广播 ⇒ 欢迎卡版本号 / 顶栏 JIT pill / 底部启动胶囊文案保持一致
+    // ★ [NORIGHT] 右栏状态广播 ⇒ dashboard 版本号 / 顶栏 JIT pill 保持一致
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(norightStateChanged:)
                                                  name:AmeRightPanelStateNotification
                                                object:nil];
-    // ★ [NORIGHT] 主题色变化 ⇒ 重刷底部胶囊的淡底/描边(与右栏同一触发时机)
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(norightRefreshCapsuleAppearance)
-                                                 name:@"LauncherAppearanceChanged"
-                                               object:nil];
 }
 
-#pragma mark - ★ [NORIGHT] 右栏状态镜像 + 底部启动胶囊
+#pragma mark - ★ [NORIGHT] 右栏状态镜像 + SwiftUI dashboard
 
 /// 每次主页出现都向(不可见的)右栏索取一次最新状态(版本号 / JIT / 启动键文案)。
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     // ★ [NORIGHT] 右栏 viewDidLoad 可能早于本页注册监听 ⇒ 这里主动索取一次,保证首屏就有值。
     [[NSNotificationCenter defaultCenter] postNotificationName:AmeRightPanelRequestStateNotification object:nil];
-    [self norightRefreshCapsuleAppearance];
 }
 
-/// 右栏广播的状态 → 欢迎卡版本号 / 顶栏 JIT pill / 底部启动胶囊。
+/// 右栏广播的状态 → 欢迎卡版本号 / 顶栏 JIT pill / SwiftUI dashboard。
 - (void)norightStateChanged:(NSNotification *)note {
     NSDictionary *info = note.userInfo;
     if (![info isKindOfClass:[NSDictionary class]]) return;
@@ -1492,16 +1491,12 @@ static NSString *festivalGreeting(void) {
             self.norightJITPill.textColor = jitColor;
             self.norightJITPill.backgroundColor = [jitColor colorWithAlphaComponent:0.15];
         }
-        NSString *launchTitle = info[@"launchTitle"];
-        if ([launchTitle isKindOfClass:[NSString class]] && launchTitle.length > 0) {
-            [self.norightLaunchCapsule setTitle:launchTitle forState:UIControlStateNormal];
-        }
         NSNumber *launchEnabled = info[@"launchEnabled"];
         if ([launchEnabled isKindOfClass:[NSNumber class]]) {
-            // 与右栏按钮**完全同口径**(同一份 enabled 值)⇒ 可用性判断不变
-            self.norightLaunchCapsule.enabled = launchEnabled.boolValue;
-            self.norightLaunchCapsule.alpha = launchEnabled.boolValue ? 1.0 : 0.6;
+            self.dashboardLaunchEnabled = launchEnabled.boolValue;
         }
+        [self.dashboardHostController updateVersionText:self.norightVersionText
+                                          launchEnabled:self.dashboardLaunchEnabled];
         // ★ [TOPBAR2] 下载中心:角标(进行中任务数) + 百分比/状态，全部来自右栏原按钮的计算结果
         NSString *dcBadge = info[@"dcBadge"];
         if ([dcBadge isKindOfClass:[NSString class]]) self.topbarDownloadBadgeText = dcBadge;
@@ -1524,15 +1519,7 @@ static NSString *festivalGreeting(void) {
     }
 }
 
-/// 主题色变化后重刷底部胶囊的淡底 / 描边 / 图标色。
-- (void)norightRefreshCapsuleAppearance {
-    UIColor *accent = accentColor() ?: [UIColor systemBlueColor];
-    self.norightLaunchCapsule.backgroundColor = [accent colorWithAlphaComponent:0.15];
-    self.norightLaunchCapsule.layer.borderColor = accent.CGColor;
-    self.norightLaunchCapsule.tintColor = accent;
-}
-
-/// 点击底部启动胶囊 —— 只转发,不在本页复制任何启动逻辑。
+/// SwiftUI dashboard 启动按钮只转发,不在本页复制任何启动逻辑。
 - (void)norightLaunchTapped {
     [LauncherRightPanelViewController norightPostAction:@"launch"];
 }
@@ -1727,6 +1714,51 @@ static NSString *festivalGreeting(void) {
     [self activateHeaderConstraintsForLandscape:[self homeIsLandscape]];
 }
 
+// MARK: - SwiftUI Dashboard
+
+- (void)setupDashboard {
+    self.dashboardContainerView = [[UIView alloc] init];
+    self.dashboardContainerView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.dashboardContainerView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.dashboardContainerView];
+
+    __weak typeof(self) weakSelf = self;
+    self.dashboardHostController =
+        [AmeLauncherDashboardHostController makeHostWithLaunchHandler:^{
+            [weakSelf norightLaunchTapped];
+        } settingsControllerProvider:^UIViewController *{
+            LauncherPreferencesViewController *settings =
+                [[LauncherPreferencesViewController alloc] init];
+            settings.title = localize(@"tab.settings", @"设置");
+            UINavigationController *navigationController =
+                [[UINavigationController alloc] initWithRootViewController:settings];
+            navigationController.navigationBar.prefersLargeTitles = YES;
+            return navigationController;
+        }];
+
+    UIViewController *host = self.dashboardHostController;
+    host.view.translatesAutoresizingMaskIntoConstraints = NO;
+    host.view.backgroundColor = [UIColor clearColor];
+    [self addChildViewController:host];
+    [self.dashboardContainerView addSubview:host.view];
+    [NSLayoutConstraint activateConstraints:@[
+        [host.view.leadingAnchor constraintEqualToAnchor:self.dashboardContainerView.leadingAnchor],
+        [host.view.trailingAnchor constraintEqualToAnchor:self.dashboardContainerView.trailingAnchor],
+        [host.view.topAnchor constraintEqualToAnchor:self.dashboardContainerView.topAnchor],
+        [host.view.bottomAnchor constraintEqualToAnchor:self.dashboardContainerView.bottomAnchor],
+    ]];
+    [host didMoveToParentViewController:self];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [self.dashboardContainerView.topAnchor constraintEqualToAnchor:self.headerView.bottomAnchor],
+        [self.dashboardContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.dashboardContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.dashboardContainerView.heightAnchor constraintEqualToConstant:156.0],
+    ]];
+    [self.dashboardHostController updateVersionText:self.norightVersionText
+                                       launchEnabled:self.dashboardLaunchEnabled];
+}
+
 // MARK: - Collection View Setup
 
 - (void)setupCollectionView {
@@ -1773,56 +1805,12 @@ static NSString *festivalGreeting(void) {
     [self.view addSubview:self.collectionView];
     
     [NSLayoutConstraint activateConstraints:@[
-        [self.collectionView.topAnchor constraintEqualToAnchor:self.headerView.bottomAnchor],
+        [self.collectionView.topAnchor constraintEqualToAnchor:self.dashboardContainerView.bottomAnchor],
         [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
         [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
         [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
     ]];
 
-    // ★ [NORIGHT] 主页底部「启动游戏」紧凑胶囊 = 右栏启动键的搬家落点(用户:「大色块干掉」)。
-    //   位置:钉在**安全区底部之上 8pt** ⇒ 正好落在系统标签栏上沿,不遮标签栏(横竖屏同一组约束)。
-    //   宽度:由 norightCapsuleWidth 一条**等宽**约束的 constant 表达(applyHomeSafeAreaInsets 里
-    //   按实时宽度算:竖屏≈满宽-32、横屏收 320)= 不存在同属性双钉。
-    //   行为:点击只发通知 ⇒ 落到右栏原 launchButtonTapped(账号校验/JIT/下载拦截/版本解析全链路不变)。
-    self.norightLaunchCapsule = [UIButton buttonWithType:UIButtonTypeSystem];
-    self.norightLaunchCapsule.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.norightLaunchCapsule setTitle:localize(@"i18n_str_412", nil) forState:UIControlStateNormal];
-    self.norightLaunchCapsule.titleLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
-    self.norightLaunchCapsule.titleLabel.adjustsFontSizeToFitWidth = YES;
-    self.norightLaunchCapsule.titleLabel.minimumScaleFactor = 0.7;
-    UIColor *norightAccent = accentColor() ?: [UIColor systemBlueColor];
-    self.norightLaunchCapsule.backgroundColor = [norightAccent colorWithAlphaComponent:0.15];
-    self.norightLaunchCapsule.layer.cornerRadius = kNoRightCapsuleHeight / 2.0;
-    self.norightLaunchCapsule.layer.cornerCurve = kCACornerCurveContinuous;
-    self.norightLaunchCapsule.layer.borderWidth = 1.0;
-    self.norightLaunchCapsule.layer.borderColor = norightAccent.CGColor;
-    [self.norightLaunchCapsule setTitleColor:[UIColor labelColor] forState:UIControlStateNormal];
-    UIImage *norightPlay = [UIImage systemImageNamed:@"play.fill"];
-    if (norightPlay) {
-        norightPlay = [norightPlay imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [self.norightLaunchCapsule setImage:norightPlay forState:UIControlStateNormal];
-    }
-    self.norightLaunchCapsule.tintColor = norightAccent;
-    self.norightLaunchCapsule.imageEdgeInsets = UIEdgeInsetsMake(0, -6, 0, 0);
-    self.norightLaunchCapsule.titleEdgeInsets = UIEdgeInsetsMake(0, 6, 0, 0);
-    self.norightLaunchCapsule.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
-    [self.norightLaunchCapsule addTarget:self action:@selector(norightLaunchTapped) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.norightLaunchCapsule];
-    [self.view bringSubviewToFront:self.norightLaunchCapsule];
-
-    self.norightCapsuleWidth = [self.norightLaunchCapsule.widthAnchor constraintEqualToConstant:kNoRightCapsuleMaxW];
-    // 800 兜底:任何情况下不越出屏幕左右 16pt(可被 solver 静默让步 ⇒ 不会报冲突)
-    NSLayoutConstraint *norightCapsuleLeadGuard = [self.norightLaunchCapsule.leadingAnchor constraintGreaterThanOrEqualToAnchor:self.view.leadingAnchor constant:16];
-    NSLayoutConstraint *norightCapsuleTrailGuard = [self.norightLaunchCapsule.trailingAnchor constraintLessThanOrEqualToAnchor:self.view.trailingAnchor constant:-16];
-    norightCapsuleLeadGuard.priority = 800;
-    norightCapsuleTrailGuard.priority = 800;
-    [NSLayoutConstraint activateConstraints:@[
-        [self.norightLaunchCapsule.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-8],
-        [self.norightLaunchCapsule.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [self.norightLaunchCapsule.heightAnchor constraintEqualToConstant:kNoRightCapsuleHeight],
-        self.norightCapsuleWidth,
-        norightCapsuleLeadGuard, norightCapsuleTrailGuard,
-    ]];
 }
 
 // MARK: - ★ [TOPBAR2] 顶栏动作 pill(创建 / 刷新 / 点击转发)
@@ -3206,18 +3194,8 @@ static NSString *festivalGreeting(void) {
     UICollectionView *cv = self.collectionView;
     if (cv) {
         // 顶部由 headerView 承担;左右交给 section contentInsets(bentoSectionWithGroup:);底部在此兜底。
-        // ★ [NORIGHT] 底部再补「启动胶囊高 + 呼吸」⇒ 最后一张卡不会被底部启动胶囊压住。
-        CGFloat norightBottomRoom = kNoRightCapsuleHeight + 10.0;
-        cv.contentInset = UIEdgeInsetsMake(0, 0, sa.bottom + kBentoEdgeV + norightBottomRoom, 0);
+        cv.contentInset = UIEdgeInsetsMake(0, 0, sa.bottom + kBentoEdgeV + 8.0, 0);
         cv.verticalScrollIndicatorInsets = UIEdgeInsetsMake(0, 0, sa.bottom, 0);
-    }
-
-    // ★ [NORIGHT] 底部启动胶囊宽度:竖屏接近满宽、横屏收到 320(紧凑胶囊,不拉成整条)。
-    //   只用一条**等宽**约束的 constant 表达 ⇒ 同一个属性只有一条约束(无双钉)。
-    if (self.norightCapsuleWidth) {
-        CGFloat avail = self.view.bounds.size.width - 32.0;
-        if (avail <= 0) avail = kNoRightCapsuleMaxW;
-        self.norightCapsuleWidth.constant = MIN(avail, kNoRightCapsuleMaxW);
     }
 
     [self activateHeaderConstraintsForLandscape:[self homeIsLandscape]];

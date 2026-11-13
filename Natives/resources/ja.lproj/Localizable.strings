@@ -1882,6 +1882,10 @@
 "tab.resources" = "リソース";
 "tab.instances" = "インスタンス";
 "tab.settings" = "設定";
+"dashboard.title" = "Minecraft";
+"dashboard.version.label" = "選択中のバージョン";
+"dashboard.launch" = "Minecraft 26.3 を起動";
+"dashboard.settings" = "設定";
 "preference.lang.title" = "言語";
 "preference.lang.follow_system" = "システムに従う";
 "preference.lang.section.system" = "システム";
