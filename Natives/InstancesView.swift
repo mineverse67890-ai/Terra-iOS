@@ -78,7 +78,7 @@ private final class TerraInstancesViewModel: ObservableObject {
         let profiles = profilesProvider()
         refreshGeneration += 1
         let generation = refreshGeneration
-        let snapshot = profiles.compactMap { profile in
+        let snapshot: [TerraInstance] = profiles.compactMap { profile -> TerraInstance? in
             guard let name = profile["name"], !name.isEmpty else { return nil }
             return TerraInstance(
                 id: name,
@@ -178,9 +178,7 @@ private struct TerraInstancesView: View {
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .foregroundColor(.white)
-                                .background {
-                                    Capsule().fill(Color.accentColor)
-                                }
+                                .background(Capsule().fill(Color.accentColor))
                         }
                         .buttonStyle(.plain)
                     }
@@ -207,7 +205,7 @@ private struct TerraInstancesView: View {
                 }
                 .padding(20)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Instances")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -233,11 +231,9 @@ private struct TerraInstancesView: View {
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(instance.isSelected ? .white : Color.accentColor)
                     .frame(width: 48, height: 48)
-                    .background {
-                        RoundedRectangle(cornerRadius: 15).fill(
-                            instance.isSelected ? Color.accentColor : Color.accentColor.opacity(0.12)
-                        )
-                    }
+                    .background(RoundedRectangle(cornerRadius: 15).fill(
+                        instance.isSelected ? Color.accentColor : Color.accentColor.opacity(0.12)
+                    ))
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
@@ -249,9 +245,7 @@ private struct TerraInstancesView: View {
                                 .font(.system(size: 9, weight: .bold))
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 4)
-                                .background {
-                                    Capsule().fill(Color.accentColor.opacity(0.15))
-                                }
+                                .background(Capsule().fill(Color.accentColor.opacity(0.15)))
                         }
                     }
                     Text(instance.version)
@@ -266,9 +260,7 @@ private struct TerraInstancesView: View {
                         .font(.headline)
                         .foregroundColor(.secondary)
                         .frame(width: 34, height: 34)
-                        .background {
-                            Circle().fill(Color.primary.opacity(0.06))
-                        }
+                        .background(Circle().fill(Color.primary.opacity(0.06)))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Edit \(instance.id)")
@@ -292,9 +284,7 @@ private struct TerraInstancesView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 40)
                         .foregroundColor(.white)
-                        .background {
-                            RoundedRectangle(cornerRadius: 12).fill(Color.accentColor)
-                        }
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.accentColor))
                 }
                 .buttonStyle(.plain)
 
@@ -305,22 +295,16 @@ private struct TerraInstancesView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 40)
                         .foregroundColor(Color.accentColor)
-                        .background {
-                            RoundedRectangle(cornerRadius: 12).fill(Color.accentColor.opacity(0.10))
-                        }
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.accentColor.opacity(0.10)))
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(17)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            cardBackground
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-        }
+        .background(cardBackground)
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .stroke(Color.primary.opacity(0.06), lineWidth: 1))
     }
 
     @ViewBuilder
@@ -329,7 +313,7 @@ private struct TerraInstancesView: View {
         if #available(iOS 15.0, *) {
             shape.fill(.regularMaterial)
         } else {
-            shape.fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.96))
+            shape.fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.96))
         }
     }
 }

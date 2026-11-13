@@ -94,9 +94,7 @@ private struct TerraSettingsView: View {
                                     .font(.system(size: 19, weight: .semibold))
                                     .foregroundColor(category.tint)
                                     .frame(width: 46, height: 46)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 14).fill(category.tint.opacity(0.14))
-                                    }
+                                    .background(RoundedRectangle(cornerRadius: 14).fill(category.tint.opacity(0.14)))
 
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(category.title)
@@ -114,20 +112,16 @@ private struct TerraSettingsView: View {
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
-                            .background {
-                                cardBackground
-                            }
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-                            }
+                            .background(cardBackground)
+                            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .stroke(Color.primary.opacity(0.06), lineWidth: 1))
                         }
                         .buttonStyle(.plain)
                     }
                 }
                 .padding(20)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
         }
@@ -139,7 +133,7 @@ private struct TerraSettingsView: View {
         if #available(iOS 15.0, *) {
             shape.fill(.regularMaterial)
         } else {
-            shape.fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.96))
+            shape.fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.96))
         }
     }
 }

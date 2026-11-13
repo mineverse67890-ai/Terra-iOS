@@ -179,7 +179,7 @@ private struct LauncherDashboardView: View {
                 .frame(maxWidth: 980)
                 .frame(maxWidth: .infinity)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Terra-iOS")
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -195,9 +195,7 @@ private struct LauncherDashboardView: View {
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.white)
                     .frame(width: 50, height: 50)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.16))
-                    }
+                    .background(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.16)))
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Minecraft")
@@ -216,9 +214,7 @@ private struct LauncherDashboardView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(width: 42, height: 42)
-                        .background {
-                            Circle().fill(Color.white.opacity(0.16))
-                        }
+                        .background(Circle().fill(Color.white.opacity(0.16)))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Settings")
@@ -240,16 +236,14 @@ private struct LauncherDashboardView: View {
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background {
-                    RoundedRectangle(cornerRadius: 16).fill(Color.white)
-                }
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
             }
             .buttonStyle(.plain)
             .disabled(!model.launchEnabled)
             .opacity(model.launchEnabled ? 1 : 0.58)
         }
         .padding(18)
-        .background {
+        .background(
             RoundedRectangle(cornerRadius: 26, style: .continuous).fill(
                 LinearGradient(
                     colors: [
@@ -260,11 +254,11 @@ private struct LauncherDashboardView: View {
                     endPoint: .bottomTrailing
                 )
             )
-        }
-        .overlay {
+        )
+        .overlay(
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .stroke(Color.white.opacity(0.20), lineWidth: 1)
-        }
+        )
         .shadow(color: .black.opacity(0.12), radius: 14, x: 0, y: 6)
     }
 
@@ -277,9 +271,7 @@ private struct LauncherDashboardView: View {
                     .font(.system(size: 19, weight: .semibold))
                     .foregroundColor(action.tint)
                     .frame(width: 42, height: 42)
-                    .background {
-                        RoundedRectangle(cornerRadius: 14).fill(action.tint.opacity(0.14))
-                    }
+                    .background(RoundedRectangle(cornerRadius: 14).fill(action.tint.opacity(0.14)))
                 VStack(alignment: .leading, spacing: 4) {
                     Text(action.title)
                         .font(.subheadline.weight(.bold))
@@ -307,9 +299,7 @@ private struct LauncherDashboardView: View {
                         .font(.system(size: 19, weight: .semibold))
                         .foregroundColor(model.optimizationState == 2 ? .green : .orange)
                         .frame(width: 42, height: 42)
-                        .background {
-                            RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.14))
-                        }
+                        .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.14)))
                     Spacer(minLength: 0)
                     if model.optimizationState == 1 {
                         ProgressView(value: model.optimizationProgress)
@@ -348,9 +338,7 @@ private struct LauncherDashboardView: View {
                     .font(.system(size: 19, weight: .semibold))
                     .foregroundColor(.secondary)
                     .frame(width: 42, height: 42)
-                    .background {
-                        RoundedRectangle(cornerRadius: 14).fill(Color.primary.opacity(0.07))
-                    }
+                    .background(RoundedRectangle(cornerRadius: 14).fill(Color.primary.opacity(0.07)))
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Settings")
                         .font(.subheadline.weight(.bold))
@@ -390,7 +378,7 @@ private struct LauncherDashboardView: View {
         if #available(iOS 15.0, *) {
             shape.fill(.regularMaterial)
         } else {
-            shape.fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.96))
+            shape.fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.96))
         }
     }
 
