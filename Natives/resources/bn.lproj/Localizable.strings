@@ -1,4 +1,4 @@
-"game.menu.log_output" = "লগ আউটপুট";
+"game.menu.log_output" = "Log output";
 
-"game.title.exit_code" = "গেম কোড সহ প্রস্থান করেছে %d";
-"login.option.select" = "আ্যকাউন্ট নির্বাচন করুন";
+"game.title.exit_code" = "Game exited with code %d";
+"login.option.select" = "Select account";

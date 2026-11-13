@@ -3,54 +3,54 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Paksa tutup";
+"game.menu.force_close" = "Force Close";
 "game.menu.log_output" = "Log output";
-"game.menu.custom_controls" = "Kawalan custom";
+"game.menu.custom_controls" = "Custom controls";
 
 // The play button
-"Play" = "Main";
-"Snapshot" = "Petikan";
-"Old-beta" = "Beta-lama";
-"Old-alpha" = "Alfa-lama";
-"Edit" = "Sunting";
-"Remove" = "Hapus";
+"Play" = "Play";
+"Snapshot" = "Snapshot";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Nama";
-"custom_controls.button_edit.size" = "Saiz";
-"custom_controls.button_edit.mapping" = "Pemetaan";
-"custom_controls.button_edit.orientation" = "Orientasi";
-"custom_controls.button_edit.toggleable" = "Boleh Ditukar";
-"custom_controls.button_edit.bg_color" = "Warna Latar Belakang";
-"custom_controls.control_menu.exit" = "Keluar";
-"custom_controls.control_menu.save" = "Simpan";
-"custom_controls.control_menu.load" = "Memuat";
-"custom_controls.control_menu.add_button" = "Tambah butang";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "Kawalan custom";
-"launcher.menu.install_jar" = "Pasang .jar";
-"login.option.select" = "Pilih akaun";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.select" = "Select account";
 
-"News" = "Berita";
-"Settings" = "Tetapan";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.section.general" = "Tetapan Umum";
-"preference.section.video" = "Tetapan Video";
-"preference.section.debug" = "Tetapan UI Penyahpepijat";
-"preference.section.footer.debug" = "Selain daripada nyahpepijat, tetapan ini mungkin berguna untuk kawalan tersuai. Anda mungkin perlu memulakan semula pelancar untuk perubahan berkuat kuasa.";
+"preference.section.general" = "General Settings";
+"preference.section.video" = "Video and Audio Settings";
+"preference.section.debug" = "UI Debugging settings";
+"preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
 //"preference.section.footer.java" = "";
 
-"preference.title.confirm" = "Adakah anda pasti?";
+"preference.title.confirm" = "Are you sure?";
 
-"preference.title.game_directory" = "Direktori permainan";
-"preference.title.cosmetica" = "Mantel Cosmetica";
-"preference.detail.debug_logging" = "Mengelog tetapan dan tindakan dalaman ke latestlog.txt. Ini membantu pembangun mencari isu dengan lebih mudah, tetapi Minecraft mungkin berjalan lebih perlahan kerana log akan ditulis dengan lebih kerap.";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.detail.debug_logging" = "Logs internal settings and actions to latestlog.txt. This helps the developers find issues easier, but Minecraft may run slower as the logs will be written to more often.";
 
-"preference.title.reset_settings" = "Tetapkan semula semua tetapan";
-"preference.title.confirm.reset_settings" = "Ini akan mengalih keluar semua pilihan tersuai anda, termasuk resolusi, saiz butang dan argumen Java.";
-"preference.title.done.reset_settings" = "Semua tetapan lalai telah dipulihkan.";
+"preference.title.reset_settings" = "Reset all settings";
+"preference.title.confirm.reset_settings" = "This will remove all of your custom preferences, including resolution, button size, and Java arguments.";
+"preference.title.done.reset_settings" = "All of the default settings have been restored.";
 
 "preference.title.renderer" = "Renderer";
 "preference.title.java_args" = "JVM Launch arguments";
 "preference.title.auto_ram" = "Auto RAM";
-"preference.detail.auto_ram" = "Membenarkan pelaras RAM automatik";
-"preference.detail.allocated_memory" = "Mengawal berapa banyak memori yang diberikan kepada Minecraft";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";

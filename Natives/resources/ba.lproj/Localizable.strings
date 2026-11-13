@@ -1,21 +1,21 @@
-"game.menu.log_output" = "Журнал";
+"game.menu.log_output" = "Log output";
 
 // The play button
-"Play" = "Уйнарға";
-"Snapshot" = "Снапшотттар";
-"Old-beta" = "Иҫке беталар";
-"Old-alpha" = "Иҫке альфалар";
-"Edit" = "Үҙгәртергә";
-"Remove" = "Юйырға";
+"Play" = "Play";
+"Snapshot" = "Snapshot";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Исем";
-"custom_controls.control_menu.exit" = "Сығырға";
-"custom_controls.control_menu.save" = "Һаҡларға";
-"custom_controls.control_menu.load" = "Йөкләү";
-"custom_controls.control_menu.add_button" = "Төймәне булдырырға";
-"login.option.select" = "Хисап яҙмалар";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
+"login.option.select" = "Select account";
 
-"News" = "Яңылыҡтар";
-"Settings" = "Көйләүҙәр";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.title.renderer" = "Рендерер";
+"preference.title.renderer" = "Renderer";

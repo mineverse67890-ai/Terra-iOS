@@ -3,49 +3,49 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Vynútené ukončenie";
-"game.menu.log_output" = "Záznam výstupu";
-"game.menu.custom_controls" = "Vlastné ovládacie prvky";
+"game.menu.force_close" = "Force Close";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
 // The play button
-"Play" = "Hrať";
+"Play" = "Play";
 "Snapshot" = "Snapshot";
-"Old-beta" = "Stará beta";
-"Old-alpha" = "Stará alfa";
-"Edit" = "Upraviť";
-"Remove" = "Odstrániť";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Názov";
-"custom_controls.button_edit.size" = "Veľkosť";
-"custom_controls.button_edit.mapping" = "Priradenie ku klávese (bind)";
-"custom_controls.button_edit.orientation" = "Orientácia";
-"custom_controls.button_edit.toggleable" = "Prepnuteľné (toggle) - po ťuknutí klávesa ostane stlačená";
-"custom_controls.button_edit.swipeable" = "Posunovateľné";
-"custom_controls.button_edit.bg_color" = "Farba pozadia tlačidla";
-"custom_controls.button_edit.stroke_color" = "Farba obrysu tlačidla";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
 
-"custom_controls.button_menu.add_subbutton" = "Pridať podtlačidlo";
-"custom_controls.control_menu.exit" = "Skončiť";
-"custom_controls.control_menu.save" = "Uložiť";
-"custom_controls.control_menu.load" = "Načítať";
-"custom_controls.control_menu.add_button" = "Pridať tlačidlo";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "Vlastné ovládacie prvky";
-"launcher.menu.install_jar" = "Inštalovať .jar";
-"login.option.add" = "Pridať účet";
-"login.option.select" = "Vybrať účet";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
 
-"News" = "Novinky";
-"Settings" = "Nastavenie";
-"preference.section.control" = "Ovládanie";
+"News" = "News";
+"Settings" = "Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Nastavenia Javy";
+"preference.section.java" = "Java Tweaks";
 
-"preference.title.game_directory" = "Zložka hry";
-"preference.title.cosmetica" = "Cosmetica Capeky";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
 
 "preference.title.renderer" = "Renderer";
-"preference.title.java_args" = "Spúštacie argumenty pre JVM";
+"preference.title.java_args" = "JVM Launch arguments";
 "preference.title.auto_ram" = "Auto RAM";
-"preference.detail.auto_ram" = "Automaticky bude meniť množstvo RAM";
-"preference.detail.allocated_memory" = "Určite, koľko pamäti bude mať Minecraft";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";

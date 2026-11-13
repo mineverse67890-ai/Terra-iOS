@@ -3,177 +3,177 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Wymuś zamknięcie";
-"game.menu.confirm.force_close" = "Czy na pewno chcesz wymusić zamknięcie?";
-"game.menu.log_output" = "Wyjście danych";
-"game.menu.custom_controls" = "Sterowanie";
+"game.menu.force_close" = "Force Close";
+"game.menu.confirm.force_close" = "Are you sure you want to force close?";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
-"game.note.airplay" = "Minecraft jest wyświetlany na ekranie lustrzanym AirPlay";
+"game.note.airplay" = "Minecraft is being displayed in AirPlay mirrored display";
 
-"game.title.exit_code" = "Gra została zakończona z kodem %d";
+"game.title.exit_code" = "Game exited with code %d";
 
 // The play button
-"Play" = "Graj";
+"Play" = "Play";
 
 // Version categories
-"Installed" = "Zainstalowane";
-"Snapshot" = "Wersja deweloperska";
-"Releases" = "Wydania";
-"Old-beta" = "Dawna Beta";
-"Old-alpha" = "Dawna Alpha";
+"Installed" = "Installed";
+"Snapshot" = "Snapshot";
+"Releases" = "Releases";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "Kopiuj";
-"Edit" = "Edytuj";
-"Move" = "Przenieś";
-"Remove" = "Usuń";
-"Resize" = "Zmień rozmiar";
+"Copy" = "Copy";
+"Edit" = "Edit";
+"Move" = "Move";
+"Remove" = "Remove";
+"Resize" = "Resize";
 
-"custom_controls.button_edit.name" = "Nazwa";
-"custom_controls.button_edit.size" = "Rozmiar";
-"custom_controls.button_edit.mapping" = "Mapowanie";
-"custom_controls.button_edit.orientation" = "Orientacja";
-"custom_controls.button_edit.toggleable" = "Aktywowane";
-"custom_controls.button_edit.mouse_pass" = "Przejście myszy";
-"custom_controls.button_edit.swipeable" = "Przesuwalny";
-"custom_controls.button_edit.bg_color" = "Kolor tła";
-"custom_controls.button_edit.stroke_width" = "Szerokość obrysu (%)";
-"custom_controls.button_edit.stroke_color" = "Kolor obrysu";
-"custom_controls.button_edit.corner_radius" = "Zaokrąglenie narożników (%)";
-"custom_controls.button_edit.opacity" = "Przezroczystość (%)";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.mouse_pass" = "Mouse pass";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_width" = "Stroke width (dp)";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
+"custom_controls.button_edit.corner_radius" = "Corner radius (%)";
+"custom_controls.button_edit.opacity" = "Opacity (%):";
 
-"custom_controls.button_menu.add_subbutton" = "Dodaj przycisk podrzędny";
-"custom_controls.control_menu.discard_changes" = "Odrzuć zmiany";
-"custom_controls.control_menu.exit" = "Wyjdź";
-"custom_controls.control_menu.exit.warn" = "Zamierzasz wyjść bez zapisywania zmian.";
-"custom_controls.control_menu.save" = "Zapisz";
-"custom_controls.control_menu.save.error.default" = "Nazwa kontrolna nie może być \"default\", ponieważ zostanie nadpisana.";
-"custom_controls.control_menu.save.error.json" = "Błąd JSON";
-"custom_controls.control_menu.save.error.write" = "Błąd zapisu pliku";
-"custom_controls.control_menu.load" = "Wczytaj";
-"custom_controls.control_menu.make_default" = "Ustaw jako domyślne";
-"custom_controls.control_menu.safe_area" = "Bezpieczna Strefa";
-"custom_controls.control_menu.add_button" = "Dodaj przycisk";
-"custom_controls.control_menu.add_drawer" = "Dodaj listę";
-"custom_controls.hint" = "Naciśnij i przytrzymaj gdziekolwiek na ekranie, aby uzyskać więcej opcji";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.discard_changes" = "Discard changes";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.exit.warn" = "You are about to exit without saving changes.";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.save.error.default" = "The control name cannot be \"default\" because it cannot be changed.";
+"custom_controls.control_menu.save.error.json" = "JSON error";
+"custom_controls.control_menu.save.error.write" = "Error saving file";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.make_default" = "Make default";
+"custom_controls.control_menu.safe_area" = "Safe area";
+"custom_controls.control_menu.add_button" = "Add button";
+"custom_controls.control_menu.add_drawer" = "Add drawer";
+"custom_controls.hint" = "Long-press anywhere on screen for more options";
 
-"init.migrateDir" = "Katalogiem danych Amethyst jest teraz %@. Wszystkie istniejące dane zostały przeniesione do nowej lokalizacji.";
+"init.migrateDir" = "The Amethyst data directory is now %@. All of your existing data has been moved to the new location.";
 
-"launcher.menu.custom_controls" = "Sterowanie";
-"launcher.menu.install_jar" = "Zainstaluj .jar";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
 
-"launcher.wait_jit.title" = "Czekam na JIT";
-"launcher.wait_jit.message" = "Amethyst opiera się na kompilacji Just-in-time, aby Java działała z maksymalną wydajnością.";
+"launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
+"launcher.wait_jit.message" = "Amethyst relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 
-"login.error.username.outOfRange" = "Nazwa użytkownika musi zawierać od 3 do 16 znaków";
+"login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 
-"login.alert.field.username" = "Nazwa użytkownika";
+"login.alert.field.username" = "Username";
 
-"login.jit.checking" = "Sprawdzanie JIT";
-"login.jit.enabled" = "JIT zostało włączone";
+"login.jit.checking" = "Checking for JIT";
+"login.jit.enabled" = "JIT has been enabled";
 
 // Login buttons
-"login.menu.sendlogs" = "Prześlij swój rejestr";
-"login.option.add" = "Dodaj konto";
-"login.option.select" = "Wybierz konto";
-"login.option.microsoft" = "Konto Microsoft";
-"login.option.local" = "Konto lokalne";
-"login.warn.message.demomode" = "Jak zamiennik dla trybu offline oraz lokalnego, tryb demo umożliwia logowanie na Konto Microsoft, które nie posiada gry i umożliwia granie w wersję próbną Java Edition wprowadzoną w wersji 1.3.1 oraz nowszych. Starsze wersje zawierają pełną wersję gry, ponieważ oficjalny launcher nie wymusza tych ograniczeń. Sprawdź naszą stronę internetową, aby dowiedzieć się więcej o przejściu z trybu offline.";
+"login.menu.sendlogs" = "Send your logs";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
+"login.option.microsoft" = "Microsoft account";
+"login.option.local" = "Local account";
+"login.warn.message.demomode" = "As a replacement to offline and local mode, demo mode will allow you to sign into a Microsoft account that does not own the game and play the Java Edition trial, introduced in 1.3.1 and newer versions. Older versions contain the full game, as the official launcher does not place these restrictions. See our website to learn more about this transition from offline mode.";
 
-"login.warn.title.localmode" = "Tryb offline to teraz Tryb lokalny.";
+"login.warn.title.localmode" = "About Local Mode";
 
-"login.msa.error.xsts.noxboxacc" = "Profil Xbox nie został zarejestrowany dla tego Konta Microsoft. Upewnij się, że profil Xbox został utworzony.\nKod błędu: 2148916233";
-"login.msa.error.xsts.noxbox" = "Xbox Live nie jest obecnie dostępne w Twoim kraju.\nKod błędu: 2148916235";
-"login.msa.error.xsts.krverify" = "Twoje konto musi zostać zweryfikowane przez Twoich rodziców przed kontynuowaniem.\nKod błędu: 2148916236 lub 2148916237.";
-"login.msa.error.xsts.underage" = "Twoje konto musi zostać połączone z kontem rodzica przed kontynuowaniem.\nKod błędu: 2148916238";
+"login.msa.error.xsts.noxboxacc" = "An Xbox profile is not registered for this Microsoft account. Please make sure that you have made an Xbox profile.\nError code: 2148916233";
+"login.msa.error.xsts.noxbox" = "Xbox Live is currently unavailable in your country.\nError code: 2148916235";
+"login.msa.error.xsts.krverify" = "Your account needs to be verified by your parents before you can continue.\nError code: 2148916236 or 2148916237";
+"login.msa.error.xsts.underage" = "Your account needs to be linked to a parent account before you can continue.\nError code: 2148916238";
 
-"login.msa.progress.acquireAccessToken" = "(1/5) Wczytywanie klucza dostępu";
-"login.msa.progress.acquireXBLToken" = "(2/5) Wczytywanie klucza Xbox Live";
-"login.msa.progress.acquireXSTS" = "Uzyskiwanie XSTS";
-"login.msa.progress.acquireXboxProfile" = "(3/5) Wczytywanie profilu Xbox";
-"login.msa.progress.acquireMCToken" = "(4/5) Wczytywanie klucza Minecraft";
-"login.msa.progress.checkMCProfile" = "(5/5) Sprawdzanie profilu Minecraft";
+"login.msa.progress.acquireAccessToken" = "(1/6) Acquiring the Access token";
+"login.msa.progress.acquireXBLToken" = "(2/6) Acquiring the Xbox Live token";
+"login.msa.progress.acquireXSTS" = "(3/6) Acquiring XSTS";
+"login.msa.progress.acquireXboxProfile" = "(4/6) Acquiring the Xbox profile";
+"login.msa.progress.acquireMCToken" = "(5/6) Acquiring the Minecraft token";
+"login.msa.progress.checkMCProfile" = "(6/6) Checking the Minecraft profile";
 
-"News" = "Aktualności";
-"Settings" = "Ustawienia";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.section.general" = "Ogólne ustawienia";
-"preference.section.video" = "Ustawienia grafiki";
-"preference.section.control" = "Sterowanie";
-"preference.section.debug" = "Ustawienia debugowania interfejsu";
-"preference.section.footer.debug" = "Poza debugowaniem, te ustawienia mogą być przydatne dp ustawień sterowania. Może być wymagane ponowne uruchomienie programu, aby zmiany zostały wprowadzone.";
+"preference.section.general" = "General Settings";
+"preference.section.video" = "Video and Audio Settings";
+"preference.section.control" = "Control customization";
+"preference.section.debug" = "UI Debugging settings";
+"preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Konfiguracja Java";
+"preference.section.java" = "Java Tweaks";
 //"preference.section.footer.java" = "";
 
-"preference.title.confirm" = "Czy na pewno?";
+"preference.title.confirm" = "Are you sure?";
 
-"preference.title.game_directory" = "Katalog gry";
-"preference.title.confirm.delete_game_directory" = "Instancja %@ zostanie trwale usunięta i nie będzie można jej przywrócić.";
-"preference.multidir.add_directory" = "dodaj katalog gry";
+"preference.title.game_directory" = "Game directory";
+"preference.title.confirm.delete_game_directory" = "The instance %@ will be deleted forever and cannot be restored.";
+"preference.multidir.add_directory" = "Add game directory";
 
-"preference.title.check_sha" = "Sprawdź pliki po pobraniu";
-"preference.detail.check_sha" = "Ta opcja wymusza sprawdzanie sumy kontrolnej pliku, jeśli jest dostępna. Zapobiega to uszkodzeniom pobieranych plików.";
-"preference.title.cosmetica" = "Peleryny Cosmetica";
-"preference.detail.cosmetica" = "Włącz peleryny z Cosmetica (wcześniej Arc). Aby uzyskać więcej informacji, odwiedź stronę https://cosmetica.cc. Wymaga OptiFine";
-"preference.title.debug_logging" = "Rejestr debugowania";
-"preference.detail.debug_logging" = "Rejestruje ustawienia wewnętrzne i działania w lastlog.txt. Pomaga to programistom łatwiej znajdować problemy, ale Minecraft może działać wolniej, ponieważ logi będą zapisywane częściej.";
-"preference.title.jitstreamer_server" = "Adres IP serwera JitStreamer";
-"preference.detail.jitstreamer_server" = "Pozwala na zmianę na niestandardowy adres IP serwera JitStreamer, np. dla instancji hostowanych przez siebie. Ta opcja może pozostać sama jeśli używasz domyślnych serwerów JitStreamer.";
-"preference.title.appicon" = "Ustaw ikonę aplikacji";
-"preference.detail.appicon" = "Pozwala wybrać między różnymi ikonami ekranu głównego dla Amethyst.";
+"preference.title.check_sha" = "Check files after downloading";
+"preference.detail.check_sha" = "This option forces launcher to check the file hash if it's available. Prevents broken downloads.";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.detail.cosmetica" = "Enable capes from Cosmetica (previously Arc). For more information please visit https://cosmetica.cc. Requires OptiFine.";
+"preference.title.debug_logging" = "Debug logging";
+"preference.detail.debug_logging" = "Logs internal settings and actions to latestlog.txt. This helps the developers find issues easier, but Minecraft may run slower as the logs will be written to more often.";
+"preference.title.jitstreamer_server" = "The server address of JitStreamer";
+"preference.detail.jitstreamer_server" = "This option gives custom access to JitStreamer servers for JIT addresses.";
+"preference.title.appicon" = "Set app icon";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
 
-"preference.title.reset_warnings" = "Wyzeruj wszystkie ostrzeżenia";
-"preference.title.done.reset_warnings" = "Wszystkie ostrzeżenia zostały wyzerowane.";
+"preference.title.reset_warnings" = "Reset all warnings";
+"preference.title.done.reset_warnings" = "All warnings have been reset.";
 
-"preference.title.reset_settings" = "Wyzeruj wszystkie ustawienia";
-"preference.title.confirm.reset_settings" = "Spowoduje to usunięcie wszystkich własnych ustawień, w tym rozdzielczości, rozmiar przycisków oraz argumenty Java.";
-"preference.title.done.reset_settings" = "Wszystkie ustawienia zostały wyzerowane.";
+"preference.title.reset_settings" = "Reset all settings";
+"preference.title.confirm.reset_settings" = "This will remove all of your custom preferences, including resolution, button size, and Java arguments.";
+"preference.title.done.reset_settings" = "All of the default settings have been restored.";
 
-"preference.title.renderer" = "Silnik renderujący";
-"preference.title.renderer.debug.gl4es" = "gl4es 1.1.4 - eksportuje OpenGL 2.1";
-"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - eksportuje OpenGL 4.1";
+"preference.title.renderer" = "Renderer";
+"preference.title.renderer.debug.gl4es" = "holy gl4es - exports OpenGL 2.1";
+"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - exports OpenGL 4.1";
 
-"preference.detail.renderer" = "Zmień używany silnik renderujący OpenGL";
+"preference.detail.renderer" = "Change the OpenGL render engine to use. Zink is temporarily disabled on iOS 16 and later to diagnose issues.";
 
-"preference.title.resolution" = "Rozdzielczość (%)";
-"preference.detail.resolution" = "Umożliwia zmniejszenie rozdzielczości gry.";
-"preference.title.press_duration" = "Czas długiego naciśnięcia (ms)";
-"preference.detail.press_duration" = "Zmieniaj czas trwania prasy dla niszczenia bloków i upuszczania przedmiotów.";
-"preference.title.button_scale" = "Skala przycisków ekranowych (%)";
-"preference.detail.button_scale" = "Zwiększ skalę, jeśli przyciski są zbyt małe, zazwyczaj tak jest w przypadku iPad'ów.";
-"preference.title.mouse_scale" = "Skalowanie myszy (%)";
-"preference.detail.mouse_scale" = "Zmień rozmiar wirtualnej myszy";
-"preference.title.mouse_speed" = "Prędkość myszy (%)";
-"preference.detail.mouse_speed" = "Zmień prędkość wirtualnej myszy";
-"preference.title.virtmouse_enable" = "Wirtualna mysz";
-"preference.detail.virtmouse_enable" = "Aktywuj tę opcję, aby uruchamiać z włączoną wirtualną myszą";
-"preference.title.slideable_hotbar" = "Przesuwalny pasek narzędzi";
-"preference.detail.slideable_hotbar" = "Spraw, aby pasek skrótów był przesuwany jak kółko myszy";
+"preference.title.resolution" = "Resolution (%)";
+"preference.detail.resolution" = "Allows you to decrease the game resolution.";
+"preference.title.press_duration" = "Long-press duration (ms)";
+"preference.detail.press_duration" = "Trigger press duration for destroying blocks and dropping items.";
+"preference.title.button_scale" = "On-screen button scale (%)";
+"preference.detail.button_scale" = "Upscale them if buttons are too small, usually needed for iPad users.";
+"preference.title.mouse_scale" = "Mouse scaling (%)";
+"preference.detail.mouse_scale" = "Change the size of the virtual mouse";
+"preference.title.mouse_speed" = "Mouse speed (%)";
+"preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
+"preference.title.virtmouse_enable" = "Virtual mouse";
+"preference.detail.virtmouse_enable" = "Enable this option to start with virtual mouse on";
+"preference.title.slideable_hotbar" = "Slideable hotbar";
+"preference.detail.slideable_hotbar" = "Make the hotbar slideable like the mouse wheel";
 
-"preference.title.gyroscope_enable" = "Włącz sterowanie żyroskopem";
-"preference.title.gyroscope_sensitivity" = "Czułość sterowania żyroskopem";
-"preference.detail.gyroscope_sensitivity" = "Dostosuj czułość sterowania żyroskopem";
+"preference.title.gyroscope_enable" = "Enable gyroscope controls";
+"preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
+"preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
 
-"preference.title.java_home" = "Użyj Java 17 dla Minecraft < 1.17";
-"preference.title.java_args" = "Argumenty uruchomienia JVM";
-"preference.placeholder.java_args" = "Określ argumenty...";
-"preference.title.auto_ram" = "Automatyczny RAM";
-"preference.detail.auto_ram" = "Włącza automatyczny przydział pamięci RAM";
-"preference.warn.auto_ram" = "Wyłączenie tej opcji na urządzeniach bez jailbreak może doprowadzić do niestabilności po dostosowaniu. Zachowaj ostrożność.";
-"preference.title.allocated_memory" = "Przydział pamięci (MB)";
-"preference.detail.allocated_memory" = "Kontroluje ilość pamięci przydzielonej Minecraft";
-"preference.warn.allocated_memory" = "Ze względu na ograniczenia samego systemu operacyjnego, ta opcja może powodować niestabilność przy tej i wyższych wartościach. Zachowaj ostrożność.";
-"preference.title.custom_env" = "Zmienne środowiskowe";
+"preference.title.java_home" = "Use Java 17 for Minecraft < 1.17";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.placeholder.java_args" = "Specify arguments...";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
+"preference.title.allocated_memory" = "Memory allocation (MB)";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"preference.warn.allocated_memory" = "Due to limitations in the operating system itself, this option may cause instability at this and higher values. Proceed with caution.";
+"preference.title.custom_env" = "Environment variables";
 
-"preference.title.debug_skip_wait_jit" = "Pomiń okno dialogowe \"Oczekiwanie na JIT\"";
-"preference.detail.debug_skip_wait_jit" = "To nie pozwala na uruchamianie bez JIT, zamiast tego pomija kontrolę debugera, ponieważ sprawdzenie nie powiodło się na niektórych więzieniach.";
-"preference.title.debug_ipad_ui" = "Odblokuj interfejs iPadOS";
-"preference.detail.debug_ipad_ui" = "Odblokuj interfejs użytkownika wyłącznie dla iPada (alarm, klawiatura itp.), jeśli jest włączony, lub interfejs iPhone'a, jeśli jest wyłączony.";
-"preference.title.debug_auto_correction" = "Auto-korekta";
-"preference.detail.debug_auto_correction" = "Włącz automatyczną korektę podczas wpisywania tekstu w grze.";
-"preference.title.debug_show_layout_bounds" = "Pokaż granice układu";
-"preference.detail.debug_show_layout_bounds" = "Pokaż granice klipów, marginesy";
-"preference.title.debug_show_layout_overlap" = "Pokaż nakładające się układy";
-"preference.detail.debug_show_layout_overlap" = "Nakładaj każdy widok przezroczystym kolorem, aby odsłonić nakładające się widoki.";
-"controller_configurator.playstation.title.named_back" = "Wybierz";
+"preference.title.debug_skip_wait_jit" = "Skip \"Waiting for JIT\" dialog";
+"preference.detail.debug_skip_wait_jit" = "This does not allow you to launch without JIT, instead this skips debugger check, because check fails on certain jailbreaks.";
+"preference.title.debug_ipad_ui" = "Unlock iPadOS UI";
+"preference.detail.debug_ipad_ui" = "Unlock iPad-exclusive UI (alert, keyboard, etc.) if enabled or iPhone UI if disabled.";
+"preference.title.debug_auto_correction" = "Auto correction";
+"preference.detail.debug_auto_correction" = "Enable auto correction when typing text in game.";
+"preference.title.debug_show_layout_bounds" = "Show Border Layout";
+"preference.detail.debug_show_layout_bounds" = "Show Clip Borders, Margins";
+"preference.title.debug_show_layout_overlap" = "Layout Overlay Display";
+"preference.detail.debug_show_layout_overlap" = "Override each view with light yellow colors, the deeper the color will overlay";
+"controller_configurator.playstation.title.named_back" = "Select";

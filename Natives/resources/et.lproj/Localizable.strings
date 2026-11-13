@@ -3,70 +3,70 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Sundsulge";
-"game.menu.log_output" = "Logiväljund";
-"game.menu.custom_controls" = "Kohandatud juhtnupud";
+"game.menu.force_close" = "Force Close";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
 // The play button
-"Play" = "Mängi";
-"Snapshot" = "Katsetus";
-"Old-beta" = "Vana beeta";
-"Old-alpha" = "Vana alfa";
+"Play" = "Play";
+"Snapshot" = "Snapshot";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "Kopeeri";
-"Edit" = "Muuda";
-"Move" = "Liiguta";
-"Remove" = "Eemalda";
+"Copy" = "Copy";
+"Edit" = "Edit";
+"Move" = "Move";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Nimi";
-"custom_controls.button_edit.size" = "Suurus";
-"custom_controls.button_edit.mapping" = "Kaardistamine";
-"custom_controls.button_edit.orientation" = "Orientatsioon";
-"custom_controls.button_edit.toggleable" = "Lülitatav";
-"custom_controls.button_edit.swipeable" = "Viibatav";
-"custom_controls.control_menu.discard_changes" = "Tühista muudatused";
-"custom_controls.control_menu.exit" = "Välju";
-"custom_controls.control_menu.save" = "Salvesta";
-"custom_controls.control_menu.load" = "Laadi";
-"custom_controls.control_menu.make_default" = "Määra vaikeväärtuseks";
-"custom_controls.control_menu.safe_area" = "Turvaala";
-"custom_controls.control_menu.add_button" = "Lisa nupp";
-"custom_controls.control_menu.add_drawer" = "Lisa sahtel";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.control_menu.discard_changes" = "Discard changes";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.make_default" = "Make default";
+"custom_controls.control_menu.safe_area" = "Safe area";
+"custom_controls.control_menu.add_button" = "Add button";
+"custom_controls.control_menu.add_drawer" = "Add drawer";
 
-"launcher.menu.custom_controls" = "Kohandatud juhtnupud";
-"launcher.menu.install_jar" = "Paigalda .jar";
-"login.option.add" = "Lisa konto";
-"login.option.select" = "Vali konto";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
 
-"News" = "Uudised";
-"Settings" = "Seaded";
-"preference.section.control" = "Juhtnuppude kohandamine";
+"News" = "News";
+"Settings" = "Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Java trikid";
-"preference.title.cosmetica" = "Cosmetica keebid";
-"preference.title.appicon" = "Määra rakenduse ikoon";
-"preference.detail.appicon" = "Võimaldab valida Amethysti erinevate kodukuvaikoonide vahel.";
-"preference.title.appicon-default" = "Tuttav Amethyst hele";
-"preference.title.appicon-dark" = "Tuttav Amethyst tume";
+"preference.section.java" = "Java Tweaks";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.title.appicon" = "Set app icon";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
+"preference.title.appicon-default" = "Familiar Amethyst light";
+"preference.title.appicon-dark" = "Familiar Amethyst dark";
 
-"preference.title.renderer" = "Renderdaja";
+"preference.title.renderer" = "Renderer";
 
-"preference.title.renderer.debug.auto" = "Autom.: gl4es või ANGLE";
-"preference.title.renderer.debug.gl4es" = "gl4es 1.1.4 - väljastab OpenGL 2.1";
-"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - väljastab OpenGL 3.2 (Core Profile, piiratud)";
-"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - väljastab OpenGL 4.1";
+"preference.title.renderer.debug.auto" = "Auto: gl4es or ANGLE";
+"preference.title.renderer.debug.gl4es" = "holy gl4es - exports OpenGL 2.1";
+"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exports OpenGL 3.2 (Core Profile, limited)";
+"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - exports OpenGL 4.1";
 
-"preference.detail.renderer" = "Vaheta kasutatavat OpenGL renderdusmootorit";
+"preference.detail.renderer" = "Change the OpenGL render engine to use. Zink is temporarily disabled on iOS 16 and later to diagnose issues.";
 
-"preference.title.resolution" = "Eraldusvõime (%)";
+"preference.title.resolution" = "Resolution (%)";
 
-"preference.title.fullscreen_airplay" = "Täisekraanis AirPlay";
-"preference.title.virtmouse_enable" = "Virtuaalne hiir";
-"preference.title.auto_ram" = "Automaatne RAM";
-"preference.title.allocated_memory" = "Mälueraldus (MB)";
-"preference.detail.allocated_memory" = "Juhib, kui palju mälu Minecraftile antakse";
-"preference.title.debug_auto_correction" = "Automaatparandus";
-"preference.detail.debug_auto_correction" = "Lubab mängus teksti kirjutamisel automaatparanduse.";
-"preference.title.debug_hide_home_indicator" = "Peida koduindikaator";
-"preference.detail.debug_hide_home_indicator" = "See keelab koduindikaatori lukustamise. Koduindikaatori samal ajal peitmiseks ja lukustamiseks pead kasutama Guided Access'i.";
+"preference.title.fullscreen_airplay" = "Fullscreen AirPlay";
+"preference.title.virtmouse_enable" = "Virtual mouse";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.title.allocated_memory" = "Memory allocation (MB)";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"preference.title.debug_auto_correction" = "Auto correction";
+"preference.detail.debug_auto_correction" = "Enable auto correction when typing text in game.";
+"preference.title.debug_hide_home_indicator" = "Hide home indicator";
+"preference.detail.debug_hide_home_indicator" = "This will disable home indicator locking. You will need to use Guided Access to hide and lock home indicator at the same time.";

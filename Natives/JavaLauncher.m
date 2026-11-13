@@ -1449,9 +1449,16 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
     NSString *gameDir;
     NSString *defaultJRETag;
     if ([launchTarget isKindOfClass:NSDictionary.class]) {
+        NSString *mcVersionId = [launchTarget[@"id"] description];
+        NSInteger mcMajor = ame98_mcMajorFromVersionId(mcVersionId);
+        if (mcMajor >= 26 && minVersion < 25) {
+            NSLog(@"[JavaLauncher] Minecraft %@ requires Java 25; raising minimum from %d",
+                  mcVersionId, minVersion);
+            minVersion = 25;
+        }
+
         // Get preferred Java version from current profile
-        // 26.x 官方强制要求 Java 25（Mojang 自 26.x 起将 javaVersion.majorVersion 设为 25），
-        // 不再对 preferredJavaVersion 做任何钳制，直接采纳 Profile 指定的 Java 版本。
+        // 26.x 最低运行时由版本 ID 检测强制为 Java 25；profile 中更高版本偏好仍然有效。
         // caciocavallo 三路切换会根据实际 Java 版本选择对应 jar（三个独立文件夹）：
         // - Java 8     → libs_caciocavallo（1.10-SNAPSHOT）
         // - Java 17/21 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译）
@@ -1824,6 +1831,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
     }
     PUSH_MARGV_LITERAL("-Xms128M");
     PUSH_MARGV_FORMAT(@"-Xmx%dM", allocmem);
+    PUSH_MARGV_LITERAL("-XX:+UseG1GC");
+    PUSH_MARGV_LITERAL("-XX:MaxGCPauseMillis=50");
     // library.path: 单一 Frameworks 路径（对齐 Ynnyny 仓库）
     //
     // 关键修复（26.2 启动崩溃）：之前 workspace 将 LWJGL dylib 分裂为 lwjgl33/ 和 lwjgl34/ 子目录，
@@ -2202,28 +2211,9 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
     NSString *libjlipath11 = [NSString stringWithFormat:@"%@/lib/libjli.dylib", javaHome]; // java 11+
     BOOL isJava8 = [fm fileExistsAtPath:libjlipath8];
 
-    // ============================================================================
-    // JVM 性能优化（保守参数，不影响启动稳定性）
-    // ============================================================================
-    // 仅对 Java 17+ 启用 G1GC 调优。Java 8 的 G1GC 不够成熟，保持默认 SerialGC。
-    // 不添加 -XX:+AlwaysPreTouch（延长启动时间）、-XX:TieredStopAtLevel=1（降低 JIT 性能）、
-    // -XX:CICompilerCount=1（减少编译线程）等可能影响游戏体验的参数。
-    // -XX:+UnlockExperimentalVMOptions 已在上方添加，UseStringDeduplication 需要实验模式。
+    // String deduplication is only available on the Java 17+ runtime configurations here.
     if (!isJava8) {
-        // G1GC：Java 9+ 默认 GC，显式启用确保一致性。
-        // 适合大堆内存（MC 通常分配 2-4GB），减少 Full GC 停顿。
-        PUSH_MARGV_LITERAL("-XX:+UseG1GC");
-        // 目标 GC 停顿 50ms（默认 200ms）。
-        // 这是一个软目标，JVM 会尽量满足但不强制，不会导致 OOM。
-        // 对 MC 的实时渲染有益，减少 GC 引起的卡顿。
-        PUSH_MARGV_LITERAL("-XX:MaxGCPauseMillis=50");
-        // 字符串去重：G1GC 特性，自动去重老年代中相同值的 String 对象。
-        // MC 有大量重复字符串（方块名、物品名、I18N key 等），可节省 5-10% 堆内存。
-        // 仅在 G1GC 下生效，开销极小。
         PUSH_MARGV_LITERAL("-XX:+UseStringDeduplication");
-        NSLog(@"[JavaLauncher] JVM GC optimization: G1GC + MaxGCPauseMillis=50 + StringDeduplication (Java 17+)");
-    } else {
-        NSLog(@"[JavaLauncher] Java 8 detected, skipping G1GC tuning (using default GC)");
     }
 
     // Flux 同款内存修复（大整合包生死线）：iOS 上决定整合包能否运行的是进程
@@ -3132,6 +3122,8 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
     PUSH_HARGV_LITERAL("-Djava.awt.headless=true");
     PUSH_HARGV_LITERAL("-Xms64M");
     PUSH_HARGV_LITERAL("-Xmx1G");
+    PUSH_HARGV_LITERAL("-XX:+UseG1GC");
+    PUSH_HARGV_LITERAL("-XX:MaxGCPauseMillis=50");
     PUSH_HARGV_FORMAT(@"-Djava.library.path=%@/Frameworks", NSBundle.mainBundle.bundlePath);
     PUSH_HARGV_FORMAT(@"-Duser.dir=%@", gameDir);
     PUSH_HARGV_FORMAT(@"-Duser.home=%@", procHome);

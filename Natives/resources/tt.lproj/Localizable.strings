@@ -3,69 +3,69 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Мәҗбүри ябу";
-"game.menu.log_output" = "Журнал";
-"game.menu.custom_controls" = "Көйләнелгән идарә";
+"game.menu.force_close" = "Force Close";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
-"game.title.exit_code" = "Уен %d код белән сафтан чыкты";
+"game.title.exit_code" = "Game exited with code %d";
 
 // The play button
-"Play" = "Уйнарга";
+"Play" = "Play";
 
 // Version categories
-"Installed" = "Утыртылган";
-"Snapshot" = "Снапшотлар";
-"Old-beta" = "Иске бета";
-"Old-alpha" = "Иске альфа";
+"Installed" = "Installed";
+"Snapshot" = "Snapshot";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "Күчереп алу";
-"Edit" = "Үзгәртү";
-"Remove" = "Бетерү";
+"Copy" = "Copy";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Исем";
-"custom_controls.button_edit.size" = "Зурлык";
-"custom_controls.button_edit.mapping" = "Төймәләр";
-"custom_controls.button_edit.bg_color" = "Фон төсе";
-"custom_controls.button_edit.stroke_color" = "Кыршау төсе";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
 
-"custom_controls.button_menu.add_subbutton" = "Төймәчәне өстәү";
-"custom_controls.control_menu.exit" = "Чыгу";
-"custom_controls.control_menu.save" = "Сакларга";
-"custom_controls.control_menu.load" = "Йөкләү";
-"custom_controls.control_menu.safe_area" = "Имин өлкә";
-"custom_controls.control_menu.add_button" = "Төймәне булдырырга";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.safe_area" = "Safe area";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "Көйләнелгән идарә";
-"launcher.menu.install_jar" = ".jar-файлны урнату";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
 
-"login.alert.field.username" = "Кулланучының исеме";
-"login.option.add" = "Аккаунт өстәү";
-"login.option.select" = "Аккаунтлар";
-"login.option.microsoft" = "Microsoft аккаунты";
-"login.option.local" = "Локаль аккаунт";
+"login.alert.field.username" = "Username";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
+"login.option.microsoft" = "Microsoft account";
+"login.option.local" = "Local account";
 
-"login.warn.title.localmode" = "Хәзер «Офлайн шарт» «Локаль шарт» дип аталды.";
+"login.warn.title.localmode" = "About Local Mode";
 
-"News" = "Яңалыклар";
-"Settings" = "Көйләүләр";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.section.general" = "Төп көйләүләр";
-"preference.section.control" = "Идарә элементлары";
+"preference.section.general" = "General Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Java төзәтмәләре";
+"preference.section.java" = "Java Tweaks";
 //"preference.section.footer.java" = "";
 
-"preference.title.confirm" = "Сез чыннан да телисезме?";
+"preference.title.confirm" = "Are you sure?";
 
-"preference.title.game_directory" = "Уен папкасы";
-"preference.title.cosmetica" = "Cosmetica япмалары";
-"preference.title.jitstreamer_server" = "JitStreamer серверының IP";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.title.jitstreamer_server" = "The server address of JitStreamer";
 
-"preference.title.renderer" = "Күрсәткеч";
+"preference.title.renderer" = "Renderer";
 
-"preference.title.resolution" = "Ачыклык (%)";
-"preference.title.virtmouse_enable" = "Виртуаль тычкан";
-"preference.title.java_args" = "JVM кушу аргументлары";
-"preference.title.auto_ram" = "Автоматик тиз хәтер билгеләү";
-"controller_configurator.playstation.title.named_back" = "Сайлау";
+"preference.title.resolution" = "Resolution (%)";
+"preference.title.virtmouse_enable" = "Virtual mouse";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.title.auto_ram" = "Auto RAM";
+"controller_configurator.playstation.title.named_back" = "Select";

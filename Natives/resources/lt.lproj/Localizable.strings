@@ -3,49 +3,49 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Priverstinai išjungti";
-"game.menu.log_output" = "Žurnalo įrašai";
-"game.menu.custom_controls" = "Kontrolės";
+"game.menu.force_close" = "Force Close";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
 // The play button
-"Play" = "Žaisti";
-"Snapshot" = "Naujinimai";
-"Old-beta" = "Beta";
-"Old-alpha" = "Alpha";
-"Edit" = "Redaguoti";
-"Remove" = "Pašalinti";
+"Play" = "Play";
+"Snapshot" = "Snapshot";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Pavadinimas";
-"custom_controls.button_edit.size" = "Dydis";
-"custom_controls.button_edit.mapping" = "Mygtukų sąrašas";
-"custom_controls.button_edit.orientation" = "Orientacija";
-"custom_controls.button_edit.toggleable" = "Perjungiama";
-"custom_controls.button_edit.swipeable" = "Perbraukiamas";
-"custom_controls.button_edit.bg_color" = "Fono spalva";
-"custom_controls.button_edit.stroke_color" = "Linijos spalva";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
 
-"custom_controls.button_menu.add_subbutton" = "Pridetį mygtukų spintos mygtuką";
-"custom_controls.control_menu.exit" = "Išeiti";
-"custom_controls.control_menu.save" = "Išsaugoti";
-"custom_controls.control_menu.load" = "Įjungti";
-"custom_controls.control_menu.add_button" = "Pridėti mygtuką";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "Kontrolės";
-"launcher.menu.install_jar" = "Instaliuoti .jar";
-"login.option.select" = "Pasirinkti paskyrą";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.select" = "Select account";
 
-"News" = "Naujienos";
-"Settings" = "Nustatymai";
-"preference.section.control" = "Kontrolių redagavimas";
+"News" = "News";
+"Settings" = "Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Java redagavimas";
+"preference.section.java" = "Java Tweaks";
 
-"preference.title.game_directory" = "Žaidimo failų vieta";
-"preference.title.cosmetica" = "\"Cosmetica\" apvalkalai";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
 
-"preference.title.renderer" = "Vaizdo generatorius";
-"preference.title.java_args" = "JVM Paleidimo argumentai";
-"preference.title.auto_ram" = "Automatiškas RAM";
-"preference.detail.auto_ram" = "Įjungia automatišką RAM keitėją";
-"preference.detail.allocated_memory" = "Kontroliuoja kiek RAM atminties duodama Minecraft";
-"controller_configurator.playstation.title.named_back" = "Pasirinkti";
+"preference.title.renderer" = "Renderer";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"controller_configurator.playstation.title.named_back" = "Select";

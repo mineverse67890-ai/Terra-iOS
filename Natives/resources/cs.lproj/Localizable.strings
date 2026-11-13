@@ -3,282 +3,282 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Vynutit zavření";
-"game.menu.confirm.force_close" = "Jste si jist/a zdali chcete vynutit ukončení?";
-"game.menu.log_output" = "Záznam výstupu";
-"game.menu.custom_controls" = "Vlastní ovládací prvky";
+"game.menu.force_close" = "Force Close";
+"game.menu.confirm.force_close" = "Are you sure you want to force close?";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
-"game.note.airplay" = "Minecraft se zobrazuje ve zrcadleném displeji AirPlay";
+"game.note.airplay" = "Minecraft is being displayed in AirPlay mirrored display";
 
-"game.title.exit_code" = "Hra skončila s kódem %d";
+"game.title.exit_code" = "Game exited with code %d";
 
 // The play button
-"Play" = "Hrát";
+"Play" = "Play";
 
 // Version categories
-"Installed" = "Nainstalováno";
+"Installed" = "Installed";
 "Snapshot" = "Snapshot";
-"Releases" = "Vydání";
-"Old-beta" = "Stará beta";
-"Old-alpha" = "Stará alfa";
+"Releases" = "Releases";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "Kopírovat";
-"Edit" = "Editovat";
-"Move" = "Pohnout";
-"Remove" = "Odstranit";
-"Resize" = "Změnit velikost";
+"Copy" = "Copy";
+"Edit" = "Edit";
+"Move" = "Move";
+"Remove" = "Remove";
+"Resize" = "Resize";
 
-"custom_controls.button_edit.name" = "Název";
-"custom_controls.button_edit.size" = "Velikost";
-"custom_controls.button_edit.mapping" = "Mapování";
-"custom_controls.button_edit.orientation" = "Orientace";
-"custom_controls.button_edit.toggleable" = "Přepnutelné";
-"custom_controls.button_edit.mouse_pass" = "Průchod myši";
-"custom_controls.button_edit.swipeable" = "Povolit přejíždění";
-"custom_controls.button_edit.bg_color" = "Barva pozadí";
-"custom_controls.button_edit.stroke_width" = "Šířka obrysu (%)";
-"custom_controls.button_edit.stroke_color" = "Barva obrysu";
-"custom_controls.button_edit.corner_radius" = "Poloměr rohu (%)";
-"custom_controls.button_edit.opacity" = "Průhlednost (%)";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.mouse_pass" = "Mouse pass";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_width" = "Stroke width (dp)";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
+"custom_controls.button_edit.corner_radius" = "Corner radius (%)";
+"custom_controls.button_edit.opacity" = "Opacity (%):";
 
-"custom_controls.button_menu.add_subbutton" = "Přidat podtlačítko";
-"custom_controls.control_menu.discard_changes" = "Zahodit změny";
-"custom_controls.control_menu.exit" = "Odejít";
-"custom_controls.control_menu.exit.warn" = "Chystáte se ukončit bez uložení změn.";
-"custom_controls.control_menu.save" = "Uložit";
-"custom_controls.control_menu.save.error.default" = "Název ovládání nemůže být \"default\", neboť by byl přepsán.";
-"custom_controls.control_menu.save.error.json" = "Chyba JSONu";
-"custom_controls.control_menu.save.error.write" = "Chyba ukládání souboru";
-"custom_controls.control_menu.load" = "Načíst";
-"custom_controls.control_menu.make_default" = "Nastavit výchozí";
-"custom_controls.control_menu.safe_area" = "Bezpečná oblast";
-"custom_controls.control_menu.add_button" = "Přidat tlačítko";
-"custom_controls.control_menu.add_drawer" = "Přidat šuplík";
-"custom_controls.error.incompatible" = "Tato verze ovládání (kód %d) v tomto sestavení spouštěče není implementována.";
-"custom_controls.hint" = "Pro více možností dlouze podržte kdekoli na obrazovce";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.discard_changes" = "Discard changes";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.exit.warn" = "You are about to exit without saving changes.";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.save.error.default" = "The control name cannot be \"default\" because it cannot be changed.";
+"custom_controls.control_menu.save.error.json" = "JSON error";
+"custom_controls.control_menu.save.error.write" = "Error saving file";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.make_default" = "Make default";
+"custom_controls.control_menu.safe_area" = "Safe area";
+"custom_controls.control_menu.add_button" = "Add button";
+"custom_controls.control_menu.add_drawer" = "Add drawer";
+"custom_controls.error.incompatible" = "This control version (code %d) is not implemented in this launcher build.";
+"custom_controls.hint" = "Long-press anywhere on screen for more options";
 
-"init.migrateDir" = "Složka dat Amethystu je nyní %@. Všechna vaše data byla přesunuta do nového umístění.";
+"init.migrateDir" = "The Amethyst data directory is now %@. All of your existing data has been moved to the new location.";
 
-"launcher.mcl.downloading_file" = "Stahování %@";
-"launcher.mcl.error_download" = "Nepodařilo se stáhnout %@: %@";
+"launcher.mcl.downloading_file" = "Downloading %@";
+"launcher.mcl.error_download" = "Failed to download %@: %@";
 
-"launcher.menu.custom_controls" = "Vlastní ovládací prvky";
-"launcher.menu.install_jar" = "Instalovat .jar";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
 
-"launcher.wait_jit.title" = "Čekám na JIT";
-"launcher.wait_jit.message" = "Amethyst potřebuje kompilaci Just-in-time, aby Java mohla fungovat maximální rychlostí.";
+"launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
+"launcher.wait_jit.message" = "Amethyst relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 
-"login.error.username.outOfRange" = "Uživatelské jméno musí být dlouhé alespoň 3 znaky a nanejvýše 16 znaků";
+"login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 
-"login.alert.field.username" = "Uživatelské jméno";
+"login.alert.field.username" = "Username";
 
-"login.jit.checking" = "Kontrolování JIT";
-"login.jit.enabled" = "JIT byl zapnut";
-"login.jit.fail" = "JIT nemohla být zapnuta.";
-"login.jit.fail.title" = "JIT nemohla být zapnuta na vašem zařízení.";
-"login.jit.fail.description" = "Nebylo možno použít jakoukoliv integraci k automatickému zapnutí JIT na vašem zařízení, tudíž musí být zapnuta ručně. Chyby se zaznamenaly do latestlot.txt.";
+"login.jit.checking" = "Checking for JIT";
+"login.jit.enabled" = "JIT has been enabled";
+"login.jit.fail" = "JIT could not be enabled.";
+"login.jit.fail.title" = "JIT could not be enabled on your device.";
+"login.jit.fail.description" = "No integrations could be used to automatically enable JIT on your device, and it must now be enabled manually. Errors have been logged to latestlog.txt.";
 
 // Login buttons
-"login.menu.sendlogs" = "Odeslat záznamy";
-"login.option.add" = "Přidat účet";
-"login.option.select" = "Vybrat účet";
-"login.option.demo" = "Demo účet";
-"login.option.microsoft" = "Účet Microsoft";
-"login.option.local" = "Místní účet";
+"login.menu.sendlogs" = "Send your logs";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
+"login.option.demo" = "Demo account";
+"login.option.microsoft" = "Microsoft account";
+"login.option.local" = "Local account";
 
-"login.warn.title.legacy_device" = "Příští vydání Amethystu nebude kompatibilní s tímto zařízením.";
-"login.warn.message.legacy_device" = "Ke spuštění příštího velkého vydání je potřeba zařízení schopného spustit iOS 14.";
-"login.warn.title.legacy_ios" = "Příští vydání Amethystu bude vyžadovat aktualizaci systému.";
-"login.warn.message.legacy_ios" = "Ke spuštění příštího velkého vydání, toto zařízení musí mít spuštěn iOS 14 či novější.";
-"login.warn.title.limited_ram" = "Toto zařízení má dostupné omezené množství paměti.";
-"login.warn.message.limited_ram" = "Doporučujeme ponechat automatickou RAM zapnutu, aby se zabránilo nestabilitě a problémům s výkonem.";
+"login.warn.title.legacy_device" = "The next release of Amethyst will not be compatible with this device.";
+"login.warn.message.legacy_device" = "To run the next major release, a device capable of running iOS 14 is required.";
+"login.warn.title.legacy_ios" = "The next release of Amethyst will require a system update.";
+"login.warn.message.legacy_ios" = "To run the next major release, this device needs to be running iOS 14 or later.";
+"login.warn.title.limited_ram" = "This device has a limited amount of memory available.";
+"login.warn.message.limited_ram" = "We recommend leaving auto RAM enabled to prevent instability and performance issues.";
 
-"login.warn.title.demomode" = "Váš účet demo je";
-"login.warn.message.demomode" = "Jako náhrada za offline a místní režim, demo režim povolí přihlášení do Microsoft účtu, jenž hru nevlastní, a hrát zkušební verzi Java edice, přidanou v 1.3.1 a novějších verzích. Starší verze obsahují plnou hru, majíce ji i v oficiálním spouštěči, jenž nemá pro ně omezení. Viz naši webovou stránku pro více informací o této změně z offline režimu.";
+"login.warn.title.demomode" = "Your account is Demo";
+"login.warn.message.demomode" = "As a replacement to offline and local mode, demo mode will allow you to sign into a Microsoft account that does not own the game and play the Java Edition trial, introduced in 1.3.1 and newer versions. Older versions contain the full game, as the official launcher does not place these restrictions. See our website to learn more about this transition from offline mode.";
 
-"login.warn.title.localmode" = "Offline režim je nyní Místní režim.";
-"login.warn.message.localmode" = "Můžete dále pokračovat ve hraní nainstalovaných verzí, avšak nebudete si moci stáhnout Minecraft bez placeného účtu. Pro problémy s místními účty, či pro jakékoli jiné způsoby získáni Minecraftu, nebude poskytována žádná podpora.";
+"login.warn.title.localmode" = "About Local Mode";
+"login.warn.message.localmode" = "The updated launcher supports offline mode and can be used to download games. \nYou can still play with an offline account, but it is recommended to support the official version. \nYou can purchase the official Minecraft at https://minecraft.net.";
 
-"login.msa.error.xsts.noxboxacc" = "Xboxový profil není registrován pro tento Microsoft účet. Prosím ujisti se zdali máš vytvořený Xbox účet.\nKód chyby: 2148916233";
-"login.msa.error.xsts.noxbox" = "Xbox Live není právě teď k dostupný ve tvé zemi.\nKód chyby: 2148916235";
-"login.msa.error.xsts.krverify" = "Tvůj účet musí být ověřen tvými rodiči před tím než budeš pokračovat. \nKód chyby: 2148916236 či 2148916237.";
-"login.msa.error.xsts.underage" = "Tvůj účet musí být propojen s účtem rodiče před pokračováním.\nKód chyby: 2148916238";
+"login.msa.error.xsts.noxboxacc" = "An Xbox profile is not registered for this Microsoft account. Please make sure that you have made an Xbox profile.\nError code: 2148916233";
+"login.msa.error.xsts.noxbox" = "Xbox Live is currently unavailable in your country.\nError code: 2148916235";
+"login.msa.error.xsts.krverify" = "Your account needs to be verified by your parents before you can continue.\nError code: 2148916236 or 2148916237";
+"login.msa.error.xsts.underage" = "Your account needs to be linked to a parent account before you can continue.\nError code: 2148916238";
 
-"login.msa.progress.acquireAccessToken" = "(1/5) Získávání Přístupového tokenu";
-"login.msa.progress.acquireXBLToken" = "(2/5) Získávání Xbox Live tokenu";
-"login.msa.progress.acquireXSTS" = "Získávání XSTS";
-"login.msa.progress.acquireXboxProfile" = "(3/5) Získávání Xbox účtu";
-"login.msa.progress.acquireMCToken" = "(4/5) Získávání Minecraft tokenu";
-"login.msa.progress.checkMCProfile" = "(5/5) Kontrola Minecraft účtu";
+"login.msa.progress.acquireAccessToken" = "(1/6) Acquiring the Access token";
+"login.msa.progress.acquireXBLToken" = "(2/6) Acquiring the Xbox Live token";
+"login.msa.progress.acquireXSTS" = "(3/6) Acquiring XSTS";
+"login.msa.progress.acquireXboxProfile" = "(4/6) Acquiring the Xbox profile";
+"login.msa.progress.acquireMCToken" = "(5/6) Acquiring the Minecraft token";
+"login.msa.progress.checkMCProfile" = "(6/6) Checking the Minecraft profile";
 
-"News" = "Novinky";
-"Settings" = "Nastavení";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.section.general" = "Obecné Nastavení";
-"preference.section.video" = "Nastavení obrazu";
-"preference.section.footer.video" = "Automatický vykreslovač umožní Amethystu vybrat nejlepší možnost na základě verze Minecraftu. Snižením rozlišení snížíte zatížení GPU pro lepší výkon.";
-"preference.section.control" = "Přizpůsobení ovládání";
-"preference.section.debug" = "Nastavení ladění UI";
-"preference.section.footer.debug" = "Kromě ladění mohou být tato nastavení užitečná pro vlastní ovládání. Možná budete muset restartovat spouštěč aby se změny projevily.";
+"preference.section.general" = "General Settings";
+"preference.section.video" = "Video and Audio Settings";
+"preference.section.footer.video" = "Auto renderer allows Amethyst to choose the best option based on Minecraft version. Decreasing resolution reduces GPU workload for better performance.";
+"preference.section.control" = "Control customization";
+"preference.section.debug" = "UI Debugging settings";
+"preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Vyladění Javy";
+"preference.section.java" = "Java Tweaks";
 //"preference.section.footer.java" = "";
 
-"preference.title.confirm" = "Jsi si jist/a?";
+"preference.title.confirm" = "Are you sure?";
 
-"preference.title.game_directory" = "Složka hry";
-"preference.title.confirm.delete_game_directory" = "Instance %@ bude navždy smazána a nebude možno ji obnovit.";
-"preference.multidir.add_directory" = "přidat složku hry";
+"preference.title.game_directory" = "Game directory";
+"preference.title.confirm.delete_game_directory" = "The instance %@ will be deleted forever and cannot be restored.";
+"preference.multidir.add_directory" = "Add game directory";
 
-"preference.title.check_sha" = "Zkontrolovat soubory po stažení";
-"preference.detail.check_sha" = "Tato možnost donutí spouštěč zkontrolovat hash souboru, je-li k dispozici. Zabraňuje rozbitému stažení.";
-"preference.title.cosmetica" = "Kápě Cosmetica";
-"preference.detail.cosmetica" = "Zapne kápě z Cosmeticy (dřiv Arc), vyžadujíc OptiFine. Pro více informací navštivte https://cosmetica.cc";
-"preference.title.debug_logging" = "Zaznamenávání ladění";
-"preference.detail.debug_logging" = "Zaznamenává interní nastavení a akce do latestlog.txt. Toto dovoluje vývojářům nalézt problémy dřiv, ale záznamy budou častěji zapisovány, díky čemuž Minecraft může běžet pomaleji.";
-"preference.title.jitstreamer_server" = "IP adresa serveru JitStreameru";
-"preference.detail.jitstreamer_server" = "Umožňuje zadat vlastní IP adresu JitStreameru, například pro samohostěné instance. Tato možnost může být nechána nezměněná používáte-li výchozí servery JitStreameru.";
-"preference.title.enable_altkit" = "Povolit integraci AltKitu";
-"preference.detail.enable_altkit" = "Pokud povoleno, Amethyst se pokusí o připojení k místním AltServerům pro zapnutí JIT.";
-"preference.title.appicon" = "Nastaviti ikonu aplikace";
-"preference.detail.appicon" = "Umožnǔje vybrat mezi různými ikonami plochy Amethystu.";
-"preference.title.appicon-default" = "Známá Amethyst světlá";
-"preference.title.appicon-dark" = "Známá Amethyst tmavá";
-"preference.title.appicon-development" = "Načrtnutý vývoj";
-"preference.title.hidden_sidebar" = "Skrývat hlavní postranní menu ze začátku";
-"preference.detail.hidden_sidebar" = "Umožňuje skrývat hlavní postranní panel ve hlavním menu ve výchozím nastavení při otáčení v iOSe 14 a novějších.";
+"preference.title.check_sha" = "Check files after downloading";
+"preference.detail.check_sha" = "This option forces launcher to check the file hash if it's available. Prevents broken downloads.";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.detail.cosmetica" = "Enable capes from Cosmetica (previously Arc). For more information please visit https://cosmetica.cc. Requires OptiFine.";
+"preference.title.debug_logging" = "Debug logging";
+"preference.detail.debug_logging" = "Logs internal settings and actions to latestlog.txt. This helps the developers find issues easier, but Minecraft may run slower as the logs will be written to more often.";
+"preference.title.jitstreamer_server" = "The server address of JitStreamer";
+"preference.detail.jitstreamer_server" = "This option gives custom access to JitStreamer servers for JIT addresses.";
+"preference.title.enable_altkit" = "Enable JIT using AltKit";
+"preference.detail.enable_altkit" = "When enabled, Air will try to connect to local AltServers to enable JIT.";
+"preference.title.appicon" = "Set app icon";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
+"preference.title.appicon-default" = "Familiar Amethyst light";
+"preference.title.appicon-dark" = "Familiar Amethyst dark";
+"preference.title.appicon-development" = "Penciled Development";
+"preference.title.hidden_sidebar" = "Hide main menu sidebar by default";
+"preference.detail.hidden_sidebar" = "Allows you to hide the sidebar on the main menu by default and when rotating.";
 
-"preference.title.reset_warnings" = "Smazat všechna varování";
-"preference.title.done.reset_warnings" = "Všechna varování byla smazána.";
+"preference.title.reset_warnings" = "Reset all warnings";
+"preference.title.done.reset_warnings" = "All warnings have been reset.";
 
-"preference.title.reset_settings" = "Resetovat všechna nastavení";
-"preference.title.confirm.reset_settings" = "Toto odstraní všechna tvé nastavení, cčetně rozlišení, velikosti tlačítek a argumentů Javy.";
-"preference.title.done.reset_settings" = "Všechna výchozí nastavení byla obnovena.";
+"preference.title.reset_settings" = "Reset all settings";
+"preference.title.confirm.reset_settings" = "This will remove all of your custom preferences, including resolution, button size, and Java arguments.";
+"preference.title.done.reset_settings" = "All of the default settings have been restored.";
 
-"preference.title.erase_demo_data" = "Vymazat data Demo her";
-"preference.title.confirm.erase_demo_data" = "Toto smaže všechny verze Demo her a všechna data Demo účtů.";
-"preference.title.done.erase_demo_data" = "Byla smazána všechna data Demo her.";
+"preference.title.erase_demo_data" = "Erase Demo game data";
+"preference.title.confirm.erase_demo_data" = "This will erase all Demo game versions and data used for Demo accounts.";
+"preference.title.done.erase_demo_data" = "All of the Demo game data has been erased.";
 
-"preference.title.renderer" = "Vykreslovač";
+"preference.title.renderer" = "Renderer";
 
-"preference.title.renderer.release.auto" = "Automaticky";
-"preference.title.renderer.release.gl4es" = "svatý gl4es";
+"preference.title.renderer.release.auto" = "Auto";
+"preference.title.renderer.release.gl4es" = "holy gl4es";
 "preference.title.renderer.release.angle" = "ANGLE";
 "preference.title.renderer.release.zink" = "Zink";
 
-"preference.title.renderer.debug.auto" = "Automaticky: gl4es či ANGLE";
-"preference.title.renderer.debug.gl4es" = "gl4es 1.1.4 - exportuje OpenGL 2.1";
-"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exportuje OpenGL 3.2 (Jádrový Profil, omezen)";
-"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - exportuje OpenGL 4.1";
+"preference.title.renderer.debug.auto" = "Auto: gl4es or ANGLE";
+"preference.title.renderer.debug.gl4es" = "holy gl4es - exports OpenGL 2.1";
+"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exports OpenGL 3.2 (Core Profile, limited)";
+"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - exports OpenGL 4.1";
 
-"preference.detail.renderer" = "Změnit OpenGL vykreslovací systém k užívání";
+"preference.detail.renderer" = "Change the OpenGL render engine to use. Zink is temporarily disabled on iOS 16 and later to diagnose issues.";
 
-"preference.title.resolution" = "Rozlišení (%)";
-"preference.detail.resolution" = "Umožňuje ti snížit rozlišení hry.";
+"preference.title.resolution" = "Resolution (%)";
+"preference.detail.resolution" = "Allows you to decrease the game resolution.";
 
-"preference.title.fullscreen_airplay" = "AirPlay celé obrazovky";
-"preference.detail.fullscreen_airplay" = "Umožňuje zobrazovat okno hry na celé obrazovce na externím displeji bez zrcadlení všeho na obrazovce.";
-"preference.title.silence_other_audio" = "Pozastavit zvuk při otevření hry";
-"preference.detail.silence_other_audio" = "Zapněte pro umožnění Amethystu pozastavit zvuk z jiných aplikací, například Hudbu při spouštění hry.";
-"preference.title.silence_with_switch" = "Vypnout zvuk tichým přepínačem";
-"preference.detail.silence_with_switch" = "Povolte pro vypnutí zvuku při Tichém režimu. Sluchátka a externí reproduktory nejsou ovlivněny.";
-"preference.title.default_gamepad_ctrl" = "Nastavení ovladače";
-"preference.title.hardware_hide" = "Skrýt ovládací prvky při připojení zařízení";
-"preference.detail.hardware_hide" = "Povolte pro automatické vypínání překrytí na obrazovce při připojení myši či herního ovladače.";
-"preference.title.gesture_mouse" = "Gesta myši";
-"preference.detail.gesture_mouse" = "Povolí gesta, například kliknutím umístit blok, podržením zníčit blok a posouvání dvěma prsty";
-"preference.title.gesture_hotbar" = "Gesta hotbaru";
-"preference.detail.gesture_hotbar" = "Povolí gesta, například dotknutí se slotu hotbaru, vyměnění předměty mezi rukama a zahození předmětů";
-"preference.title.press_duration" = "Trvání dlouhého stisku (ms)";
-"preference.detail.press_duration" = "Délka trvání dlouhého držení ke zničení bloků a vyhazování itemů.";
-"preference.title.button_scale" = "Měřítko tlačítka na obrazovce (%)";
-"preference.detail.button_scale" = "Zvětšit tlačítka jsou-li příliš malá, obvyklé potřebné pro uživatele iPadů.";
-"preference.title.mouse_scale" = "Škálování myši (%)";
-"preference.detail.mouse_scale" = "Změnit velikost virtuální myši";
-"preference.title.mouse_speed" = "Rychlost myši (%)";
-"preference.detail.mouse_speed" = "Změnit rychlost virtuální myši";
-"preference.title.virtmouse_enable" = "Virtuální myš";
-"preference.detail.virtmouse_enable" = "Zapni tutu možnost pro začínání se zapnutou vyrtuální myší";
-"preference.title.slideable_hotbar" = "Posuvný hotbar";
-"preference.detail.slideable_hotbar" = "Udělat hotbar posunovatelný jako kolečko myši";
+"preference.title.fullscreen_airplay" = "Fullscreen AirPlay";
+"preference.detail.fullscreen_airplay" = "Allows presenting fullscreen game window on the external display rather than mirroring everything on screen.";
+"preference.title.silence_other_audio" = "Pause audio when game opens";
+"preference.detail.silence_other_audio" = "Enable to allow Amethyst to pause audio from other apps, such as Music, when launching the game.";
+"preference.title.silence_with_switch" = "Disable audio with silent switch";
+"preference.detail.silence_with_switch" = "Enable to disable audio when Silent Mode is on. Headphones and external speakers are not affected.";
+"preference.title.default_gamepad_ctrl" = "Controller configuration";
+"preference.title.hardware_hide" = "Hide controls when hardware is connected";
+"preference.detail.hardware_hide" = "Enable the behaviour of automatically disabling the on-screen control overlay when a mouse or game controller is connected.";
+"preference.title.gesture_mouse" = "Mouse gestures";
+"preference.detail.gesture_mouse" = "Enables gestures, such as tap to place block, hold to break block, scrolling with 2 fingers";
+"preference.title.gesture_hotbar" = "Hotbar gestures";
+"preference.detail.gesture_hotbar" = "Enables gestures, such as touch the hotbar slot, swap items between hand, throw items";
+"preference.title.press_duration" = "Long-press duration (ms)";
+"preference.detail.press_duration" = "Trigger press duration for destroying blocks and dropping items.";
+"preference.title.button_scale" = "On-screen button scale (%)";
+"preference.detail.button_scale" = "Upscale them if buttons are too small, usually needed for iPad users.";
+"preference.title.mouse_scale" = "Mouse scaling (%)";
+"preference.detail.mouse_scale" = "Change the size of the virtual mouse";
+"preference.title.mouse_speed" = "Mouse speed (%)";
+"preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
+"preference.title.virtmouse_enable" = "Virtual mouse";
+"preference.detail.virtmouse_enable" = "Enable this option to start with virtual mouse on";
+"preference.title.slideable_hotbar" = "Slideable hotbar";
+"preference.detail.slideable_hotbar" = "Make the hotbar slideable like the mouse wheel";
 
-"preference.title.gyroscope_enable" = "Zapnout gyroskopové ovládání";
-"preference.detail.gyroscope_enable" = "Zapnutí tohoto vám umožní otáčet se ve hře otočením zařízení";
-"preference.title.gyroscope_invert_x_axis" = "Obrátit pravo a levo gyroskopu";
-"preference.detail.gyroscope_invert_x_axis" = "Obrací osu X gyroskopu";
-"preference.title.gyroscope_sensitivity" = "Citlivost gyroskopového ovládání";
-"preference.detail.gyroscope_sensitivity" = "Upravit citlivost gyroskopového ovládání";
+"preference.title.gyroscope_enable" = "Enable gyroscope controls";
+"preference.detail.gyroscope_enable" = "Enabling this will allow you to turn in game by turning your device";
+"preference.title.gyroscope_invert_x_axis" = "Invert gyroscope left and right";
+"preference.detail.gyroscope_invert_x_axis" = "Inverts the X-axis of the gyroscope";
+"preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
+"preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
 
-"preference.title.java_home" = "Používat Javu 17 Minecraftem < 1.17";
-"preference.detail.java_home" = "Java 8 je výchozí pro tyto verze. Povolivše tuto možnost vynutíte užívání Javy 17, avšak její kompatibilita není zaručena.";
-"preference.title.java_args" = "JVM spouštěcí argumenty";
-"preference.detail.java_args" = "Předá argumenty Javě spouštějíc Minecraft. Buďte opatrní, může to způsobit pád hry byly-li upraveny neprávně.";
-"preference.placeholder.java_args" = "Určit argumenty...";
+"preference.title.java_home" = "Use Java 17 for Minecraft < 1.17";
+"preference.detail.java_home" = "Java 8 is used by default for these versions. Enable this option to force Java 17, but compatibility with mods is not guaranteed.";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.detail.java_args" = "Pass arguments to Java when launching Minecraft. Be careful, this can make the game crash if modified incorrectly.";
+"preference.placeholder.java_args" = "Specify arguments...";
 "preference.title.auto_ram" = "Auto RAM";
-"preference.detail.auto_ram" = "Automaticky bude měnit množství RAM";
-"preference.warn.auto_ram" = "Vypnutí této možnosti na nejailbreakovaných zařízení může způsobit nestabilitu je-li změno. Pokračujte s opatrností.";
-"preference.title.allocated_memory" = "Přidělení paměti (MB)";
-"preference.detail.allocated_memory" = "Určete kolik paměti bude mít Minecraft";
-"preference.warn.allocated_memory" = "Tato možnost může způsobit nestabilitu při této a vyšších hodnotách, kvůli limitacím v operačním systému. Pokračuj s opatrností.";
-"preference.title.custom_env" = "Proměnné prostředí";
-"preference.detail.custom_env" = "Tato možnost je ve výstavbě. Mezitím vytvořte a upravte custom_env.txt.";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
+"preference.title.allocated_memory" = "Memory allocation (MB)";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"preference.warn.allocated_memory" = "Due to limitations in the operating system itself, this option may cause instability at this and higher values. Proceed with caution.";
+"preference.title.custom_env" = "Environment variables";
+"preference.detail.custom_env" = "This option is under construction. Create and edit custom_env.txt in the meantime.";
 
-"preference.title.debug_skip_wait_jit" = "Přeskočit dialog \"Čekání na JIT\"";
-"preference.detail.debug_skip_wait_jit" = "Toto vám neumožní spustit bez JITu, ale přeskočí ladící kontrolu, neboť ta kontrola chybuje na určitých jailbreacích.";
-"preference.title.debug_ipad_ui" = "Odemknout iPadOS UI";
-"preference.detail.debug_ipad_ui" = "Odemknout UI pro iPady (upozornění, klávesnice, atd.) zapnuto-li, či iPhone UI vypnuto-li.";
-"preference.title.debug_auto_correction" = "Samooprava";
-"preference.detail.debug_auto_correction" = "Zapnout samoopravu ve hře při psaní.";
-"preference.title.debug_hide_home_indicator" = "Skrýti indikátor domovu";
-"preference.detail.debug_hide_home_indicator" = "Toto vypne zamykání domovského indikátoru. Budete muset použít Guided Acces ke skrytí a zamčení domovského indikátoru najednou.";
-"preference.title.debug_show_layout_bounds" = "Zobrazit ohraničení rozložení";
-"preference.detail.debug_show_layout_bounds" = "Zobrazit překrývající se hranice a mezery";
-"preference.title.debug_show_layout_overlap" = "Zobrazit překrývající se rozložení";
-"preference.detail.debug_show_layout_overlap" = "Překrýt každé zobrazení průhlednou barvou pro odhalení překrývajících se zobrazení.";
+"preference.title.debug_skip_wait_jit" = "Skip \"Waiting for JIT\" dialog";
+"preference.detail.debug_skip_wait_jit" = "This does not allow you to launch without JIT, instead this skips debugger check, because check fails on certain jailbreaks.";
+"preference.title.debug_ipad_ui" = "Unlock iPadOS UI";
+"preference.detail.debug_ipad_ui" = "Unlock iPad-exclusive UI (alert, keyboard, etc.) if enabled or iPhone UI if disabled.";
+"preference.title.debug_auto_correction" = "Auto correction";
+"preference.detail.debug_auto_correction" = "Enable auto correction when typing text in game.";
+"preference.title.debug_hide_home_indicator" = "Hide home indicator";
+"preference.detail.debug_hide_home_indicator" = "This will disable home indicator locking. You will need to use Guided Access to hide and lock home indicator at the same time.";
+"preference.title.debug_show_layout_bounds" = "Show Border Layout";
+"preference.detail.debug_show_layout_bounds" = "Show Clip Borders, Margins";
+"preference.title.debug_show_layout_overlap" = "Layout Overlay Display";
+"preference.detail.debug_show_layout_overlap" = "Override each view with light yellow colors, the deeper the color will overlay";
 
-"controller_configurator.title.current" = "Soubor nastavení Gamepadu";
+"controller_configurator.title.current" = "Gamepad configuration file";
 "controller_configurator.title.type.xbox" = "Xbox";
 "controller_configurator.title.type.playstation" = "PlayStation";
 
-"controller_configurator.xbox.title.bumper_left" = "Levé tlačítko";
-"controller_configurator.xbox.title.bumper_right" = "Pravé tlačítko";
-"controller_configurator.xbox.title.trigger_left" = "Levá spoušť";
-"controller_configurator.xbox.title.trigger_right" = "Pravá spoušť";
-"controller_configurator.xbox.title.named_back" = "Průvodce";
-"controller_configurator.xbox.title.named_start" = "Nabídka";
+"controller_configurator.xbox.title.bumper_left" = "Left bumper";
+"controller_configurator.xbox.title.bumper_right" = "Right bumper";
+"controller_configurator.xbox.title.trigger_left" = "Left trigger";
+"controller_configurator.xbox.title.trigger_right" = "Right trigger";
+"controller_configurator.xbox.title.named_back" = "Guide";
+"controller_configurator.xbox.title.named_start" = "Menu";
 "controller_configurator.xbox.title.named_a" = "A";
 "controller_configurator.xbox.title.named_b" = "B";
 "controller_configurator.xbox.title.named_x" = "X";
 "controller_configurator.xbox.title.named_y" = "Y";
-"controller_configurator.xbox.title.dpad_up" = "Nahoru";
-"controller_configurator.xbox.title.dpad_down" = "Dolů";
-"controller_configurator.xbox.title.dpad_left" = "Vlevo";
-"controller_configurator.xbox.title.dpad_right" = "Vpravo";
-"controller_configurator.xbox.title.thumb_left" = "Kliknutí levé páčky";
-"controller_configurator.xbox.title.thumb_right" = "Kliknutí pravé páčky";
+"controller_configurator.xbox.title.dpad_up" = "Up";
+"controller_configurator.xbox.title.dpad_down" = "Down";
+"controller_configurator.xbox.title.dpad_left" = "Left";
+"controller_configurator.xbox.title.dpad_right" = "Right";
+"controller_configurator.xbox.title.thumb_left" = "Left thumbstick click";
+"controller_configurator.xbox.title.thumb_right" = "Right thumbstick click";
 
 "controller_configurator.playstation.title.bumper_left" = "L1";
 "controller_configurator.playstation.title.bumper_right" = "R1";
 "controller_configurator.playstation.title.trigger_left" = "L2";
 "controller_configurator.playstation.title.trigger_right" = "R2";
-"controller_configurator.playstation.title.named_back" = "Vybrat";
+"controller_configurator.playstation.title.named_back" = "Select";
 "controller_configurator.playstation.title.named_start" = "Start";
-"controller_configurator.playstation.title.named_a" = "Kříž";
-"controller_configurator.playstation.title.named_b" = "Kruh";
-"controller_configurator.playstation.title.named_x" = "Čtverec";
-"controller_configurator.playstation.title.named_y" = "Trojúhelník";
-"controller_configurator.playstation.title.dpad_up" = "Nahoru";
-"controller_configurator.playstation.title.dpad_down" = "Dolů";
-"controller_configurator.playstation.title.dpad_left" = "Vlevo";
-"controller_configurator.playstation.title.dpad_right" = "Vpravo";
+"controller_configurator.playstation.title.named_a" = "Cross";
+"controller_configurator.playstation.title.named_b" = "Circle";
+"controller_configurator.playstation.title.named_x" = "Square";
+"controller_configurator.playstation.title.named_y" = "Triangle";
+"controller_configurator.playstation.title.dpad_up" = "Up";
+"controller_configurator.playstation.title.dpad_down" = "Down";
+"controller_configurator.playstation.title.dpad_left" = "Left";
+"controller_configurator.playstation.title.dpad_right" = "Right";
 "controller_configurator.playstation.title.thumb_left" = "L3";
 "controller_configurator.playstation.title.thumb_right" = "R3";
 
-"controller_configurator.section.config_files" = "Současný soubor nastavení";
-"controller_configurator.section.game_mappings" = "Herní mapování";
-"controller_configurator.section.footer.game_mappings" = "Mapování při uzamčené myši ve hře.";
-"controller_configurator.section.menu_mappings" = "Mapování nabídky";
-"controller_configurator.section.footer.menu_mappings" = "Mapování při odemčené myši, například na titulní obrazovce či v nabídce pozastavení.";
-"controller_configurator.section.controller_style" = "Typ ovladače";
-"controller_configurator.section.footer.controller_style" = "Ukázat odlišné názvy tlačítek ovladače v tomto nastavení.";
+"controller_configurator.section.config_files" = "Current configuration file";
+"controller_configurator.section.game_mappings" = "Game mappings";
+"controller_configurator.section.footer.game_mappings" = "Bindings when the mouse is locked in game.";
+"controller_configurator.section.menu_mappings" = "Menu mappings";
+"controller_configurator.section.footer.menu_mappings" = "Bindings when the mouse is not locked, such as on the title screen or in the pause menu.";
+"controller_configurator.section.controller_style" = "Controller type";
+"controller_configurator.section.footer.controller_style" = "Show different controller button names in this configurator.";

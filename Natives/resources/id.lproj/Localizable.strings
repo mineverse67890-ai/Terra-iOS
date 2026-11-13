@@ -3,206 +3,206 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Tutup secara paksa";
-"game.menu.confirm.force_close" = "Apakah anda yakin mau menutup secara paksa?";
-"game.menu.log_output" = "Catatan log";
-"game.menu.custom_controls" = "Kontrol kustom";
+"game.menu.force_close" = "Force Close";
+"game.menu.confirm.force_close" = "Are you sure you want to force close?";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
-"game.note.airplay" = "Minecraft sedang ditunjukkan di layar telah dikaca AirPlay";
+"game.note.airplay" = "Minecraft is being displayed in AirPlay mirrored display";
 
-"game.title.exit_code" = "Permainan keluar dengan kode %d";
+"game.title.exit_code" = "Game exited with code %d";
 
 // The play button
-"Play" = "Main";
+"Play" = "Play";
 
 // Version categories
-"Installed" = "Terpasang";
+"Installed" = "Installed";
 "Snapshot" = "Snapshot";
-"Releases" = "Rilis";
-"Old-beta" = "Beta-lama";
-"Old-alpha" = "Alpha-lama";
+"Releases" = "Releases";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "Salin";
+"Copy" = "Copy";
 "Edit" = "Edit";
-"Move" = "Pindah";
-"Remove" = "Hapus";
-"Resize" = "Ubah ukuran";
+"Move" = "Move";
+"Remove" = "Remove";
+"Resize" = "Resize";
 
-"custom_controls.button_edit.name" = "Nama";
-"custom_controls.button_edit.size" = "Ukuran";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
 "custom_controls.button_edit.mapping" = "Mapping";
-"custom_controls.button_edit.orientation" = "Orientasi";
-"custom_controls.button_edit.toggleable" = "Bisa dialihkan";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
 "custom_controls.button_edit.mouse_pass" = "Mouse pass";
-"custom_controls.button_edit.swipeable" = "Bisa digesek";
-"custom_controls.button_edit.bg_color" = "Warna background";
-"custom_controls.button_edit.stroke_width" = "Tebal garis (%)";
-"custom_controls.button_edit.stroke_color" = "Warna garis";
-"custom_controls.button_edit.corner_radius" = "Radius sudut (%)";
-"custom_controls.button_edit.opacity" = "Kegelapan (%)";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_width" = "Stroke width (dp)";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
+"custom_controls.button_edit.corner_radius" = "Corner radius (%)";
+"custom_controls.button_edit.opacity" = "Opacity (%):";
 
-"custom_controls.button_menu.add_subbutton" = "Tambahkan tombol";
-"custom_controls.control_menu.discard_changes" = "Batal perubahan";
-"custom_controls.control_menu.exit" = "Keluar";
-"custom_controls.control_menu.exit.warn" = "Anda akan keluar tanpa menyimpan perubahan.";
-"custom_controls.control_menu.save" = "Simpan";
-"custom_controls.control_menu.save.error.default" = "Nama kontrol tidak bisa \"default\" karena akan ditimpa.";
-"custom_controls.control_menu.save.error.json" = "Kesalahan JSON";
-"custom_controls.control_menu.save.error.write" = "Kesalahan saat menyimpan file";
-"custom_controls.control_menu.load" = "Memuat";
-"custom_controls.control_menu.make_default" = "Buat default";
-"custom_controls.control_menu.safe_area" = "Area aman";
-"custom_controls.control_menu.add_button" = "Tambah tombol";
-"custom_controls.control_menu.add_drawer" = "Tambah drawer";
-"custom_controls.error.incompatible" = "Kontrol versi ini (code %d) tidak diimplementasikan di build peluncur ini.";
-"custom_controls.hint" = "Pencet lama dimanapun di layar untuk opsi tambahan";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.discard_changes" = "Discard changes";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.exit.warn" = "You are about to exit without saving changes.";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.save.error.default" = "The control name cannot be \"default\" because it cannot be changed.";
+"custom_controls.control_menu.save.error.json" = "JSON error";
+"custom_controls.control_menu.save.error.write" = "Error saving file";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.make_default" = "Make default";
+"custom_controls.control_menu.safe_area" = "Safe area";
+"custom_controls.control_menu.add_button" = "Add button";
+"custom_controls.control_menu.add_drawer" = "Add drawer";
+"custom_controls.error.incompatible" = "This control version (code %d) is not implemented in this launcher build.";
+"custom_controls.hint" = "Long-press anywhere on screen for more options";
 
-"init.migrateDir" = "Data folder Amethyst sekarang di %@. Semua datamu yang ada telah dipindah ke lokasi baru tersebut.";
+"init.migrateDir" = "The Amethyst data directory is now %@. All of your existing data has been moved to the new location.";
 
-"launcher.mcl.downloading_file" = "Mengunduh %@";
-"launcher.mcl.error_download" = "Gagal untuk mengunduh %@: %@";
+"launcher.mcl.downloading_file" = "Downloading %@";
+"launcher.mcl.error_download" = "Failed to download %@: %@";
 
-"launcher.menu.custom_controls" = "Kontrol kustom";
+"launcher.menu.custom_controls" = "Custom controls";
 "launcher.menu.install_jar" = "Install .jar";
 
-"launcher.wait_jit.title" = "Menunggu JIT";
-"launcher.wait_jit.message" = "Amethyst membutuhkan compilation Just-in-Time agar Java dapat bekerja dalam perfoma maksimal.";
+"launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
+"launcher.wait_jit.message" = "Amethyst relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 
-"login.error.username.outOfRange" = "Nama pengguna harus minimal mempunyai 3 karakter dan maksimal 16 karakter";
+"login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 
 "login.alert.field.username" = "Username";
 
-"login.jit.checking" = "Memeriksa JIT";
-"login.jit.enabled" = "JIT telah dinyalakan";
-"login.jit.fail" = "JIT tidak dapat diaktifkan.";
-"login.jit.fail.title" = "JIT tidak bisa diaktifkan pada perangkat anda.";
+"login.jit.checking" = "Checking for JIT";
+"login.jit.enabled" = "JIT has been enabled";
+"login.jit.fail" = "JIT could not be enabled.";
+"login.jit.fail.title" = "JIT could not be enabled on your device.";
 
 // Login buttons
-"login.menu.sendlogs" = "Kirim log-log kamu";
-"login.option.add" = "Tambah akun";
-"login.option.select" = "Pilih akun";
-"login.option.demo" = "Akun demo";
-"login.option.microsoft" = "Akun Microsoft";
-"login.option.local" = "Akun lokal";
+"login.menu.sendlogs" = "Send your logs";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
+"login.option.demo" = "Demo account";
+"login.option.microsoft" = "Microsoft account";
+"login.option.local" = "Local account";
 
-"login.warn.title.legacy_device" = "Rilis Amethyst selanjutnya tidak kompatibel dengan perangkat ini.";
-"login.warn.message.legacy_device" = "Untuk menggunakan rilis selanjutnya, perangkat yang dapat menggunakan iOS 14 diperlukan.";
-"login.warn.title.legacy_ios" = "Rilis Amethyst selanjutnya memerlukan pembaruan sistem.";
-"login.warn.message.legacy_ios" = "Untuk menggunakan rilis selanjutnya, perangkat yang dapat menggunakan iOS 14 diperlukan.";
-"login.warn.title.limited_ram" = "Perangkat ini memiliki jumlah memori terbatas yang tersedia.";
+"login.warn.title.legacy_device" = "The next release of Amethyst will not be compatible with this device.";
+"login.warn.message.legacy_device" = "To run the next major release, a device capable of running iOS 14 is required.";
+"login.warn.title.legacy_ios" = "The next release of Amethyst will require a system update.";
+"login.warn.message.legacy_ios" = "To run the next major release, this device needs to be running iOS 14 or later.";
+"login.warn.title.limited_ram" = "This device has a limited amount of memory available.";
 
-"login.warn.title.demomode" = "Akun anda adalah akun demo";
-"login.warn.message.demomode" = "Sebagai pengganti offline dan mode lokal, mode demo akan memperbolehkan anda masuk ke akun Microsoft yang tidak mempunyai permainannya dan main versi Java Edition Trial, diadakan sejak versi 1.3.1 dan seterusnya. Versi lebih lama mempunyai permainan penuhnya, karena peluncur resmi tidak memberlakukan restriksi ini. Lihat website kita untuk dapat mempelajari lebih lanjut tentang transisi dari mode offline.";
+"login.warn.title.demomode" = "Your account is Demo";
+"login.warn.message.demomode" = "As a replacement to offline and local mode, demo mode will allow you to sign into a Microsoft account that does not own the game and play the Java Edition trial, introduced in 1.3.1 and newer versions. Older versions contain the full game, as the official launcher does not place these restrictions. See our website to learn more about this transition from offline mode.";
 
-"login.warn.title.localmode" = "Mode offline sekarang menjadi mode lokal.";
+"login.warn.title.localmode" = "About Local Mode";
 
-"login.msa.error.xsts.noxboxacc" = "Tidak ada profil Xbox yang terdaftar di akun Microsoft ini. Mohon memastikan bahwa anda telag membuat sebuah profil Xbox.\nKode error: 2148916233";
-"login.msa.error.xsts.noxbox" = "Xbox Live sekarang sedang tidak ada di negata anda.\nKode error: 2148916235";
-"login.msa.error.xsts.krverify" = "Akun anda butuh diverifikasi oleh orang tua sebelum ada bisa lanjut.\nKode kesalahan: 2148916236 atau 2148916237.";
-"login.msa.error.xsts.underage" = "Akun anda butuh ditautkan ke sebuah akun orang tua sebelum anda bisa lanjut.\nKode kesalahan: 2148916238";
+"login.msa.error.xsts.noxboxacc" = "An Xbox profile is not registered for this Microsoft account. Please make sure that you have made an Xbox profile.\nError code: 2148916233";
+"login.msa.error.xsts.noxbox" = "Xbox Live is currently unavailable in your country.\nError code: 2148916235";
+"login.msa.error.xsts.krverify" = "Your account needs to be verified by your parents before you can continue.\nError code: 2148916236 or 2148916237";
+"login.msa.error.xsts.underage" = "Your account needs to be linked to a parent account before you can continue.\nError code: 2148916238";
 
-"login.msa.progress.acquireAccessToken" = "(1/5) Mendapatkan token akses";
-"login.msa.progress.acquireXBLToken" = "(2/5) Mendapatkan token Xbox Live";
-"login.msa.progress.acquireXSTS" = "Mendapatkan XSTS";
-"login.msa.progress.acquireXboxProfile" = "(3/5) Mendapatkan profil Xbox";
-"login.msa.progress.acquireMCToken" = "(4/5) Mendapatkan token Minecraft";
-"login.msa.progress.checkMCProfile" = "(5/5) Memeriksa profil Minecraft";
+"login.msa.progress.acquireAccessToken" = "(1/6) Acquiring the Access token";
+"login.msa.progress.acquireXBLToken" = "(2/6) Acquiring the Xbox Live token";
+"login.msa.progress.acquireXSTS" = "(3/6) Acquiring XSTS";
+"login.msa.progress.acquireXboxProfile" = "(4/6) Acquiring the Xbox profile";
+"login.msa.progress.acquireMCToken" = "(5/6) Acquiring the Minecraft token";
+"login.msa.progress.checkMCProfile" = "(6/6) Checking the Minecraft profile";
 
-"News" = "Berita";
-"Settings" = "Pengaturan";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.section.general" = "Peraturan Umum";
-"preference.section.video" = "Peraturan Video";
-"preference.section.control" = "Kustomisasi kontrol";
-"preference.section.debug" = "Peraturan debugging UI";
-"preference.section.footer.debug" = "Selain debugging, peraturan-peraturan ini mungkin berguna untuk kontrol kustom. Anda mungkin butuh mengrestart peluncur agar perubahan berlaku.";
+"preference.section.general" = "General Settings";
+"preference.section.video" = "Video and Audio Settings";
+"preference.section.control" = "Control customization";
+"preference.section.debug" = "UI Debugging settings";
+"preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Tweak Java";
+"preference.section.java" = "Java Tweaks";
 //"preference.section.footer.java" = "";
 
-"preference.title.confirm" = "Apakah anda yakin?";
+"preference.title.confirm" = "Are you sure?";
 
-"preference.title.game_directory" = "Direktori game";
-"preference.title.confirm.delete_game_directory" = "Instansi %@ akan dihapus selamanya dan tidak dapat dikembalikan.";
-"preference.multidir.add_directory" = "Tambah direktori permainan";
+"preference.title.game_directory" = "Game directory";
+"preference.title.confirm.delete_game_directory" = "The instance %@ will be deleted forever and cannot be restored.";
+"preference.multidir.add_directory" = "Add game directory";
 
-"preference.title.check_sha" = "Periksa berkas setelah mengunduh";
-"preference.detail.check_sha" = "Opsi ini memaksa peluncur untuk memeriksa hash berkas jika ada. Mencegah pengunduhan rusak.";
-"preference.title.cosmetica" = "Capes Cosmetica";
-"preference.detail.cosmetica" = "Nyalakan cape dari Cosmetica (sebelumnya Arc). Untuk informasi lebih lanjut mohon kunjungi https://cosmetica.cc. Membutuhkan OptiFine";
-"preference.title.debug_logging" = "Logging debug";
-"preference.detail.debug_logging" = "Mencatat peraturan-peraturan dalam dan aksi ke latestlog.txt. Ini membantu pengembang untuk mencari masalah lebih mudah, tetapi Minecragt kemungkinan akan berjalan lebih lambat karena logs akan lebih sering dicatat.";
-"preference.title.jitstreamer_server" = "IP server JitStreamer";
-"preference.detail.jitstreamer_server" = "Memperbolehkan anda untuk mengganti ke sebuah IP server JitStream kustom, seperti untuk instansi yang dihost sendiri. Opsi ini bisa dibiarkan jika anda menggunakan server JitStreamer bawaan.";
-"preference.title.appicon" = "Atur ikon aplikasi";
-"preference.detail.appicon" = "Memperbolehkan anda untuk memilih antara beberapa ikon layar rumah berbeda untuk Amethyst.";
+"preference.title.check_sha" = "Check files after downloading";
+"preference.detail.check_sha" = "This option forces launcher to check the file hash if it's available. Prevents broken downloads.";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.detail.cosmetica" = "Enable capes from Cosmetica (previously Arc). For more information please visit https://cosmetica.cc. Requires OptiFine.";
+"preference.title.debug_logging" = "Debug logging";
+"preference.detail.debug_logging" = "Logs internal settings and actions to latestlog.txt. This helps the developers find issues easier, but Minecraft may run slower as the logs will be written to more often.";
+"preference.title.jitstreamer_server" = "The server address of JitStreamer";
+"preference.detail.jitstreamer_server" = "This option gives custom access to JitStreamer servers for JIT addresses.";
+"preference.title.appicon" = "Set app icon";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
 "preference.title.appicon-default" = "Familiar Amethyst light";
 "preference.title.appicon-dark" = "Familiar Amethyst dark";
-"preference.title.hidden_sidebar" = "Sembunyikan sidebar menu utama secara default";
-"preference.detail.hidden_sidebar" = "Memperbolehkan anda untuk menyembunyikan sidebar di menu utama secara default dan saat mengubah orientasi di iOS 14 dan lebih baru.";
+"preference.title.hidden_sidebar" = "Hide main menu sidebar by default";
+"preference.detail.hidden_sidebar" = "Allows you to hide the sidebar on the main menu by default and when rotating.";
 
-"preference.title.reset_warnings" = "Reset semua peringatan";
-"preference.title.done.reset_warnings" = "Semua peringatan telah direset.";
+"preference.title.reset_warnings" = "Reset all warnings";
+"preference.title.done.reset_warnings" = "All warnings have been reset.";
 
-"preference.title.reset_settings" = "Reset semua peraturan";
-"preference.title.confirm.reset_settings" = "Ini akan menghapus semua peraturan yang telah kamu ubah, termasuk resolusi, besar tombol, dan argument Java.";
-"preference.title.done.reset_settings" = "Semua peraturan bawaan telah dipulihkan.";
+"preference.title.reset_settings" = "Reset all settings";
+"preference.title.confirm.reset_settings" = "This will remove all of your custom preferences, including resolution, button size, and Java arguments.";
+"preference.title.done.reset_settings" = "All of the default settings have been restored.";
 
 "preference.title.renderer" = "Renderer";
 
-"preference.title.renderer.debug.auto" = "Otomatis: gl4es atau ANGLE";
-"preference.title.renderer.debug.gl4es" = "gl4es 1.1.4 - mengekspor OpenGL 2.1";
-"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - mengekspor OpenGL 3.2 (Profil Core, terbatas)";
-"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - mengekspor OpenGL 4.1";
+"preference.title.renderer.debug.auto" = "Auto: gl4es or ANGLE";
+"preference.title.renderer.debug.gl4es" = "holy gl4es - exports OpenGL 2.1";
+"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exports OpenGL 3.2 (Core Profile, limited)";
+"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - exports OpenGL 4.1";
 
-"preference.detail.renderer" = "Ganti mesin render OpenGL yang dipake";
+"preference.detail.renderer" = "Change the OpenGL render engine to use. Zink is temporarily disabled on iOS 16 and later to diagnose issues.";
 
-"preference.title.resolution" = "Resolusi (%)";
-"preference.detail.resolution" = "Memperbolehkan anda untuk menunrunkan resolusi permainan.";
+"preference.title.resolution" = "Resolution (%)";
+"preference.detail.resolution" = "Allows you to decrease the game resolution.";
 
 "preference.title.fullscreen_airplay" = "Fullscreen AirPlay";
-"preference.detail.fullscreen_airplay" = "Memperbolehkan anda mempresentasikan window permainan dalam fullscreen di layar eksternal daripada mengkaca semuanya di layar.";
-"preference.title.press_duration" = "Durasi pencet-lama (ms)";
-"preference.detail.press_duration" = "Durasi pemicu pencet untuk menghancurkan balok dan menjatuhkan barang.";
-"preference.title.button_scale" = "Skala tombol dilayar (%)";
-"preference.detail.button_scale" = "Naikkan skala mereka jika tombol terlalu kecil, biasanya dibutuhkan oleh pengguna iPad.";
-"preference.title.mouse_scale" = "Skala mouse (%)";
-"preference.detail.mouse_scale" = "Ubah ukuran mouse virtual";
-"preference.title.mouse_speed" = "Kecepatan mouse (%)";
-"preference.detail.mouse_speed" = "Ubah kecepatan mouse virtual";
-"preference.title.virtmouse_enable" = "Mouse virtual";
-"preference.detail.virtmouse_enable" = "Nyalakan opsi ini untuk memulai dengan mouse virtual nyala";
-"preference.title.slideable_hotbar" = "Hotbar bisa digeser";
-"preference.detail.slideable_hotbar" = "Buat hotbar bisa digeser seperti mouse wheel";
+"preference.detail.fullscreen_airplay" = "Allows presenting fullscreen game window on the external display rather than mirroring everything on screen.";
+"preference.title.press_duration" = "Long-press duration (ms)";
+"preference.detail.press_duration" = "Trigger press duration for destroying blocks and dropping items.";
+"preference.title.button_scale" = "On-screen button scale (%)";
+"preference.detail.button_scale" = "Upscale them if buttons are too small, usually needed for iPad users.";
+"preference.title.mouse_scale" = "Mouse scaling (%)";
+"preference.detail.mouse_scale" = "Change the size of the virtual mouse";
+"preference.title.mouse_speed" = "Mouse speed (%)";
+"preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
+"preference.title.virtmouse_enable" = "Virtual mouse";
+"preference.detail.virtmouse_enable" = "Enable this option to start with virtual mouse on";
+"preference.title.slideable_hotbar" = "Slideable hotbar";
+"preference.detail.slideable_hotbar" = "Make the hotbar slideable like the mouse wheel";
 
-"preference.title.gyroscope_enable" = "Hidupkan kontrol giroskop";
-"preference.title.gyroscope_sensitivity" = "Giroskop mengontrol sensitivitas";
-"preference.detail.gyroscope_sensitivity" = "Sesuaikan sensitivitas kontrol giroskop";
+"preference.title.gyroscope_enable" = "Enable gyroscope controls";
+"preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
+"preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
 
-"preference.title.java_home" = "Gunakan Java 17 untuk Minecraft < 1.17";
-"preference.title.java_args" = "Argumen peluncuran JVM";
-"preference.placeholder.java_args" = "Sebutkan argument...";
-"preference.title.auto_ram" = "RAM otomatis";
-"preference.detail.auto_ram" = "Mengaktifkan pengatur RAM otomatis";
-"preference.warn.auto_ram" = "Mematikan opsi ini di perangkat tidak dijailbreak bisa berefek membuat permainan tidak stabil jika diubah. Lanjut dengan perhatian.";
-"preference.title.allocated_memory" = "Alokasi memory (MB)";
-"preference.detail.allocated_memory" = "Mengkontrol berapa banyak memori yang diberikan ke Minecraft";
-"preference.warn.allocated_memory" = "Karena limitasi dari operating systemnya, opsi ini bisa membuat permainan tidak stabil dengan isi yang tinggi. Lanjut dengan perhatian.";
-"preference.title.custom_env" = "Variable environment";
+"preference.title.java_home" = "Use Java 17 for Minecraft < 1.17";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.placeholder.java_args" = "Specify arguments...";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
+"preference.title.allocated_memory" = "Memory allocation (MB)";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"preference.warn.allocated_memory" = "Due to limitations in the operating system itself, this option may cause instability at this and higher values. Proceed with caution.";
+"preference.title.custom_env" = "Environment variables";
 
-"preference.title.debug_skip_wait_jit" = "Lewati dialog \"Menunggu JIT\"";
-"preference.detail.debug_skip_wait_jit" = "Ini tidak memperbolehkan anda untuk meluncur tanpa JIT, alih-alih ini melewati cek debugger, karena ceknya gagal di jailbreak tertentu.";
-"preference.title.debug_ipad_ui" = "Gunakan UI iPadOS";
-"preference.detail.debug_ipad_ui" = "Buka UI untuk iPAD (alert, keyboard, dll.) jika nyala atau UI iPhone jika mati.";
-"preference.title.debug_auto_correction" = "Koreksi otomatis";
-"preference.detail.debug_auto_correction" = "Nyalakan koreksi otomatis saat mengetik teks di dalam permainan.";
-"preference.title.debug_hide_home_indicator" = "Sembunyikan indikator rumah";
-"preference.detail.debug_hide_home_indicator" = "Ini akan mematikan penguncian indikator rumah. Anda akan butuh menggunakan Akses Dipandu untuk menyembunyikan dan mengunci indikator rumah di waktu bersamaan.";
-"preference.title.debug_show_layout_bounds" = "Tampilkan batas tata letak";
-"preference.detail.debug_show_layout_bounds" = "Tampilkan batas klip, margin";
-"preference.title.debug_show_layout_overlap" = "Tampilkan layout yang overlapping";
-"preference.detail.debug_show_layout_overlap" = "Lapis semua view dengan sebuah warna transparen untuk mengungkap view yang overlapping.";
+"preference.title.debug_skip_wait_jit" = "Skip \"Waiting for JIT\" dialog";
+"preference.detail.debug_skip_wait_jit" = "This does not allow you to launch without JIT, instead this skips debugger check, because check fails on certain jailbreaks.";
+"preference.title.debug_ipad_ui" = "Unlock iPadOS UI";
+"preference.detail.debug_ipad_ui" = "Unlock iPad-exclusive UI (alert, keyboard, etc.) if enabled or iPhone UI if disabled.";
+"preference.title.debug_auto_correction" = "Auto correction";
+"preference.detail.debug_auto_correction" = "Enable auto correction when typing text in game.";
+"preference.title.debug_hide_home_indicator" = "Hide home indicator";
+"preference.detail.debug_hide_home_indicator" = "This will disable home indicator locking. You will need to use Guided Access to hide and lock home indicator at the same time.";
+"preference.title.debug_show_layout_bounds" = "Show Border Layout";
+"preference.detail.debug_show_layout_bounds" = "Show Clip Borders, Margins";
+"preference.title.debug_show_layout_overlap" = "Layout Overlay Display";
+"preference.detail.debug_show_layout_overlap" = "Override each view with light yellow colors, the deeper the color will overlay";
 "controller_configurator.title.type.xbox" = "Xbox";
 "controller_configurator.title.type.playstation" = "PlayStation";
-"controller_configurator.playstation.title.named_back" = "Pilih";
+"controller_configurator.playstation.title.named_back" = "Select";

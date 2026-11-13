@@ -3,66 +3,66 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Oprește forțat";
-"game.menu.confirm.force_close" = "Ești sigur că vrei să închizi forțat?";
-"game.menu.log_output" = "Ieșire jurnal";
-"game.menu.custom_controls" = "Controale personalizate";
+"game.menu.force_close" = "Force Close";
+"game.menu.confirm.force_close" = "Are you sure you want to force close?";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
-"game.note.airplay" = "Minecraft este afisat in afisarea cu oglinda AirPlay";
+"game.note.airplay" = "Minecraft is being displayed in AirPlay mirrored display";
 
-"game.title.exit_code" = "Jocul a ieșit cu codul %d";
+"game.title.exit_code" = "Game exited with code %d";
 
 // The play button
-"Play" = "Joacă";
+"Play" = "Play";
 
 // Version categories
-"Installed" = "Instalat";
-"Snapshot" = "Lansat pentru testare";
-"Releases" = "Lansări";
-"Old-beta" = "Beta-vechi";
-"Old-alpha" = "Alpha-vechi";
+"Installed" = "Installed";
+"Snapshot" = "Snapshot";
+"Releases" = "Releases";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "Copiere";
-"Edit" = "Editează";
-"Remove" = "Șterge";
+"Copy" = "Copy";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Nume";
-"custom_controls.button_edit.size" = "Dimensiune";
-"custom_controls.button_edit.mapping" = "Asocieri";
-"custom_controls.button_edit.orientation" = "Orientare";
-"custom_controls.button_edit.toggleable" = "Comutabil";
-"custom_controls.button_edit.swipeable" = "Glisabil";
-"custom_controls.button_edit.bg_color" = "Culoarea de fundal";
-"custom_controls.button_edit.stroke_color" = "Culoarea conturului";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
 
-"custom_controls.button_menu.add_subbutton" = "Adaugă sub-buton";
-"custom_controls.control_menu.exit" = "Ieșire";
-"custom_controls.control_menu.save" = "Salvează";
-"custom_controls.control_menu.load" = "Incarcă";
-"custom_controls.control_menu.add_button" = "Adaugă buton";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "Controale personalizate";
-"launcher.menu.install_jar" = "Instalează .jar";
-"login.option.add" = "Adăugați un cont";
-"login.option.select" = "Selectează contul";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
 
-"News" = "Știri";
-"Settings" = "Setări";
-"preference.section.control" = "Personalizarea controalelor";
+"News" = "News";
+"Settings" = "Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Ajustări Java";
+"preference.section.java" = "Java Tweaks";
 
-"preference.title.game_directory" = "Dosarul jocului";
-"preference.title.cosmetica" = "Pelerine Cosmetica";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
 
-"preference.title.renderer" = "Randator";
+"preference.title.renderer" = "Renderer";
 
-"preference.title.gyroscope_enable" = "Permite controalele gyroscopului";
-"preference.title.gyroscope_sensitivity" = "Controalele tiroscopului controlează sensibilitatea";
-"preference.detail.gyroscope_sensitivity" = "Ajustați sensibilitatea controalelor cu giroscop";
-"preference.title.java_args" = "Argumente de lansare JVM";
+"preference.title.gyroscope_enable" = "Enable gyroscope controls";
+"preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
+"preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
+"preference.title.java_args" = "JVM Launch arguments";
 "preference.title.auto_ram" = "Auto RAM";
-"preference.detail.auto_ram" = "Activează ajustarea automată RAM";
-"preference.detail.allocated_memory" = "Controlează cât de multă memorie este dată la Minecraft";
-"controller_configurator.playstation.title.named_back" = "Selectați";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"controller_configurator.playstation.title.named_back" = "Select";

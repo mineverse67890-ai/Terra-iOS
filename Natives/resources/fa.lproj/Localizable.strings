@@ -3,187 +3,187 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "توقف اجباری";
-"game.menu.confirm.force_close" = "آیا از خروج اجباری اطمینان دارید؟";
-"game.menu.log_output" = "خروجی گزارش (لاگ)";
-"game.menu.custom_controls" = "کنترل‌های شخصی";
+"game.menu.force_close" = "Force Close";
+"game.menu.confirm.force_close" = "Are you sure you want to force close?";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
-"game.note.airplay" = "ماینکرفت در صفحه نمایش AirPlay نمایش داده می شود";
+"game.note.airplay" = "Minecraft is being displayed in AirPlay mirrored display";
 
-"game.title.exit_code" = "بازی با کد %d به اتمام رسید";
+"game.title.exit_code" = "Game exited with code %d";
 
 // The play button
-"Play" = "شروع بازی";
+"Play" = "Play";
 
 // Version categories
-"Installed" = "نصب شد";
-"Snapshot" = "اسنپ‌شات";
-"Releases" = "ورژن ها";
-"Old-beta" = "بتای-قدیمی";
-"Old-alpha" = "آلفای-قدیمی";
+"Installed" = "Installed";
+"Snapshot" = "Snapshot";
+"Releases" = "Releases";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
 
 // Custom controls
-"Copy" = "کپی";
-"Edit" = "ویرایش";
-"Move" = "انتقال";
-"Remove" = "حذف";
-"Resize" = "تغییر اندازه";
+"Copy" = "Copy";
+"Edit" = "Edit";
+"Move" = "Move";
+"Remove" = "Remove";
+"Resize" = "Resize";
 
-"custom_controls.button_edit.name" = "نام";
-"custom_controls.button_edit.size" = "اندازه";
-"custom_controls.button_edit.mapping" = "نقشه‌برداری";
-"custom_controls.button_edit.orientation" = "جهت";
-"custom_controls.button_edit.toggleable" = "حالت فعال/غیرفعال";
-"custom_controls.button_edit.mouse_pass" = "عبور از ماوس";
-"custom_controls.button_edit.swipeable" = "قابل سوایپ";
-"custom_controls.button_edit.bg_color" = "رنگ پس‌زمینه";
-"custom_controls.button_edit.stroke_width" = "ضخامت حاشیه (%)";
-"custom_controls.button_edit.stroke_color" = "رنگ حاشیه";
-"custom_controls.button_edit.corner_radius" = "شعاع گوشه (%)";
-"custom_controls.button_edit.opacity" = "کدورت (%)";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.mouse_pass" = "Mouse pass";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_width" = "Stroke width (dp)";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
+"custom_controls.button_edit.corner_radius" = "Corner radius (%)";
+"custom_controls.button_edit.opacity" = "Opacity (%):";
 
-"custom_controls.button_menu.add_subbutton" = "افزودن زیر-دکمه";
-"custom_controls.control_menu.discard_changes" = "لغو تغییرات";
-"custom_controls.control_menu.exit" = "خروج";
-"custom_controls.control_menu.exit.warn" = "شما درحال خروج بدون ذخیره تغییرات هستید.";
-"custom_controls.control_menu.save" = "ذخیره";
-"custom_controls.control_menu.save.error.default" = "نام کنترلر نمی تواند \"default\" باشد زیرا بازنویسی می شود.";
-"custom_controls.control_menu.save.error.json" = "ارور JSON";
-"custom_controls.control_menu.save.error.write" = "خطا هنگام ذخیرهٔ پرونده";
-"custom_controls.control_menu.load" = "بارگذاری";
-"custom_controls.control_menu.make_default" = "انتخاب به عنوان پیش فرض";
-"custom_controls.control_menu.safe_area" = "ناحیه امن";
-"custom_controls.control_menu.add_button" = "اضافه کردن دکمه";
-"custom_controls.control_menu.add_drawer" = "اضافه کردن کشو";
-"custom_controls.error.incompatible" = "این نسخه کنترل (کد %d) در این نسخه‌ی لانچر اجرا نشده است.";
-"custom_controls.hint" = "برای گزینه‌های بیشتر، هر نقطه از صفحه را طولانی فشار دهید";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.discard_changes" = "Discard changes";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.exit.warn" = "You are about to exit without saving changes.";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.save.error.default" = "The control name cannot be \"default\" because it cannot be changed.";
+"custom_controls.control_menu.save.error.json" = "JSON error";
+"custom_controls.control_menu.save.error.write" = "Error saving file";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.make_default" = "Make default";
+"custom_controls.control_menu.safe_area" = "Safe area";
+"custom_controls.control_menu.add_button" = "Add button";
+"custom_controls.control_menu.add_drawer" = "Add drawer";
+"custom_controls.error.incompatible" = "This control version (code %d) is not implemented in this launcher build.";
+"custom_controls.hint" = "Long-press anywhere on screen for more options";
 
-"init.migrateDir" = "دایرکتوری داده Amethyst در حال حاضر %@ است. تمام داده های موجود شما به مکان جدید منتقل شده اند.";
+"init.migrateDir" = "The Amethyst data directory is now %@. All of your existing data has been moved to the new location.";
 
-"launcher.menu.custom_controls" = "کنترل‌های شخصی";
-"launcher.menu.install_jar" = "نصب .jar";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
 
-"launcher.wait_jit.title" = "در انتظار JIT";
-"launcher.wait_jit.message" = "Amethyst متکی به تدوین در زمان مناسب برای جاوا برای کار در حداکثر عملکرد است.";
+"launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
+"launcher.wait_jit.message" = "Amethyst relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 
-"login.error.username.outOfRange" = "نام کاربری باید حداقل 3 کاراکتر و حداکثر 16 کاراکتر باشد";
+"login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 
-"login.alert.field.username" = "نام کاربری";
+"login.alert.field.username" = "Username";
 
-"login.jit.checking" = "در حال بررسی JIT";
-"login.jit.enabled" = "JIT فعال شد";
+"login.jit.checking" = "Checking for JIT";
+"login.jit.enabled" = "JIT has been enabled";
 
 // Login buttons
-"login.menu.sendlogs" = "log خود را ارسال کنید";
-"login.option.add" = "اضافه کردن حساب کاربری";
-"login.option.select" = "انتخاب اکانت";
-"login.option.microsoft" = "حساب مایکروسافت";
-"login.option.local" = "حساب محلی";
+"login.menu.sendlogs" = "Send your logs";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
+"login.option.microsoft" = "Microsoft account";
+"login.option.local" = "Local account";
 
-"login.warn.title.demomode" = "حساب شما نسخه ی دمو است";
-"login.warn.message.demomode" = "به عنوان جایگزینی برای حالت آفلاین و محلی، حالت دمو به شما این امکان را می دهد که وارد حساب مایکروسافتی شوید که مالک بازی نیست و نسخه آزمایشی Java Edition را که در نسخه های 1.3.1 و جدیدتر معرفی شده است، بازی کنید. نسخه‌های قدیمی‌تر شامل بازی کامل هستند، زیرا لانچر رسمی این محدودیت‌ها را اعمال نمی‌کند. برای کسب اطلاعات بیشتر در مورد این انتقال از حالت آفلاین به وب سایت ما مراجعه کنید.";
+"login.warn.title.demomode" = "Your account is Demo";
+"login.warn.message.demomode" = "As a replacement to offline and local mode, demo mode will allow you to sign into a Microsoft account that does not own the game and play the Java Edition trial, introduced in 1.3.1 and newer versions. Older versions contain the full game, as the official launcher does not place these restrictions. See our website to learn more about this transition from offline mode.";
 
-"login.warn.title.localmode" = "حالت آفلاین اکنون حالت محلی است.";
+"login.warn.title.localmode" = "About Local Mode";
 
-"login.msa.error.xsts.noxboxacc" = "یک نمایه Xbox برای این حساب مایکروسافت ثبت نشده است. لطفاً مطمئن شوید که یک نمایه Xbox ساخته اید.\nکد خطا: 2148916233";
-"login.msa.error.xsts.noxbox" = "Xbox Live در حال حاضر در کشور شما در دسترس نیست.\nکد خطا: 2148916235";
-"login.msa.error.xsts.krverify" = "قبل از اینکه بتوانید ادامه دهید، باید حساب شما توسط والدینتان تأیید شود.\nکد خطا: 2148916236 یا 2148916237.";
-"login.msa.error.xsts.underage" = "قبل از اینکه بتوانید ادامه دهید، باید حساب شما به یک حساب والدین مرتبط شود.\nکد خطا: 2148916238";
+"login.msa.error.xsts.noxboxacc" = "An Xbox profile is not registered for this Microsoft account. Please make sure that you have made an Xbox profile.\nError code: 2148916233";
+"login.msa.error.xsts.noxbox" = "Xbox Live is currently unavailable in your country.\nError code: 2148916235";
+"login.msa.error.xsts.krverify" = "Your account needs to be verified by your parents before you can continue.\nError code: 2148916236 or 2148916237";
+"login.msa.error.xsts.underage" = "Your account needs to be linked to a parent account before you can continue.\nError code: 2148916238";
 
-"login.msa.progress.acquireAccessToken" = "(1/5) به دست آوردن توکن دسترسی";
-"login.msa.progress.acquireXBLToken" = "(2/5) دریافت توکن Xbox Live";
-"login.msa.progress.acquireXSTS" = "گرفتن XSTS";
-"login.msa.progress.acquireXboxProfile" = "(3/5) به دست آوردن نمایه Xbox";
-"login.msa.progress.acquireMCToken" = "(4/5) به دست آوردن توکن حساب ماینکرفت";
-"login.msa.progress.checkMCProfile" = "(5/5) بررسی پروفایل حساب ماینکرفت";
+"login.msa.progress.acquireAccessToken" = "(1/6) Acquiring the Access token";
+"login.msa.progress.acquireXBLToken" = "(2/6) Acquiring the Xbox Live token";
+"login.msa.progress.acquireXSTS" = "(3/6) Acquiring XSTS";
+"login.msa.progress.acquireXboxProfile" = "(4/6) Acquiring the Xbox profile";
+"login.msa.progress.acquireMCToken" = "(5/6) Acquiring the Minecraft token";
+"login.msa.progress.checkMCProfile" = "(6/6) Checking the Minecraft profile";
 
-"News" = "اخبار";
-"Settings" = "تنظیمات";
+"News" = "News";
+"Settings" = "Settings";
 
-"preference.section.general" = "تنظیمات عمومی";
-"preference.section.control" = "شخصی سازی کنترلر";
-"preference.section.debug" = "تنظیمات اشکال زدایی رابط کاربری";
-"preference.section.footer.debug" = "جدای از اشکال زدایی، این تنظیمات ممکن است برای کنترل های سفارشی مفید باشند. ممکن است لازم باشد نرم‌افزار را مجدداً راه‌اندازی کنید تا تغییرات اعمال شوند.";
+"preference.section.general" = "General Settings";
+"preference.section.control" = "Control customization";
+"preference.section.debug" = "UI Debugging settings";
+"preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "ترفند های جاوا";
+"preference.section.java" = "Java Tweaks";
 //"preference.section.footer.java" = "";
 
-"preference.title.confirm" = "آیا مطمئن هستید؟";
+"preference.title.confirm" = "Are you sure?";
 
-"preference.title.game_directory" = "پوشه بازی";
-"preference.title.confirm.delete_game_directory" = "ورژن %@ برای همیشه حذف خواهد شد و قابل بازیابی نیست.";
-"preference.multidir.add_directory" = "افزودن پوشه بازی";
+"preference.title.game_directory" = "Game directory";
+"preference.title.confirm.delete_game_directory" = "The instance %@ will be deleted forever and cannot be restored.";
+"preference.multidir.add_directory" = "Add game directory";
 
-"preference.title.check_sha" = "بررسی فایل ها بعد از دانلود";
-"preference.detail.check_sha" = "این گزینه لانچر را وادار می کند تا در صورت موجود بودن هش فایل را بررسی کند. از دانلودهای ناقص جلوگیری می کند.";
-"preference.title.cosmetica" = "شنل های Cosmetica";
-"preference.detail.cosmetica" = "شنل‌های Cosmetica (قبلاً Arc) را فعال کنید.  برای اطلاعات بیشتر لطفاً به https://cosmetica.cc مراجعه کنید.  به OptiFine نیاز دارد";
-"preference.title.debug_logging" = "گزارش اشکال زدایی";
-"preference.detail.debug_logging" = "تنظیمات و اقدامات داخلی را در latestlog.txt ثبت می کند. این به توسعه‌دهندگان کمک می‌کند تا مشکلات را آسان‌تر پیدا کنند، اما Minecraft ممکن است کندتر اجرا شود زیرا گزارش‌ها اغلب روی آن نوشته می‌شوند.";
-"preference.title.jitstreamer_server" = "آیپی سرور JitStreamer";
-"preference.detail.jitstreamer_server" = "به شما امکان می‌دهد به یک IP سرور سفارشی JitStreamer، مانند ورژن های خود میزبان، تغییر دهید. اگر از سرورهای پیش‌فرض JitStreamer استفاده می‌کنید، می‌توانید این گزینه را به حال خود رها کنید.";
-"preference.title.appicon" = "تنظیم نماد برنامه";
-"preference.detail.appicon" = "به شما امکان می دهد بین نمادهای مختلف صفحه اصلی برای Amethyst یکی را انتخاب کنید.";
-"preference.title.appicon-default" = "نور آشنا Amethyst";
-"preference.title.appicon-dark" = "تاریکی Amethyst آشنا";
-"preference.title.hidden_sidebar" = "نوار کناری منوی اصلی را به طور پیش فرض مخفی کنید";
+"preference.title.check_sha" = "Check files after downloading";
+"preference.detail.check_sha" = "This option forces launcher to check the file hash if it's available. Prevents broken downloads.";
+"preference.title.cosmetica" = "Cosmetica Capes";
+"preference.detail.cosmetica" = "Enable capes from Cosmetica (previously Arc). For more information please visit https://cosmetica.cc. Requires OptiFine.";
+"preference.title.debug_logging" = "Debug logging";
+"preference.detail.debug_logging" = "Logs internal settings and actions to latestlog.txt. This helps the developers find issues easier, but Minecraft may run slower as the logs will be written to more often.";
+"preference.title.jitstreamer_server" = "The server address of JitStreamer";
+"preference.detail.jitstreamer_server" = "This option gives custom access to JitStreamer servers for JIT addresses.";
+"preference.title.appicon" = "Set app icon";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
+"preference.title.appicon-default" = "Familiar Amethyst light";
+"preference.title.appicon-dark" = "Familiar Amethyst dark";
+"preference.title.hidden_sidebar" = "Hide main menu sidebar by default";
 
-"preference.title.reset_warnings" = "بازنشانی همه هشدارها";
-"preference.title.done.reset_warnings" = "همه هشدار ها بازتنظیم شدند.";
+"preference.title.reset_warnings" = "Reset all warnings";
+"preference.title.done.reset_warnings" = "All warnings have been reset.";
 
-"preference.title.reset_settings" = "تمام تنظیمات را بازنشانی کنید";
-"preference.title.confirm.reset_settings" = "با این کار همه تنظیمات برگزیده سفارشی شما از جمله وضوح، اندازه دکمه و آرگومان های جاوا حذف می شود.";
-"preference.title.done.reset_settings" = "تمام تنظیمات پیش فرض بازیابی شده است.";
+"preference.title.reset_settings" = "Reset all settings";
+"preference.title.confirm.reset_settings" = "This will remove all of your custom preferences, including resolution, button size, and Java arguments.";
+"preference.title.done.reset_settings" = "All of the default settings have been restored.";
 
-"preference.title.renderer" = "رندر کننده";
+"preference.title.renderer" = "Renderer";
 
-"preference.title.renderer.debug.auto" = "خودکار: gl4es یا ANGLE";
-"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - OpenGL 3.2 را صادر می کند (نمایه هسته، محدود)";
-"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - OpenGL 4.1 را صادر می کند";
+"preference.title.renderer.debug.auto" = "Auto: gl4es or ANGLE";
+"preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exports OpenGL 3.2 (Core Profile, limited)";
+"preference.title.renderer.debug.zink" = "Zink (Mesa 25.0.7) - exports OpenGL 4.1";
 
-"preference.title.resolution" = "وضوح (%)";
-"preference.detail.resolution" = "به شما امکان می دهد وضوح بازی را کاهش دهید.";
+"preference.title.resolution" = "Resolution (%)";
+"preference.detail.resolution" = "Allows you to decrease the game resolution.";
 
-"preference.title.fullscreen_airplay" = "AirPlay تمام صفحه";
-"preference.detail.fullscreen_airplay" = "به جای انعکاس همه چیز روی صفحه نمایش، به نمایش پنجره بازی تمام صفحه روی صفحه نمایش خارجی اجازه می دهد.";
-"preference.title.press_duration" = "مدت زمان فشار طولانی (ms)";
-"preference.detail.press_duration" = "مدت زمان فشار برای از بین بردن بلوک ها و انداختن آیتم ها را فعال کنید.";
-"preference.title.button_scale" = "مقیاس دکمه روی صفحه (%)";
-"preference.detail.button_scale" = "اگر دکمه‌ها خیلی کوچک هستند، آن‌ها را ارتقا دهید، که معمولاً برای کاربران iPad مورد نیاز است.";
-"preference.title.mouse_scale" = "مقیاس ماوس (%)";
-"preference.detail.mouse_scale" = "تغییر اندازه ماوس مجازی";
-"preference.title.mouse_speed" = "سرعت ماوس (%)";
-"preference.detail.mouse_speed" = "تغییر سرعت ماوس مجازی";
-"preference.title.virtmouse_enable" = "ماوس مجازی";
-"preference.detail.virtmouse_enable" = "این گزینه را برای شروع با موس مجازی فعال کنید";
-"preference.title.slideable_hotbar" = "هاتبار کشویی";
-"preference.detail.slideable_hotbar" = "هاتبار را مانند چرخ ماوس قابل لغزش کنید";
+"preference.title.fullscreen_airplay" = "Fullscreen AirPlay";
+"preference.detail.fullscreen_airplay" = "Allows presenting fullscreen game window on the external display rather than mirroring everything on screen.";
+"preference.title.press_duration" = "Long-press duration (ms)";
+"preference.detail.press_duration" = "Trigger press duration for destroying blocks and dropping items.";
+"preference.title.button_scale" = "On-screen button scale (%)";
+"preference.detail.button_scale" = "Upscale them if buttons are too small, usually needed for iPad users.";
+"preference.title.mouse_scale" = "Mouse scaling (%)";
+"preference.detail.mouse_scale" = "Change the size of the virtual mouse";
+"preference.title.mouse_speed" = "Mouse speed (%)";
+"preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
+"preference.title.virtmouse_enable" = "Virtual mouse";
+"preference.detail.virtmouse_enable" = "Enable this option to start with virtual mouse on";
+"preference.title.slideable_hotbar" = "Slideable hotbar";
+"preference.detail.slideable_hotbar" = "Make the hotbar slideable like the mouse wheel";
 
-"preference.title.gyroscope_enable" = "فعال کردن کنترل های ژیروسکوپ";
-"preference.title.gyroscope_sensitivity" = "حساسیت کنترلر های ژیروسکوپ";
-"preference.detail.gyroscope_sensitivity" = "حساسیت کنترل های ژیروسکوپ را تنظیم کنید";
+"preference.title.gyroscope_enable" = "Enable gyroscope controls";
+"preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
+"preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
 
-"preference.title.java_home" = "از جاوا 17 برای ماینکرفت 1.17 به بالا استفاده کنید";
-"preference.title.java_args" = "آرگومان‌های جاوا در هنگام اجرا";
-"preference.placeholder.java_args" = "آرگومان ها را مشخص کنید...";
-"preference.title.auto_ram" = "رم اتوماتیک";
-"preference.detail.auto_ram" = "تنظیم‌کننده اتوماتیک رم را فعال می‌کند";
-"preference.warn.auto_ram" = "غیرفعال کردن این گزینه در دستگاه‌های غیر جیلبریک می‌تواند در صورت تغییر، بی‌ثباتی ایجاد کند. با توجه ادامه بدهید.";
-"preference.title.allocated_memory" = "میزان رم اختصاص یافته(MB)";
-"preference.detail.allocated_memory" = "میزان مموری اختصاص یافته به ماینکرفت را کنترل می‌کند";
-"preference.warn.allocated_memory" = "با توجه به محدودیت های موجود در خود سیستم عامل، این گزینه ممکن است باعث ناپایداری در مقادیر این و بالاتر شود. با توجه ادامه بدهید.";
-"preference.title.custom_env" = "متغیرهای محیطی";
+"preference.title.java_home" = "Use Java 17 for Minecraft < 1.17";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.placeholder.java_args" = "Specify arguments...";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.warn.auto_ram" = "Disabling this option on an unjailbroken device can create instability if altered. Proceed with caution.";
+"preference.title.allocated_memory" = "Memory allocation (MB)";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"preference.warn.allocated_memory" = "Due to limitations in the operating system itself, this option may cause instability at this and higher values. Proceed with caution.";
+"preference.title.custom_env" = "Environment variables";
 
-"preference.title.debug_skip_wait_jit" = "از گفتگوی \"در انتظار JIT\" رد شوید";
-"preference.detail.debug_skip_wait_jit" = "این به شما اجازه نمی‌دهد بدون JIT راه‌اندازی کنید، در عوض از بررسی دیباگر صرفنظر می‌شود، زیرا بررسی در برخی از جیلبریک‌ها با شکست مواجه می‌شود.";
-"preference.title.debug_ipad_ui" = "رابط کاربری iPadOS را باز کنید";
-"preference.detail.debug_ipad_ui" = "در صورت فعال بودن، رابط کاربری منحصر به فرد iPad (هشدار، صفحه کلید و غیره) یا در صورت غیرفعال بودن رابط کاربری آیفون را باز کنید.";
-"preference.title.debug_auto_correction" = "تصحیح خودکار";
-"preference.detail.debug_auto_correction" = "هنگام تایپ متن در بازی، تصحیح خودکار را فعال کنید.";
-"preference.title.debug_hide_home_indicator" = "نشانگر خانه را پنهان کنید";
-"preference.detail.debug_hide_home_indicator" = "این کار قفل نشانگر خانه را غیرفعال می کند. برای مخفی کردن و قفل کردن نشانگر خانه به طور همزمان باید از Guided Access استفاده کنید.";
-"preference.title.debug_show_layout_bounds" = "نمایش محدوده‌های طرح‌بندی";
-"preference.detail.debug_show_layout_bounds" = "نمایش مرزها، حاشیه‌ها";
-"preference.title.debug_show_layout_overlap" = "نمایش همپوشانی طرح";
-"preference.detail.debug_show_layout_overlap" = "هر نما را با یک رنگ شفاف پوشش دهید تا نماهای همپوشانی نشان داده شود.";
-"controller_configurator.playstation.title.named_back" = "انتخاب";
+"preference.title.debug_skip_wait_jit" = "Skip \"Waiting for JIT\" dialog";
+"preference.detail.debug_skip_wait_jit" = "This does not allow you to launch without JIT, instead this skips debugger check, because check fails on certain jailbreaks.";
+"preference.title.debug_ipad_ui" = "Unlock iPadOS UI";
+"preference.detail.debug_ipad_ui" = "Unlock iPad-exclusive UI (alert, keyboard, etc.) if enabled or iPhone UI if disabled.";
+"preference.title.debug_auto_correction" = "Auto correction";
+"preference.detail.debug_auto_correction" = "Enable auto correction when typing text in game.";
+"preference.title.debug_hide_home_indicator" = "Hide home indicator";
+"preference.detail.debug_hide_home_indicator" = "This will disable home indicator locking. You will need to use Guided Access to hide and lock home indicator at the same time.";
+"preference.title.debug_show_layout_bounds" = "Show Border Layout";
+"preference.detail.debug_show_layout_bounds" = "Show Clip Borders, Margins";
+"preference.title.debug_show_layout_overlap" = "Layout Overlay Display";
+"preference.detail.debug_show_layout_overlap" = "Override each view with light yellow colors, the deeper the color will overlay";
+"controller_configurator.playstation.title.named_back" = "Select";

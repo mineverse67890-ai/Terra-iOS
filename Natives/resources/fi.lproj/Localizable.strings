@@ -1,5 +1,5 @@
-"game.menu.log_output" = "tallenna tulos";
-"custom_controls.control_menu.exit" = "Poistu";
-"custom_controls.control_menu.save" = "Tallenna";
-"login.option.select" = "Valitse tili";
-"Settings" = "Asetukset";
+"game.menu.log_output" = "Log output";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"login.option.select" = "Select account";
+"Settings" = "Settings";

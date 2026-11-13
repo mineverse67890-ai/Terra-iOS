@@ -1,5 +1,5 @@
-"custom_controls.button_edit.size" = "Størrelse";
-"custom_controls.button_edit.orientation" = "Orientering";
-"custom_controls.button_edit.bg_color" = "Baggrundsfarve";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.bg_color" = "Background color";
 
-"News" = "Nyt";
+"News" = "News";

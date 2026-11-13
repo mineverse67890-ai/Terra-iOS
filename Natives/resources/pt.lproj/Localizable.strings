@@ -3,48 +3,48 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "Forçar encerramento";
-"game.menu.log_output" = "Registro de saída";
-"game.menu.custom_controls" = "Controlos personalizados";
+"game.menu.force_close" = "Force Close";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
 // The play button
-"Play" = "Jogar";
+"Play" = "Play";
 "Snapshot" = "Snapshot";
-"Old-beta" = "Beta antiga";
-"Old-alpha" = "Alpha antiga";
-"Edit" = "Editar";
-"Remove" = "Remover";
+"Old-beta" = "Old-beta";
+"Old-alpha" = "Old-alpha";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "Nome";
-"custom_controls.button_edit.size" = "Tamanho";
-"custom_controls.button_edit.mapping" = "Mapeamento";
-"custom_controls.button_edit.orientation" = "Orientação";
-"custom_controls.button_edit.toggleable" = "Alternável";
-"custom_controls.button_edit.swipeable" = "Deslizável";
-"custom_controls.button_edit.bg_color" = "Cor do fundo";
-"custom_controls.button_edit.stroke_color" = "Cor do traçado";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
 
-"custom_controls.button_menu.add_subbutton" = "Adicionar sub-botão";
-"custom_controls.control_menu.exit" = "Sair";
-"custom_controls.control_menu.save" = "Guardar";
-"custom_controls.control_menu.load" = "Carregar";
-"custom_controls.control_menu.add_button" = "Adicionar botão";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "Controlos personalizados";
-"launcher.menu.install_jar" = "Instalar .jar";
-"login.option.select" = "Seleciona a conta";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.select" = "Select account";
 
-"News" = "Notícias";
-"Settings" = "Definições";
-"preference.section.control" = "Customização dos controlos";
+"News" = "News";
+"Settings" = "Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "Ajustes do Java";
+"preference.section.java" = "Java Tweaks";
 
-"preference.title.game_directory" = "Diretório do jogo";
-"preference.title.cosmetica" = "Capas da 'Comestica'";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
 
-"preference.title.renderer" = "Renderizador";
-"preference.title.java_args" = "Argumentos JVM";
-"preference.title.auto_ram" = "RAM automática";
-"preference.detail.auto_ram" = "Ativa o ajuste automático de RAM";
-"preference.detail.allocated_memory" = "Controla quanta memória é dada ao Minecraft";
+"preference.title.renderer" = "Renderer";
+"preference.title.java_args" = "JVM Launch arguments";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";

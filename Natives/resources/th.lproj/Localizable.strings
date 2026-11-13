@@ -3,54 +3,54 @@
   StringLocalization
 */
 
-"game.menu.force_close" = "บังคับปิด";
-"game.menu.log_output" = "ประวัติที่บันทึกไว้";
-"game.menu.custom_controls" = "การควบคุมกำหนดเอง";
+"game.menu.force_close" = "Force Close";
+"game.menu.log_output" = "Log output";
+"game.menu.custom_controls" = "Custom controls";
 
 // The play button
-"Play" = "เล่น";
-"Snapshot" = "ภาพรวม";
-"Old-beta" = "เบตาเก่า";
+"Play" = "Play";
+"Snapshot" = "Snapshot";
+"Old-beta" = "Old-beta";
 "Old-alpha" = "Old-alpha";
-"Edit" = "แก้ไข";
-"Remove" = "ถอดออก";
+"Edit" = "Edit";
+"Remove" = "Remove";
 
-"custom_controls.button_edit.name" = "ชื่อ";
-"custom_controls.button_edit.size" = "ขนาด";
-"custom_controls.button_edit.mapping" = "ปุ่มที่ให้กด";
-"custom_controls.button_edit.orientation" = "ทิคทางการหัน";
-"custom_controls.button_edit.toggleable" = "ค้างไว้";
-"custom_controls.button_edit.swipeable" = "ลากได้";
-"custom_controls.button_edit.bg_color" = "สีพื้นหลัง";
-"custom_controls.button_edit.stroke_color" = "สีของเส้นขึด";
+"custom_controls.button_edit.name" = "Name";
+"custom_controls.button_edit.size" = "Size";
+"custom_controls.button_edit.mapping" = "Mapping";
+"custom_controls.button_edit.orientation" = "Orientation";
+"custom_controls.button_edit.toggleable" = "Toggleable";
+"custom_controls.button_edit.swipeable" = "Swipeable";
+"custom_controls.button_edit.bg_color" = "Background color";
+"custom_controls.button_edit.stroke_color" = "Stroke color";
 
-"custom_controls.button_menu.add_subbutton" = "เพื่มปุ่มรอง";
-"custom_controls.control_menu.exit" = "ออก";
-"custom_controls.control_menu.save" = "บันทึก";
-"custom_controls.control_menu.load" = "โหลด";
-"custom_controls.control_menu.add_button" = "เพิ่มปุ่ม";
+"custom_controls.button_menu.add_subbutton" = "Add sub-button";
+"custom_controls.control_menu.exit" = "Exit";
+"custom_controls.control_menu.save" = "Save";
+"custom_controls.control_menu.load" = "Load";
+"custom_controls.control_menu.add_button" = "Add button";
 
-"launcher.menu.custom_controls" = "การควบคุมกำหนดเอง";
-"launcher.menu.install_jar" = "ติดตั้ง .jar";
-"login.option.add" = "เพิ่มบัญชี";
-"login.option.select" = "เลือกบัญชี";
+"launcher.menu.custom_controls" = "Custom controls";
+"launcher.menu.install_jar" = "Install .jar";
+"login.option.add" = "Add account";
+"login.option.select" = "Select account";
 
-"News" = "ข่าวสาร";
-"Settings" = "การตั้งค่า";
-"preference.section.control" = "ปรับเเต่งการควบคุม";
+"News" = "News";
+"Settings" = "Settings";
+"preference.section.control" = "Control customization";
 //"preference.section.footer.control" = "";
-"preference.section.java" = "จาวาทวิก";
+"preference.section.java" = "Java Tweaks";
 
-"preference.title.game_directory" = "ตำเเห่งโฟรเดอร์เกม";
-"preference.title.cosmetica" = "ผ้าคลุมที่มีภาพ";
+"preference.title.game_directory" = "Game directory";
+"preference.title.cosmetica" = "Cosmetica Capes";
 
-"preference.title.renderer" = "การแสดงผล";
+"preference.title.renderer" = "Renderer";
 
-"preference.title.gyroscope_enable" = "เปิดใช้งานการควบคุมไจโรสโคป";
-"preference.title.gyroscope_sensitivity" = "ความรวดเร็วในการควบคุมไจโร";
-"preference.detail.gyroscope_sensitivity" = "ปรับความไวของการควบคุมไจโรสโคป";
+"preference.title.gyroscope_enable" = "Enable gyroscope controls";
+"preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
+"preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
 "preference.title.java_args" = "JVM Launch arguments";
-"preference.title.auto_ram" = "RAM อัตโนมัติ";
-"preference.detail.auto_ram" = "เปิดใช้งานตัวปรับ RAM อัตโนมัติ";
-"preference.detail.allocated_memory" = "ควบคุมเเรมที่จะให้กับเกมมายคราฟ";
-"controller_configurator.playstation.title.named_back" = "เลือก";
+"preference.title.auto_ram" = "Auto RAM";
+"preference.detail.auto_ram" = "Enables automatic RAM adjuster";
+"preference.detail.allocated_memory" = "Controls how much memory is given to Minecraft";
+"controller_configurator.playstation.title.named_back" = "Select";
