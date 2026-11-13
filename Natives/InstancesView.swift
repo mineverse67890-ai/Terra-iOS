@@ -270,7 +270,10 @@ private struct TerraInstancesView: View {
                 Label(instance.size, systemImage: "externaldrive")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Text(instance.path)
+                Label("Isolated game directory", systemImage: "lock.shield")
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(.secondary)
+                Text(displayPath(instance.path))
                     .font(.system(.caption2, design: .monospaced))
                     .foregroundColor(.secondary)
                     .lineLimit(2)
@@ -305,6 +308,19 @@ private struct TerraInstancesView: View {
         .background(cardBackground)
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
             .stroke(Color.primary.opacity(0.06), lineWidth: 1))
+    }
+
+    private func displayPath(_ path: String) -> String {
+        guard !path.isEmpty else { return "Unavailable" }
+        let normalizedPath = URL(fileURLWithPath: path).standardizedFileURL.path
+        let documentsPath = URL(fileURLWithPath: NSHomeDirectory())
+            .appendingPathComponent("Documents", isDirectory: true)
+            .standardizedFileURL.path
+        if normalizedPath.hasPrefix(documentsPath + "/") {
+            let relativePath = String(normalizedPath.dropFirst(documentsPath.count))
+            return "Documents\(relativePath.hasSuffix("/") ? relativePath : relativePath + "/")"
+        }
+        return normalizedPath.hasSuffix("/") ? normalizedPath : normalizedPath + "/"
     }
 
     @ViewBuilder

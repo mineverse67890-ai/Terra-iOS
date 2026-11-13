@@ -3,7 +3,7 @@
 #import "AFNetworking.h"
 #import "ALTServerConnection.h"
 #import "CustomControlsViewController.h"
-#import "DownloadTasksViewController.h"
+#import "DownloadCenterHost.h"
 #import "DownloadTaskManager.h"
 #import "DownloadTaskItem.h"
 #import "PLTaskProgressViewController.h"
@@ -38,18 +38,15 @@ static void *ProgressObserverContext = &ProgressObserverContext;
 @property(nonatomic) UITextField* versionTextField;
 @property(nonatomic) int profileSelectedAt;
 
-// ===== 下载中心入口（参照 FCL/ZL2/HMCL 下载进度弹窗入口）=====
-// 在工具栏上添加"下载中心"按钮，点击后弹出 DownloadTasksViewController，
-// 集中显示所有下载任务的进度（MC本体/模组/光影/资源包/数据包/世界存档/整合包）。
-// 所有通过 DownloadTaskManager 注册的下载任务都统一由这个弹窗显示进度。
+// ===== Download Center entry =====
+// The toolbar entry presents the SwiftUI download center for all DownloadTaskManager tasks.
 @property(nonatomic, strong) UIButton *downloadCenterButton;
 @property(nonatomic, strong) UIActivityIndicatorView *downloadCenterActivityIndicator;
 @property(nonatomic, strong) UILabel *downloadCenterProgressLabel;
-// 进行中任务数徽标（redesign-download-ui Task 2.4）：红色圆形小徽标
-// 叠在按钮左侧下载图标右上角，显示进行中（下载中/排队中）任务数
+// Red circular badge showing the number of active and queued tasks.
 @property(nonatomic, strong) UILabel *downloadCenterBadgeLabel;
-@property(nonatomic, weak) DownloadTasksViewController *presentedDownloadCenterVC;
-// 标记用户是否手动关闭了下载中心（避免下载任务更新时反复自动弹出）
+@property(nonatomic, weak) UIViewController *presentedDownloadCenterVC;
+// Tracks manual dismissal to prevent task updates from reopening the sheet.
 @property(nonatomic, assign) BOOL userDismissedDownloadCenter;
 
 @end
@@ -110,14 +107,14 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     [self.buttonInstall addTarget:self action:@selector(performInstallOrShowDetails:) forControlEvents:UIControlEventPrimaryActionTriggered];
     [targetToolbar addSubview:self.buttonInstall];
 
-    // ===== 下载中心入口按钮（参照 FCL/ZL2/HMCL 下载进度弹窗入口）=====
-    // 在工具栏左侧添加一个"下载中心"按钮，当有下载任务时显示，
-    // 点击弹出 DownloadTasksViewController（FormSheet 方式），集中显示所有下载任务进度。
-    // 按钮布局：[图标] [进度百分比] [活动指示器]
+    // ===== Download Center toolbar button =====
+    // Show the button on the left side of the toolbar while download tasks exist.
+    // Present the SwiftUI download center as a sheet with all task progress.
+    // Button layout: icon, progress percentage, and activity indicator.
     CGFloat dcBtnWidth = 72.0;
     CGFloat dcBtnHeight = self.toolbar.frame.size.height - 8;
     self.downloadCenterButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    // 不使用按钮的 title 显示文字，改用独立的 progressLabel 避免与图标布局冲突
+    // Use a separate progress label to avoid conflicting with the button icon.
     self.downloadCenterButton.tintColor = [UIColor whiteColor];
     self.downloadCenterButton.backgroundColor = [UIColor colorWithRed:121/255.0 green:56/255.0 blue:162/255.0 alpha:0.85];
     self.downloadCenterButton.layer.cornerRadius = 5;
@@ -125,14 +122,14 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     self.downloadCenterButton.frame = CGRectMake(4, 4, dcBtnWidth, dcBtnHeight);
     self.downloadCenterButton.autoresizingMask = UIViewAutoresizingFlexibleRightMargin;
     [self.downloadCenterButton setImage:[UIImage systemImageNamed:@"arrow.down.circle"] forState:UIControlStateNormal];
-    // 图标固定在按钮左侧
+    // Keep the icon aligned to the left side of the button.
     CGFloat iconSize = 22.0;
     [self.downloadCenterButton setImageEdgeInsets:UIEdgeInsetsMake(0, 4, 0, dcBtnWidth - iconSize - 4)];
     [self.downloadCenterButton addTarget:self action:@selector(openDownloadCenter) forControlEvents:UIControlEventTouchUpInside];
     self.downloadCenterButton.hidden = YES;
     [targetToolbar addSubview:self.downloadCenterButton];
 
-    // 活动指示器（按钮右侧，下载中时旋转）
+    // Spin the activity indicator on the right while downloads are active.
     self.downloadCenterActivityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
     self.downloadCenterActivityIndicator.color = [UIColor whiteColor];
     self.downloadCenterActivityIndicator.hidesWhenStopped = YES;
@@ -300,29 +297,26 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     }
 }
 
-#pragma mark - 下载中心（参照 FCL/ZL2/HMCL 下载进度弹窗）
+#pragma mark - Download Center
 
-/// 打开下载中心弹窗
-/// 参照 FCL/ZL2/HMCL 的下载进度显示方式：以 FormSheet 方式弹出 DownloadTasksViewController，
-/// 集中显示所有下载任务（MC本体/模组/光影/资源包/数据包/世界存档/整合包）的实时进度。
-/// 所有通过 DownloadTaskManager 注册的下载任务都会在这里显示，实现统一的下载进度管理。
+/// Presents the SwiftUI Download Center sheet with live task progress.
 - (void)openDownloadCenter {
-    // 如果已经弹出了下载中心，直接返回避免重复弹出
+    // Avoid presenting a duplicate sheet.
     if (self.presentedDownloadCenterVC) {
         return;
     }
 
-    // 用户主动打开了下载中心，重置"用户已关闭"标记
+    // Reset the manual-dismissal flag when the user opens the sheet.
     self.userDismissedDownloadCenter = NO;
 
-    DownloadTasksViewController *downloadCenterVC = [[DownloadTasksViewController alloc] init];
-    downloadCenterVC.modalPresentationStyle = UIModalPresentationFormSheet;
-    downloadCenterVC.preferredContentSize = CGSizeMake(500, 600);
+    UIViewController *downloadCenterVC = TerraDownloadCenterViewControllerMake();
+    downloadCenterVC.modalPresentationStyle = UIModalPresentationPageSheet;
+    downloadCenterVC.preferredContentSize = CGSizeMake(560, 640);
 
-    // 弱引用持有，避免循环持有
+    // Keep a weak reference to avoid a retain cycle.
     self.presentedDownloadCenterVC = downloadCenterVC;
 
-    // 获取最顶层的视图控制器来 present
+    // Present from the topmost view controller.
     UIViewController *topVC = self;
     while (topVC.presentedViewController) {
         topVC = topVC.presentedViewController;
@@ -331,29 +325,24 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     [topVC presentViewController:downloadCenterVC animated:YES completion:nil];
 }
 
-/// 处理下载任务更新通知（进度变化、新任务注册等）
-/// 当收到通知时仅更新下载中心按钮的状态，不再自动弹出下载中心界面。
-///
-/// redesign-download-ui Phase 3：单任务进度展示统一由任务注册时置
-/// autoPresentDetail=YES 的 DownloadTaskItem 触发 DownloadTaskManager
-/// 自动弹出统一进度页（PLTaskProgressViewController）；下载中心
-/// DownloadTasksViewController 仅保留为手动打开（通过下载中心按钮）。
+/// Updates the toolbar button when task progress or registration changes.
+/// Task details are presented by PLTaskProgressViewController when requested;
+/// the Download Center itself is opened manually from the toolbar.
 - (void)handleDownloadTaskUpdate:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateDownloadCenterButton];
     });
 }
 
-/// 处理下载任务完成通知
+/// Updates the toolbar button when a download task completes.
 - (void)handleDownloadTaskCompleted:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateDownloadCenterButton];
     });
 }
 
-/// 处理下载中心被用户手动关闭的通知
-/// 设置 userDismissedDownloadCenter=YES，避免后续下载任务更新时反复自动弹出下载中心。
-/// 用户可以通过点击启动器上的"下载中心"按钮重新打开（会重置此标记）。
+/// Records manual dismissal so later task updates do not reopen the sheet.
+/// The toolbar button remains available to open it again.
 - (void)handleDownloadCenterDismissed {
     self.userDismissedDownloadCenter = YES;
     self.presentedDownloadCenterVC = nil;

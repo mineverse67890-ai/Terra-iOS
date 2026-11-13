@@ -84,39 +84,47 @@ private struct TerraSettingsView: View {
     var body: some View {
         NavigationStackContainer {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 14)], spacing: 14) {
-                    ForEach(categories) { category in
-                        Button {
-                            openCategoryHandler(category.id)
-                        } label: {
-                            HStack(spacing: 14) {
-                                Image(systemName: category.symbol)
-                                    .font(.system(size: 19, weight: .semibold))
-                                    .foregroundColor(category.tint)
-                                    .frame(width: 46, height: 46)
-                                    .background(RoundedRectangle(cornerRadius: 14).fill(category.tint.opacity(0.14)))
+                VStack(alignment: .leading, spacing: 18) {
+                    versionCard
 
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(category.title)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text(category.subtitle)
-                                        .font(.subheadline)
+                    Text("Preferences")
+                        .font(.title3.bold())
+                        .padding(.horizontal, 2)
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 250), spacing: 14)], spacing: 14) {
+                        ForEach(categories) { category in
+                            Button {
+                                openCategoryHandler(category.id)
+                            } label: {
+                                HStack(spacing: 14) {
+                                    Image(systemName: category.symbol)
+                                        .font(.system(size: 19, weight: .semibold))
+                                        .foregroundColor(category.tint)
+                                        .frame(width: 46, height: 46)
+                                        .background(RoundedRectangle(cornerRadius: 14).fill(category.tint.opacity(0.14)))
+
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text(category.title)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        Text(category.subtitle)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(2)
+                                    }
+                                    Spacer(minLength: 4)
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption.weight(.bold))
                                         .foregroundColor(.secondary)
-                                        .lineLimit(2)
                                 }
-                                Spacer(minLength: 4)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundColor(.secondary)
+                                .padding(16)
+                                .frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
+                                .background(cardBackground)
+                                .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                    .stroke(Color.primary.opacity(0.06), lineWidth: 1))
                             }
-                            .padding(16)
-                            .frame(maxWidth: .infinity, minHeight: 92, alignment: .leading)
-                            .background(cardBackground)
-                            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                .stroke(Color.primary.opacity(0.06), lineWidth: 1))
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(20)
@@ -125,6 +133,38 @@ private struct TerraSettingsView: View {
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
         }
+    }
+
+    private var versionCard: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "leaf.fill")
+                .font(.system(size: 21, weight: .semibold))
+                .foregroundColor(Color(red: 0.30, green: 0.65, blue: 0.48))
+                .frame(width: 48, height: 48)
+                .background(RoundedRectangle(cornerRadius: 15).fill(Color.green.opacity(0.13)))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Terra-iOS")
+                    .font(.headline)
+                Text("Version \(appVersion)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            Image(systemName: "checkmark.seal.fill")
+                .foregroundColor(Color(red: 0.30, green: 0.65, blue: 0.48))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(cardBackground)
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+            .stroke(Color.primary.opacity(0.06), lineWidth: 1))
+        .accessibilityElement(children: .combine)
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        return "v\(version ?? "0.1.0")"
     }
 
     @ViewBuilder

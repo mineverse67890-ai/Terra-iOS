@@ -10,7 +10,7 @@
 #import "MinecraftResourceUtils.h"
 #import "MinecraftResourceDownloadTask.h"
 #import "DownloadTaskManager.h"
-#import "DownloadTasksViewController.h"
+#import "DownloadCenterHost.h"
 #import "DownloadTaskItem.h"
 #import "PLTaskProgressViewController.h"
 #import "ALTServerConnection.h"
@@ -74,22 +74,19 @@ static void *ProgressObserverContext = &ProgressObserverContext;
 @property(nonatomic, strong) UIProgressView *progressView;
 @property(nonatomic, strong) UILabel *progressLabel;
 
-// ===== 下载中心入口（参照 FCL/ZL2/HMCL 的统一下载进度弹窗入口）=====
-// FCL/ZL2/HMCL 都在启动器主界面提供一个"下载管理/下载中心"入口按钮，
-// 点击后弹出下载进度对话框，集中显示所有下载任务（MC本体/模组/光影/资源包等）的实时进度。
-// 本按钮即对应这个入口：当 DownloadTaskManager 中存在任何下载任务时显示，
-// 点击以 FormSheet 方式弹出 DownloadTasksViewController（全任务列表 + 进度详情）。
+// ===== Download Center entry =====
+// Show this button on the launcher while DownloadTaskManager has tasks.
+// Present the SwiftUI download center with the full task list and progress details.
 @property(nonatomic, strong) UIButton *downloadCenterButton;
-// 按钮上的活动指示器（下载进行中时旋转，表示有活跃任务）
+// Spins while downloads are active.
 @property(nonatomic, strong) UIActivityIndicatorView *downloadCenterActivityIndicator;
-// 按钮上的进度百分比标签（实时显示所有活动任务的聚合进度）
+// Shows aggregate progress for active tasks.
 @property(nonatomic, strong) UILabel *downloadCenterProgressLabel;
-// 进行中任务数徽标（redesign-download-ui Task 2.4）：红色圆形小徽标显示
-// 进行中（下载中/排队中）任务数，无进行中任务时隐藏
+// Red circular badge showing active and queued task counts.
 @property(nonatomic, strong) UILabel *downloadCenterBadgeLabel;
-// 当前弹出的下载中心 VC（弱引用，避免循环持有）
-@property(nonatomic, weak) DownloadTasksViewController *presentedDownloadCenterVC;
-// 标记用户是否手动关闭了下载中心（避免下载任务更新时反复自动弹出）
+// Weak reference to the presented Download Center.
+@property(nonatomic, weak) UIViewController *presentedDownloadCenterVC;
+// Tracks manual dismissal to prevent task updates from reopening the sheet.
 @property(nonatomic, assign) BOOL userDismissedDownloadCenter;
 
 // FCL 风格：无账号时点击启动游戏跳转添加账号界面，登录完成后自动继续启动。
@@ -439,7 +436,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
         [self.progressView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12],
 
         // ===== 下载中心入口按钮（进度条下方）=====
-        // 当有下载任务时显示，点击弹出 DownloadTasksViewController（参照 FCL/ZL2/HMCL 下载进度弹窗）
+        // Show the entry while tasks exist; tapping it opens the SwiftUI download center.
         // ★ [NOOVERLAP] 竖屏右栏矮:下载中心按钮不再"从进度条往下长",
         //   改成【钉在 JIT 标签上方】—— 两边各自有归属,数学上不可能重叠。
         self.downloadToJitConstraint = [self.downloadCenterButton.bottomAnchor constraintEqualToAnchor:self.jitStatusLabel.topAnchor constant:-8], // ★ [LAUNCHA]
@@ -630,52 +627,41 @@ static void *ProgressObserverContext = &ProgressObserverContext;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ShowAccountManager" object:nil];
 }
 
-#pragma mark - 下载中心（参照 FCL/ZL2/HMCL 下载进度弹窗）
+#pragma mark - Download Center
 
-/// 打开下载中心弹窗
-/// 参照 FCL/ZL2/HMCL 的下载进度显示方式：以 FormSheet 方式弹出 DownloadTasksViewController，
-/// 集中显示所有下载任务（MC本体/模组/光影/资源包/数据包/世界存档/整合包）的实时进度。
-/// 所有通过 DownloadTaskManager 注册的下载任务都会在这里显示，实现统一的下载进度管理。
+/// Presents the SwiftUI Download Center sheet with live task progress.
 - (void)openDownloadCenter {
-    // 如果已经弹出了下载中心，直接返回避免重复弹出
+    // Avoid presenting a duplicate sheet.
     if (self.presentedDownloadCenterVC) {
         return;
     }
 
-    // 用户主动打开了下载中心，重置"用户已关闭"标记
+    // Reset the manual-dismissal flag when the user opens the sheet.
     self.userDismissedDownloadCenter = NO;
 
-    DownloadTasksViewController *downloadCenterVC = [[DownloadTasksViewController alloc] init];
-    downloadCenterVC.modalPresentationStyle = UIModalPresentationFormSheet;
-    // 弹出时不要覆盖全屏，FormSheet 方式在 iPad 上居中显示，在 iPhone 上接近全屏
-    downloadCenterVC.preferredContentSize = CGSizeMake(500, 600);
+    UIViewController *downloadCenterVC = TerraDownloadCenterViewControllerMake();
+    downloadCenterVC.modalPresentationStyle = UIModalPresentationPageSheet;
+    downloadCenterVC.preferredContentSize = CGSizeMake(560, 640);
 
-    // 弱引用持有，避免循环持有
+    // Keep a weak reference to avoid a retain cycle.
     self.presentedDownloadCenterVC = downloadCenterVC;
 
-    // 获取最顶层的视图控制器来 present
-    // ★ [NORIGHT] 右栏容器已 0×0 + hidden ⇒ 改用"窗口里最顶层的可见 VC"作宿主
-    //   (弹出的内容、模态样式、回调 delegate 全部不变)。
+    // The right-panel container is hidden, so present from the topmost visible controller.
     UIViewController *topVC = [self norightPresenter];
 
     [topVC presentViewController:downloadCenterVC animated:YES completion:nil];
 }
 
-/// 处理下载任务更新通知（进度变化、新任务注册等）
-/// 当收到通知时仅更新下载中心按钮的状态，不再自动弹出下载中心界面。
-///
-/// redesign-download-ui Phase 3：单任务进度展示统一由任务注册时置
-/// autoPresentDetail=YES 的 DownloadTaskItem 触发 DownloadTaskManager
-/// 自动弹出统一进度页（PLTaskProgressViewController）；下载中心
-/// DownloadTasksViewController 仅保留为手动打开（通过下载中心按钮）。
+/// Updates the toolbar button when task progress or registration changes.
+/// Task details are presented by PLTaskProgressViewController when requested;
+/// the Download Center itself is opened manually from the toolbar.
 - (void)handleDownloadTaskUpdate:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateDownloadCenterButton];
     });
 }
 
-/// 处理下载任务完成通知
-/// 当任务完成时更新按钮状态；如果所有任务都已完成，延迟隐藏下载中心按钮
+/// Updates the toolbar button when a task completes.
 - (void)handleDownloadTaskCompleted:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateDownloadCenterButton];
@@ -1839,7 +1825,7 @@ static void *ProgressObserverContext = &ProgressObserverContext;
         } else if ([action isEqualToString:@"versionPicker"]) {
             [self showVersionPicker];         // ★ 原实现:版本 ActionSheet → selectProfile:
         } else if ([action isEqualToString:@"downloadCenter"]) {
-            [self openDownloadCenter];        // ★ [TOPBAR2] 原实现:下载中心 FormSheet(顶栏 pill 转发)
+            [self openDownloadCenter];
         } else if ([action isEqualToString:@"accountManager"]) {
             [self selectAccount:nil];         // ★ 原实现:清"待启动"标记 + 发 ShowAccountManager
         } else if ([action isEqualToString:@"avatarMenu"]) {
