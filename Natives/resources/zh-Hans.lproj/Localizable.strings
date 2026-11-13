@@ -1,7 +1,6 @@
 /*
-  Localizable.strings  —  简体中文 (zh-Hans)
-  ★ [I18N-ORDER] 本文件曾长期是"英文占位"(与 en 逐字相同),导致系统为中文时界面渲染成英文。
-  现以真实简体中文(原 zh-CN.lproj 内容)重建;见 D:\CTF\_I18N_ORDER_FIX.md。
+  Localizable.strings
+  StringLocalization
 */
 
 "game.menu.force_close" = "Force Close";
@@ -15,24 +14,34 @@
 "game.menu.toggle_keyboard" = "Toggle Keyboard";
 "game.menu.resolution" = "Resolution";
 "game.menu.resolution.message" = "Select game resolution scale";
+
 "game.note.airplay" = "Minecraft is being displayed in AirPlay mirrored display";
+
 "game.title.exit_code" = "Game exited with code %d";
+
+// The play button
 "Play" = "Play";
 "Details" = "Details";
+
+// Version categories
 "Installed" = "Installed";
 "Snapshot" = "Snapshot";
 "Releases" = "Releases";
 "Unstable" = "Unstable";
 "Old-beta" = "Old-beta";
 "Old-alpha" = "Old-alpha";
+
+// Custom controls
 "Copy" = "Copy";
 "Edit" = "Edit";
 "Move" = "Move";
 "Remove" = "Remove";
 "Resize" = "Resize";
+// Visibility
 "Always" = "Always";
 "In game" = "In game";
 "In menu" = "In menu";
+
 "custom_controls.button_edit.forward_lock" = "Forward lock";
 "custom_controls.button_edit.name" = "Name";
 "custom_controls.button_edit.size" = "Size";
@@ -51,6 +60,7 @@
 "custom_controls.button_edit.section.input" = "Input";
 "custom_controls.button_edit.section.behavior" = "Behavior";
 "custom_controls.button_edit.section.appearance" = "Appearance";
+
 "custom_controls.button_menu.add_subbutton" = "Add sub-button";
 "custom_controls.control_menu.discard_changes" = "Discard changes";
 "custom_controls.control_menu.exit" = "Exit";
@@ -67,34 +77,44 @@
 "custom_controls.control_menu.add_joystick" = "Add joystick";
 "custom_controls.error.incompatible" = "This control version (code %d) is not implemented in this launcher build.";
 "custom_controls.hint" = "Long-press anywhere on screen for more options";
+
 "init.migrateDir" = "The Terra-iOS data directory is now %@. All of your existing data has been moved to the new location.";
+
 "java.error.missing_main_class" = "%@ is missing main class attribute. If this is a mod, put it into the “mods” folder of your selected instance.";
 "java.error.missing_runtime" = "%@ requires Java %d or later to run. Please install it first and specify it in Manage Runtimes.";
+
 "launcher.mcl.downloading_file" = "Downloading %@";
 "launcher.mcl.error_download" = "Failed to download %@: %@";
+
 "launcher.menu.custom_controls" = "Custom controls";
 "launcher.menu.install_jar" = "Install .jar";
 "launcher.menu.execute_jar" = "Execute .jar";
 "launcher.menu.import_modpack" = "Import modpack";
+
 "launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
 "launcher.wait_jit.message" = "Terra-iOS relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 "launcher.wait_jit_trollstore.message" = "If you still see this message, please enable URL Scheme in TrollStore.";
+
 "login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 "login.error.fields.empty" = "Please fill in all fields";
 "login.error.invalid_credentials" = "Invalid username or password";
 "login.error.token_missing" = "Access token or client token is missing";
 "login.error.token_expired" = "Authentication token has expired, please log in again";
 "login.error.invalid_response" = "Invalid server response";
+
 "login.alert.field.username" = "Username";
 "login.alert.field.password" = "Password";
 "login.alert.field.server" = "Server Address";
 "login.error.invalid_server" = "Invalid server address";
+
 "login.jit.checking" = "Checking for JIT";
 "login.jit.enabled" = "JIT has been enabled";
 "login.jit.fail" = "JIT could not be enabled.";
 "login.jit.fail.title" = "JIT could not be enabled on your device.";
 "login.jit.fail.description" = "No integrations could be used to automatically enable JIT on your device, and it must now be enabled manually. Errors have been logged to latestlog.txt.";
 "login.jit.fail.description_unsupported" = "An unsupported installation method has been detected. Please reinstall using one of supported methods.";
+
+// Login buttons
 "login.menu.sendlogs" = "Send your logs";
 "login.option.add" = "Add account";
 "login.option.select" = "Select account";
@@ -102,20 +122,25 @@
 "login.option.microsoft" = "Microsoft account";
 "login.option.local" = "Local account";
 "login.option.3rdparty" = "Third-party account";
+
 "login.warn.title.legacy_device" = "The next release of Terra-iOS will not be compatible with this device.";
 "login.warn.message.legacy_device" = "To run the next major release, a device capable of running iOS 14 is required.";
 "login.warn.title.legacy_ios" = "The next release of Terra-iOS will require a system update.";
 "login.warn.message.legacy_ios" = "To run the next major release, this device needs to be running iOS 14 or later.";
 "login.warn.title.limited_ram" = "This device has a limited amount of memory available.";
 "login.warn.message.limited_ram" = "We recommend leaving auto RAM enabled to prevent instability and performance issues.";
+
 "login.warn.title.demomode" = "Your account is Demo";
 "login.warn.message.demomode" = "As a replacement to offline and local mode, demo mode will allow you to sign into a Microsoft account that does not own the game and play the Java Edition trial, introduced in 1.3.1 and newer versions. Older versions contain the full game, as the official launcher does not place these restrictions. See our website to learn more about this transition from offline mode.";
+
 "login.warn.title.localmode" = "About Local Mode";
 "login.warn.message.localmode" = "The updated launcher supports offline mode and can be used to download games. \nYou can still play with an offline account, but it is recommended to support the official version. \nYou can purchase the official Minecraft at https://minecraft.net.";
+
 "login.msa.error.xsts.noxboxacc" = "An Xbox profile is not registered for this Microsoft account. Please make sure that you have made an Xbox profile.\nError code: 2148916233";
 "login.msa.error.xsts.noxbox" = "Xbox Live is currently unavailable in your country.\nError code: 2148916235";
 "login.msa.error.xsts.krverify" = "Your account needs to be verified by your parents before you can continue.\nError code: 2148916236 or 2148916237";
 "login.msa.error.xsts.underage" = "Your account needs to be linked to a parent account before you can continue.\nError code: 2148916238";
+
 "login.msa.progress.acquireAccessToken" = "(1/6) Acquiring the Access token";
 "login.msa.progress.acquireXBLToken" = "(2/6) Acquiring the Xbox Live token";
 "login.msa.progress.acquireXSTS" = "(3/6) Acquiring XSTS";
@@ -125,12 +150,14 @@
 "login.msa.error.network.token" = "Cannot reach the login server (%@). Check your network and try again.";
 "login.msa.error.xbl.rejected" = "Could not acquire the Xbox Live token: Xbox Live rejected this account's access token. Make sure this Microsoft account has an Xbox profile (sign in once at xbox.com or the Xbox app), or try again later.";
 "login.msa.error.mc.token" = "Could not acquire the Minecraft token: this Microsoft account may not own Minecraft: Java Edition, or its Xbox profile has not been created yet.";
+
 "login.3rdparty.progress.auth" = "(1/2) Authenticating with third-party server";
 "login.3rdparty.progress.refresh" = "(2/2) Refreshing third-party authentication";
 "login.3rdparty.2fa.title" = "Two-Factor Authentication";
 "login.3rdparty.2fa.message" = "Please enter your two-factor authentication code";
 "login.3rdparty.2fa.code" = "Authentication code";
 "login.3rdparty.2fa.empty" = "Authentication code cannot be empty";
+
 "News" = "News";
 "preference.title.news_url" = "News URL";
 "preference.detail.news_url" = "Set the URL for the news page";
@@ -138,6 +165,7 @@
 "preference.detail.reset_news_url" = "Reset the news URL to its default value";
 "Profiles" = "Profiles";
 "Settings" = "Settings";
+
 "preference.section.general" = "General Settings";
 "preference.section.video" = "Video and Audio Settings";
 "preference.section.footer.video" = "Auto renderer allows Terra-iOS to choose the best option based on Minecraft version. Decreasing resolution reduces GPU workload for better performance.";
@@ -146,15 +174,19 @@
 "preference.section.control" = "Control customization";
 "preference.section.debug" = "UI Debugging settings";
 "preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
+//"preference.section.footer.control" = "";
 "preference.section.java" = "Java Tweaks";
+//"preference.section.footer.java" = "";
+
 "preference.title.confirm" = "Are you sure?";
+
 "preference.title.game_directory" = "Game directory";
-/* ★ [VER-ISOLATE-PCL] 版本隔离 */
+/* ★ [VER-ISOLATE-PCL] Version isolation */
 "preference.title.version_isolation" = "Default version isolation";
 "preference.profile.title.version_isolation" = "Version isolation";
 "preference.detail.version_isolation" = "When enabled, versions follow the isolation default: mods, config and saves are kept under versions/<version>/. Existing versions keep their own setting.";
 "preference.detail.versionIsolation" = "When enabled, this version's mods, config and saves live in versions/<version>/ independently of other versions. Turning it off restores the shared folders - no files are ever moved.";
-/* ★ [VER-ISOLATE-MIGRATE] 版本隔离数据迁移（逐实例、复制式、可中断重跑；默认不自动搬） */
+/* ★ [VER-ISOLATE-MIGRATE] Per-instance, copy-only migration; safe to rerun and disabled by default */
 "preference.profile.title.migrate_version_data" = "Migrate version data";
 "preference.detail.migrate_version_data" = "Copy this instance's mods, config and saves into the isolation folder versions/<version>/. Copy only - source files are kept, and files that already exist are never silently overwritten.";
 "preference.migrate.need_isolation" = "Turn on \"Version isolation\" above (and save) before migrating; otherwise the data stays shared with other versions.";
@@ -169,7 +201,7 @@
 "preference.migrate.issues" = "Notes:";
 "preference.migrate.cleanup_source" = "Delete the copied source files";
 "preference.migrate.removed" = "Source files deleted after verification.";
-// ★ [VI-MIGRATE-AUTO] 自动识别迁移
+// ★ [VI-MIGRATE-AUTO] Automatic migration detection
 "preference.migrate.auto.title" = "Auto-detect migration";
 "preference.migrate.auto.subtitle" = "Pick a folder; auto-detect version + loader; confirm; then copy";
 "preference.migrate.auto.source" = "Source folder";
@@ -241,6 +273,7 @@
 "preference.vi.flow.migrate.later" = "Not now";
 "preference.title.confirm.delete_game_directory" = "The instance %@ will be deleted forever and cannot be restored.";
 "preference.multidir.add_directory" = "Add game directory";
+
 "preference.title.check_sha" = "Check files after downloading";
 "preference.detail.check_sha" = "This option forces launcher to check the file hash if it's available. Prevents broken downloads.";
 "preference.title.cosmetica" = "Cosmetica Capes";
@@ -278,19 +311,25 @@
 "preference.title.appicon-development" = "Penciled Development";
 "preference.title.hidden_sidebar" = "Hide main menu sidebar by default";
 "preference.detail.hidden_sidebar" = "Allows you to hide the sidebar on the main menu by default and when rotating.";
+
 "preference.title.reset_warnings" = "Reset all warnings";
 "preference.title.done.reset_warnings" = "All warnings have been reset.";
+
 "preference.title.reset_settings" = "Reset all settings";
 "preference.title.confirm.reset_settings" = "This will remove all of your custom preferences, including resolution, button size, and Java arguments.";
 "preference.title.done.reset_settings" = "All of the default settings have been restored.";
+
 "preference.title.erase_demo_data" = "Erase Demo game data";
 "preference.title.confirm.erase_demo_data" = "This will erase all Demo game versions and data used for Demo accounts.";
 "preference.title.done.erase_demo_data" = "All of the Demo game data has been erased.";
+
 "preference.title.renderer" = "Renderer";
+
 "preference.title.renderer.release.auto" = "Auto";
 "preference.title.renderer.release.gl4es" = "holy gl4es";
 "preference.title.renderer.release.angle" = "ANGLE";
 "preference.title.renderer.release.zink" = "Zink";
+
 "preference.title.renderer.debug.auto" = "Auto: gl4es or ANGLE";
 "preference.title.renderer.debug.gl4es" = "holy gl4es - exports OpenGL 2.1";
 "preference.title.renderer.debug.angle" = "ANGLE (1.17+) - exports OpenGL 3.2 (Core Profile, limited)";
@@ -303,17 +342,23 @@
 "preference.title.renderer.debug.mobilegl_gles" = "MobileGL GLES (1.17+) - OpenGL 3.3 Core via OpenGL ES, EXPERIMENTAL";
 "preference.title.renderer.debug.sfpew" = "SFPEW (<=1.16.x) - fixed-function emulation, backend defaults to MobileGlues, EXPERIMENTAL";
 "preference.title.renderer.debug.metal" = "Metal (metallum)";
+/* ★ [RENDERER-GAP] imported from Gsjsjzhznsz/Air-Minecraft-iOS-Launcher */
 "preference.title.renderer.debug.vgpu" = "VGPU (<=1.12) - gl4es fork, enhanced shader syntax, EXPERIMENTAL";
 "preference.title.renderer.debug.virgl" = "VirGL (<=26.2) - Mesa virgl guest + vtest server, EXPERIMENTAL";
 "preference.title.renderer.debug.nggl4es" = "Krypton Wrapper (≤26.2) - ZalithLauncher 2 gl4es, first choice for legacy versions (formerly NG-GL4ES)";
 "preference.title.renderer.debug.gl4eszl2" = "GL4ES (ZL2 classic) - string-rewrite GLSL to ESSL, EXPERIMENTAL";
+
 "preference.detail.renderer" = "Change the OpenGL render engine to use. Zink is temporarily disabled on iOS 16 and later to diagnose issues.";
+
 "preference.title.resolution" = "Resolution (%)";
 "preference.detail.resolution" = "Allows you to decrease the game resolution.";
+
 "preference.title.disable_game_vsync" = "Unlock framerate (disable VSync)";
 "preference.detail.disable_game_vsync" = "Minecraft enables VSync by default, which caps FPS at the screen refresh rate (60 or 120). When enabled, the launcher forces VSync off so the game can exceed the refresh rate. Turn off if you prefer VSync or want to reduce heat/battery drain.";
+
 "preference.title.performance_hud" = "Show Performance HUD";
 "preference.detail.performance_hud" = "When available, show the performance monitoring overlay.";
+
 "preference.title.fullscreen_airplay" = "Fullscreen AirPlay";
 "preference.detail.fullscreen_airplay" = "Allows presenting fullscreen game window on the external display rather than mirroring everything on screen.";
 "preference.title.silence_other_audio" = "Pause audio when game opens";
@@ -322,6 +367,8 @@
 "preference.detail.silence_with_switch" = "Enable to disable audio when Silent Mode is on. Headphones and external speakers are not affected.";
 "preference.title.allow_microphone" = "Allow microphone input";
 "preference.detail.allow_microphone" = "Enable this only if you are using voice chat mod. Silent switch option will be ignored, and audio quality from other apps will be affected.";
+
+/* MobileGlues settings */
 "preference.title.enable_angle" = "ANGLE ES Driver";
 "preference.detail.enable_angle" = "Use ANGLE as the OpenGL ES driver instead of the system driver. May improve compatibility on some devices.";
 "preference.title.enable_no_error" = "GL No Error";
@@ -388,7 +435,7 @@
 "preference.title.tap_click_mode-right" = "Always right";
 "preference.title.tap_click_button_right" = "Tap sends right-click instead";
 "preference.detail.tap_click_button_right" = "Legacy. On forces tap = right-click (same as mode = Always right).";
-// ★ [TAP-BTN] 非按键区域轻触默认动作开关
+// ★ [TAP-BTN] Default action toggle for taps outside buttons
 "preference.title.tap_default_left" = "Tap defaults to left-click (non-button area)";
 "preference.detail.tap_default_left" = "Off (default): the tap button is chosen automatically. On: a tap on the non-button area always sends left-click. Has no effect when Tap button is set to Always left / Always right.";
 "preference.title.button_scale" = "On-screen button scale (%)";
@@ -399,21 +446,25 @@
 "preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
 "preference.title.virtmouse_enable" = "Virtual mouse";
 "preference.detail.virtmouse_enable" = "Enable this option to start with virtual mouse on";
-// ★ [ISSUE-152] 隐藏游戏内悬浮球(小齿轮)开关（设置页 自定义控制键 分区）
+// ★ [ISSUE-152] Toggle for hiding the in-game floating gear in Custom Controls settings
 "preference.title.menu_button_visible" = "Show In-Game Menu Button";
 "preference.detail.menu_button_visible" = "Hide the in-game settings button (gear). Re-enable it in Settings → Control customization.";
 "preference.title.slideable_hotbar" = "Slideable hotbar";
 "preference.detail.slideable_hotbar" = "Make the hotbar slideable like the mouse wheel";
+
+// Custom mouse pointer
 "preference.title.custom_mouse_pointer" = "Custom Mouse Pointer";
 "preference.detail.custom_mouse_pointer" = "Select a custom image as the in-game mouse pointer appearance.";
 "preference.title.reset_mouse_pointer" = "Reset Mouse Pointer";
 "preference.detail.reset_mouse_pointer" = "Reset the mouse pointer to its default appearance.";
+
 "preference.title.gyroscope_enable" = "Enable gyroscope controls";
 "preference.detail.gyroscope_enable" = "Enabling this will allow you to turn in game by turning your device";
 "preference.title.gyroscope_invert_x_axis" = "Invert gyroscope left and right";
 "preference.detail.gyroscope_invert_x_axis" = "Inverts the X-axis of the gyroscope";
 "preference.title.gyroscope_sensitivity" = "Gyroscope controls sensitivity";
 "preference.detail.gyroscope_sensitivity" = "Adjust the sensitivity of gyroscope controls";
+
 "preference.title.manage_runtime" = "Manage runtimes";
 "preference.title.confirm.delete_runtime" = "%@ will be deleted";
 "preference.manage_runtime.header.default" = "Preferred Java version";
@@ -423,6 +474,7 @@
 "preference.manage_runtime.footer.java8" = "This is the default version for Minecraft 1.16.5 and older.";
 "preference.manage_runtime.footer.java17" = "This is the default version for Minecraft 1.17 and newer.";
 "preference.manage_runtime.header.invalid" = "Invalid runtimes";
+
 "preference.title.java_args" = "JVM Launch arguments";
 "preference.detail.java_args" = "Pass arguments to Java when launching Minecraft. Be careful, this can make the game crash if modified incorrectly.";
 "preference.placeholder.java_args" = "Specify arguments...";
@@ -439,10 +491,12 @@
 "preference.warn.allocated_memory" = "Due to limitations in the operating system itself, this option may cause instability at this and higher values. Proceed with caution.";
 "preference.title.custom_env" = "Environment variables";
 "preference.detail.custom_env" = "This option is under construction. Create and edit custom_env.txt in the meantime.";
+
 "preference.title.debug_skip_wait_jit" = "Skip \"Waiting for JIT\" dialog";
 "preference.detail.debug_skip_wait_jit" = "This does not allow you to launch without JIT, instead this skips debugger check, because check fails on certain jailbreaks.";
 "preference.title.debug_ipad_ui" = "Unlock iPadOS UI";
 "preference.detail.debug_ipad_ui" = "Unlock iPad-exclusive UI (alert, keyboard, etc.) if enabled or iPhone UI if disabled.";
+
 "preference.title.debug_auto_correction" = "Auto correction";
 "preference.detail.debug_auto_correction" = "Enable auto correction when typing text in game.";
 "preference.title.debug_hide_home_indicator" = "Hide home indicator";
@@ -451,6 +505,7 @@
 "preference.detail.debug_show_layout_bounds" = "Show Clip Borders, Margins";
 "preference.title.debug_show_layout_overlap" = "Layout Overlay Display";
 "preference.detail.debug_show_layout_overlap" = "Override each view with light yellow colors, the deeper the color will overlay";
+
 "preference.profile.title.name" = "Name";
 "preference.profile.title.loader_type" = "Loader type";
 "preference.profile.title.loader_vendor" = "Loader vendor";
@@ -460,6 +515,7 @@
 "preference.profile.title.default_touch_control" = "Touch controls";
 "preference.profile.title.default_gamepad_control" = "Gamepad controls";
 "preference.profile.title.lwjgl_version" = "LWJGL version";
+
 "profile.error.name_exists" = "A profile with that name already exists. Please use another name.";
 "profile.section.instance" = "Game Instance settings";
 "profile.section.profiles" = "Profiles in this instance";
@@ -467,9 +523,11 @@
 "profile.title.separate_preference" = "Isolate settings";
 "profile.detail.separate_preference" = "Enable this option to isolate any changes made in settings. Doing a Reset will restore to global settings instead of default settings.";
 "profile.title.install_fabric_quilt" = "Install Fabric/Quilt";
+
 "controller_configurator.title.current" = "Gamepad configuration file";
 "controller_configurator.title.type.xbox" = "Xbox";
 "controller_configurator.title.type.playstation" = "PlayStation";
+
 "controller_configurator.xbox.title.bumper_left" = "Left bumper";
 "controller_configurator.xbox.title.bumper_right" = "Right bumper";
 "controller_configurator.xbox.title.trigger_left" = "Left trigger";
@@ -486,6 +544,7 @@
 "controller_configurator.xbox.title.dpad_right" = "Right";
 "controller_configurator.xbox.title.thumb_left" = "Left thumbstick click";
 "controller_configurator.xbox.title.thumb_right" = "Right thumbstick click";
+
 "controller_configurator.playstation.title.bumper_left" = "L1";
 "controller_configurator.playstation.title.bumper_right" = "R1";
 "controller_configurator.playstation.title.trigger_left" = "L2";
@@ -502,6 +561,7 @@
 "controller_configurator.playstation.title.dpad_right" = "Right";
 "controller_configurator.playstation.title.thumb_left" = "L3";
 "controller_configurator.playstation.title.thumb_right" = "R3";
+
 "controller_configurator.section.config_files" = "Current configuration file";
 "controller_configurator.section.game_mappings" = "Game mappings";
 "controller_configurator.section.footer.game_mappings" = "Bindings when the mouse is locked in game.";
@@ -509,22 +569,32 @@
 "controller_configurator.section.footer.menu_mappings" = "Bindings when the mouse is not locked, such as on the title screen or in the pause menu.";
 "controller_configurator.section.controller_style" = "Controller type";
 "controller_configurator.section.footer.controller_style" = "Show different controller button names in this configurator.";
+
 "preference.title.appicon-custom" = "Custom";
 "preference.title.custom_appicon" = "Custom App Icon";
 "preference.detail.custom_appicon" = "Select a custom image to use as the app icon";
+
 "preference.title.mod_touch_enable" = "Enable TouchController Mod Support";
 "preference.detail.mod_touch_enable" = "Enable TouchController mod support. Note that enabling：will disable \"Swipe shortcuts\".";
+
 "preference.title.custom_controls" = "Key tweaks";
 "preference.detail.custom_controls" = "Custom game control layout, drag and drop button position and size";
+
+
+
 "preference.popup.touch_info.title" = "TouchController Fit Description";
 "preference.popup.touch_info.message" = "This feature is an iOS compatible scheme for TouchController Mod.\n\nProject address：https://github.com/TouchController/TouchController\n\nTechnical Note：\nSince iOS is not supported by the mode, this feature provides a local UDP protocol (Localhost) to connect between launchers and game processes. This connection is used only for internal transfer of control data from the device and never connects the internet, please be careful.\nThis feature is made by WeiErLiTeo.";
+
 "preference.title.two_finger_keyboard" = "Two-finger call keyboard";
 "preference.detail.two_finger_keyboard" = "Pick up the keyboard in the game by pressing both fingers.";
+
 "提示" = "Notice";
+
 "announcement.preview_version" = "Welcome to Terra-iOS Preview Version!";
 "announcement.latest_version" = "Welcome to Terra-iOS! This is the latest stable version.";
 "announcement.new_version_available" = "New version available: %@";
 "announcement.download_button" = "Download Now";
+
 "preference.touchcontroller.title" = "TouchController";
 "preference.touchcontroller.section.mode" = "Communication Mode";
 "preference.touchcontroller.section.info" = "Information";
@@ -548,7 +618,10 @@
 "preference.touchcontroller.vibrate.intensity.medium" = "Medium";
 "preference.touchcontroller.vibrate.intensity.heavy" = "Heavy";
 "preference.touchcontroller.moveview.enable" = "Enable Move View";
+
 "spdt" = "";
+
+// Crash View
 "crash.title" = "Game Exited Unexpectedly";
 "crash.subtitle" = "An error was detected and the game process has terminated";
 "crash.exit_code" = "Exit Code";
@@ -584,6 +657,7 @@
 "crash.reason.java_version" = "Java version mismatch (UnsupportedClassVersionError)";
 "crash.reason.renderer" = "Renderer error (OpenGL/Metal/EGL initialization failed)";
 "crash.reason.mod_loading" = "Mod loading failure (Forge/Fabric/OptiFine)";
+// Quick-fix recommendation text
 "crash.suggestion.oom_ram" = "Reduce memory allocation (recommended 1024-2048MB)";
 "crash.suggestion.oom_getmoream" = "Use GetMoreRam (LiveContainer) to bypass iOS memory limit";
 "crash.suggestion.oom_mods" = "Remove heavy mods (shaders, high-res textures)";
@@ -611,6 +685,8 @@
 "crash.suggestion.java_log" = "View full log for exception stack trace";
 "crash.suggestion.java_mods" = "Check mod compatibility (remove recently added mods)";
 "crash.suggestion.java_restart" = "Restart launcher and retry";
+
+// Launcher loading screen (FCL/ZL2-inspired)
 "launch.title" = "Starting Minecraft";
 "launch.stage.init_env" = "Initializing environment...";
 "launch.stage.verify_files" = "Verifying game files...";
@@ -641,10 +717,15 @@
 "launch.progress.stage.jvm_starting" = "Starting Java VM...";
 "launch.progress.stage.waiting_first_frame" = "Waiting for the game window...";
 "launch.progress.stage.completed" = "Launch complete";
+
+// AI Fix Feature
+
 "preference.title.memory_limit_help" = "Memory Limit Info";
 "preference.detail.memory_limit_help" = "Learn why iOS memory limits cause modpack crashes and how to fix it (GetMoreRam)";
 "preference.title.check_update" = "Check for Updates";
 "preference.detail.check_update" = "Check GitHub Releases for the latest stable version of Terra-iOS iOS";
+
+// Check for updates
 "check_update" = "Check for Updates";
 "check_update.checking" = "Checking for updates…";
 "check_update.failed" = "Update check failed";
@@ -653,15 +734,23 @@
 "check_update.new_version_title" = "New version v%@ available";
 "check_update.new_version_message" = "Tap \"Download\" to open the GitHub Releases page and get the latest version.";
 "check_update.download" = "Download";
+
+// Minecraft news (PCL-CE-inspired)
 "mc_news.title" = "Minecraft News";
 "mc_news.read_more" = "Read more";
 "mc_news.retry" = "Retry";
 "mc_news.load_failed" = "Failed to load";
+
+// Memory-limit help dialog
 "mem_help.title" = "About Memory Limit";
 "mem_help.message" = "iOS 18 / iOS 26 single-instance memory limit is about 1440MB. Large modpacks may crash due to insufficient memory.\n\nSolution:\nUse GetMoreRam (a LiveContainer plugin) to lift the memory limit.\nGetMoreRam repo: github.com/hugeBlack/GetMoreRam\n\nRestart the launcher after installation to take effect.\n\nIf you don't use LiveContainer, try lowering the memory allocation (Settings > Java > Memory Allocation), but some modpacks may not run under the memory limit.";
+
+// Download progress and speed (Phase 6 Task 6.1)
 "download.speed.format" = "%@/s";
 "download.progress.file_count" = "%1$ld/%2$ld files · %3$@/%4$@";
 "download.progress.file_count_short" = "%1$ld/%2$ld · %3$@";
+
+// Download history (Phase 6 Task 6.2)
 "download.history.title" = "Download History";
 "download.history.entry" = "History";
 "download.history.clear" = "Clear";
@@ -670,6 +759,8 @@
 "download.history.empty" = "No download history yet";
 "download.history.result.success" = "Success";
 "download.history.result.failed" = "Failed";
+
+// Unified task-stage titles (redesign-download-ui Phase 1 Task 1.4 / Phase 7 Task 7.1)
 "taskStage.title.fetchVersionManifest" = "Fetch version manifest";
 "taskStage.title.downloadVersionJSON" = "Download version JSON";
 "taskStage.title.downloadClient" = "Download client";
@@ -688,6 +779,8 @@
 "taskStage.title.downloadGameFiles" = "Download game files";
 "taskStage.title.finalizeConfig" = "Finalize configuration";
 "taskStage.title.downloadFile" = "Download file";
+
+// Unified progress screen (redesign-download-ui Phase 2 / Phase 7 Task 7.1)
 "taskProgress.stage.running" = "Running";
 "taskProgress.state.pending" = "Pending";
 "taskProgress.state.downloading" = "Downloading";
@@ -718,6 +811,8 @@
 "taskProgress.errorDetail.underlying" = "Underlying error: %1$@";
 "taskProgress.errorDetail.retry" = "Retried: %1$ld/%2$ld";
 "taskProgress.errorDetail.stage" = "Current stage: %@";
+
+// Shared strings for resource managers (six screens and their base class)
 "resman.common.cancel" = "Cancel";
 "resman.common.delete" = "Delete";
 "resman.common.ok" = "OK";
@@ -747,6 +842,8 @@
 "resman.common.pack_format" = "Format %@";
 "resman.common.batch_delete" = "Batch Delete";
 "resman.common.delete_complete_failures" = "Delete finished, %ld failed";
+
+// Mod management
 "resman.mods.title" = "Manage Mods";
 "resman.mods.search_placeholder" = "Search local mods...";
 "resman.mods.import" = "Import Mods";
@@ -787,6 +884,8 @@
 "resman.mods.update.temp_dir_failed" = "Unable to create a temporary directory: %@";
 "resman.mods.update.done_title" = "Update Complete";
 "resman.mods.update.done_message" = "%1$ld succeeded / %2$ld failed / %3$ld skipped";
+
+// Data pack management
 "resman.datapacks.title" = "Manage Data Packs";
 "resman.datapacks.search_placeholder" = "Search local data packs...";
 "resman.datapacks.import" = "Import Data Packs";
@@ -795,6 +894,8 @@
 "resman.datapacks.picker_title" = "Select data pack files";
 "resman.datapacks.empty" = "No data packs found";
 "resman.datapacks.search_empty" = "No matching data packs";
+
+// Resource pack management
 "resman.resourcepacks.title" = "Manage Resource Packs";
 "resman.resourcepacks.search_placeholder" = "Search local resource packs...";
 "resman.resourcepacks.import" = "Import Resource Packs";
@@ -802,6 +903,8 @@
 "resman.resourcepacks.picker_title" = "Select resource pack files";
 "resman.resourcepacks.empty" = "No resource packs found";
 "resman.resourcepacks.search_empty" = "No matching resource packs";
+
+// World management
 "resman.worlds.title" = "Manage Worlds";
 "resman.worlds.search_placeholder" = "Search local worlds...";
 "resman.worlds.import" = "Import Worlds";
@@ -812,6 +915,8 @@
 "resman.worlds.last_played" = "Last played %@";
 "resman.worlds.importing" = "Importing";
 "resman.worlds.delete_message" = "Are you sure you want to delete the world %@?\nThis action cannot be undone.";
+
+// Shader management
 "resman.shaders.title" = "Manage Shaders";
 "resman.shaders.search_placeholder" = "Search local shaders...";
 "resman.shaders.import" = "Import Shaders";
@@ -1226,7 +1331,7 @@
 "i18n_str_464" = "No Loader";
 "i18n_str_465" = "CurseForge Unavailable";
 "i18n_str_466" = "No CurseForge API Key is configured. Configure it in Settings and retry, or continue using the Modrinth source.";
-/* ★ [MODSRC-403] 有 key 但被官方/镜像以 401/403 拒绝时的用户提示（区分「无效或未填」，指向设置页）。 */
+/* ★ [MODSRC-403] Explain when an API key is missing or rejected, and point to the settings page. */
 "i18n_str_9103" = "The CurseForge API Key is invalid or missing. Check it in Settings and retry.";
 "i18n_str_467" = "Unable to fetch version information. Please check your network connection or switch download source";
 "i18n_str_468" = "No downloadable versions found. Try switching the download source (Modrinth/CurseForge) or changing the filter conditions";
@@ -1664,6 +1769,7 @@
 "i18n_str_1208" = "No versions available";
 "i18n_str_1209" = "Load failed. Please check the network.";
 "i18n_str_1210" = "Load failed: %@";
+// ★ [NEOFORGE-FIX] Report when NeoForge has not released for this Minecraft version; do not imply otherwise.
 "neoforge.no_version_for_mc" = "No NeoForge build has been released for Minecraft %@ yet";
 "i18n_str_1211" = "Select installation method";
 "i18n_str_1212" = "Original (Vanilla)";
@@ -1773,7 +1879,7 @@
 "i18n_str_629" = "Timed out waiting for the ZeroTier network to be ready (%.0fs). Please confirm the Network ID is correct and that your node has been authorized on the central.zerotier.com dashboard.";
 "i18n_str_632" = "Failed to start the SOCKS5 proxy";
 "i18n_str_637" = "1. Enter the ZeroTier Network ID above on the launcher's online play page\n";
-"i18n_str_638" = "2. Tap \"Join Room\"; the launcher will automatically start the online core and connect\n";
+"i18n_str_638" = "2. Tap \"Join Room\"; the launcher will automatically start the online core and connect\n";  // ★ [AUDIT-FIX]
 "i18n_str_639" = "3. After connecting, launch the game and add the server in MC: %@";
 "i18n_str_832" = "SHA1 checksum failed: expected %@, got %@ (%@)";
 "i18n_str_883" = "Automatically join this server after launching the game (refer to FCL)\nFormat: host or host:port ([host]:port for IPv6); leave empty to not auto-join";
@@ -1813,10 +1919,12 @@
 "i18n_str_410" = "On iOS 18 / iOS 26 the default single-instance memory limit is about 1440MB. Large modpacks may crash due to insufficient memory.\n\n";
 "i18n_str_1012" = "Enter the invite code shared by the host; after joining, connect directly to 127.0.0.1:25565 in the Minecraft multiplayer screen.";
 "i18n_str_643" = "Server address [：:]?\\s*((?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|\\[[0-9a-fA-F:]+\\])(?::([0-9]{1,5}))?";
+
 "i18n_str_2000" = "Translation Notice";
 "i18n_str_2001" = "Some parts of the interface are machine-translated and may not be perfectly accurate. If you spot any mistakes, you are welcome to submit a translation PR!";
 "i18n_str_2002" = "Got It";
 "i18n_str_2003" = "Don't Ask Again";
+
 "i18n_str_2004" = "Game Directory";
 "i18n_str_2006" = "  • Create a standalone version: %@-OptiFine_xxx\n";
 "i18n_str_2007" = "  • Loaded via launchwrapper + optifine.OptiFineTweaker\n";
@@ -1824,6 +1932,8 @@
 "i18n_str_2010" = "\".\" = use the instance directory selected by the game-directory switcher (%@)\n";
 "i18n_str_2011" = "Relative path = a subdirectory relative to the current game directory (for version isolation)\n";
 "i18n_str_2012" = "Absolute path = use the specified path";
+
+
 "i18n_str_2016" = "Shader Management";
 "i18n_str_2017" = "Frosted Glass";
 "i18n_str_2018" = "Half Width";
@@ -1878,11 +1988,15 @@
 "i18n_str_2065" = "Green";
 "i18n_str_2066" = "Yellow";
 "i18n_str_2067" = "Orange";
+
 "preference.auto" = "Auto";
 "preference.auto_select" = "Auto";
+
 "i18n_str_jit26_pending" = "JIT: Enabled (attaches on launch)";
 "jit.timeout_retry_msg" = "Your JIT tool may have reported \"complete\", but the launcher's own self-check failed (no writable JIT region — being attached is not the same as working). Tap Retry, or restart the app / use TrollStore and retry.";
 "jit.retry" = "Retry";
+
+// Task 134: JIT enabler picker (ported from Air)
 "preference.debug.jit_enabler.auto" = "Auto (recommended)";
 "preference.debug.jit_enabler.stikjit" = "StikDebug / StikJIT";
 "preference.debug.jit_enabler.stikdebug" = "StikDebug (stikdebug://)";
@@ -1900,6 +2014,8 @@
 "preference.title.jit26_script_disable" = "Disable iOS 26 JS-Script JIT";
 "preference.detail.jit26_script_disable" = "Stop sending UniversalJIT26.js to the JIT tool when launching the game (plain debugger-attach JIT). Only turn this on if your tool doesn't support scripts or the script misbehaves; devices that need system-level memory mapping (TXM) may fail to launch the game with this enabled.";
 "i18n_str_jit26_not_ready" = "JIT26 debugger is not ready: the JIT breakpoint went unanswered. Please re-enable JIT with the Universal script assigned in StikDebug, then tap Play again.";
+
+// Launcher update check (ZL2 style dialog, startup auto-check)
 "update_dialog.title" = "New version available";
 "update_dialog.version_from" = "%@  (current: %@)";
 "update_dialog.published_at" = "Published %@";
@@ -1908,8 +2024,14 @@
 "update_dialog.update" = "Update";
 "preference.title.auto_check_update" = "Check for Updates on Launch";
 "preference.detail.auto_check_update" = "Automatically check GitHub Releases when the launcher starts. At most once per hour; versions you chose to ignore are not shown again.";
+
+// ★ [GLASSUI] glass effect (switch + strength slider)
 "preference.title.glass_effect" = "Glass Effect";
 "preference.title.glass_strength" = "Glass Strength";
+
+// ★ [GLASS-STYLE] interface style layering (native / system liquid glass)
+//   iOS <  26 ⇒ Native (system materials only, no hand-drawn glass)
+//   iOS >= 26 ⇒ Auto defaults to Liquid Glass (system UIGlassEffect)
 "preference.title.glass_style" = "Interface Style";
 "preference.style.auto" = "Auto";
 "preference.style.native" = "Native";
@@ -1917,24 +2039,29 @@
 "preference.style.footer.supported" = "Auto follows the system: Liquid Glass on iOS 26 and later, Native on earlier versions.";
 "preference.style.footer.unsupported" = "This system is older than iOS 26, so only the Native style is available. The launcher uses standard system materials instead of drawing its own glass.";
 "preference.style.footer.native" = "Native style is in effect: no hand-drawn glass overlay is added, and the glass switch and strength below are unavailable.";
+// ★ [GLASS-LIQUID] System materials with optional custom highlights
 "preference.title.glass_handdrawn" = "Hand-drawn Highlight";
 "preference.style.footer.pure" = "System materials only (default): the material is provided entirely by the system (Liquid Glass on iOS 26+) — no hand-drawn glass is added.";
 "preference.style.footer.handdrawn" = "Hand-drawn highlight is on: an extra rim/inner highlight is drawn on top of the system glass (optional).";
+
+// ★ [LANG-SWITCH] launcher language switch (follow system + auto-enumerated .lproj)
 "preference.title.launcher_language" = "Language";
 "preference.lang.title" = "Language";
 "preference.lang.follow_system" = "Follow System";
 "preference.lang.section.system" = "System";
 "preference.lang.section.available" = "Available Languages";
 "preference.lang.search_placeholder" = "Search languages";
-// ★ [I18N-PARTIAL] 部分翻译语言标注（单一事实源：AmeLauncherPartiallyTranslatedLanguageCodes）
+// ★ [I18N-PARTIAL] Partially translated language labels (single source: AmeLauncherPartiallyTranslatedLanguageCodes)
 "preference.lang.partial_suffix" = " (Partial translation)";
 "preference.lang.partial_note" = "Some screens are still in Chinese";
 "preference.lang.restart_hint.title" = "Language Changed";
 "preference.lang.restart_hint.message" = "The interface has been reloaded in the selected language.";
+
+// ★ [JIT-WAIT] Main-launch JIT wait and request-failure messages (launchJVM and ame139_requestJIT)
 "jit.wait.auto" = "Waiting for JIT to become ready. Enable JIT for this app with your JIT tool (TrollStore, StikDebug, SideStore / SideJIT, JitStreamer, …), then return to the launcher. Waiting up to 30 seconds…";
 "jit.wait.manual" = "Attach a debugger from your computer (Xcode → Debug → Attach to Process / Wait for Debugger, or idevicedebug / lldb with the pairing file), or enable JIT in your JIT tool, then return to the launcher. Waiting up to 30 seconds…";
 "jit.guide.title" = "Enable JIT";
-// ★ [JIT-ADAPT] 逐工具引导：这些工具本机没有 URL 可调，必须由用户在自己的 App/电脑上开。
+// ★ [JIT-ADAPT] Per-tool guidance: these tools have no URL scheme and must be opened by the user on their device or computer.
 "jit.wait.sidejitserver" = "Run the SideJITServer Shortcut on this device (with a SideJITServer + pymobiledevice3 host on the same Wi-Fi or VPN), pick this app, then return to the launcher. Waiting up to 30 seconds…";
 "jit.wait.altstore" = "On the same Wi-Fi as AltServer (USB required on iOS 17+), open AltStore → My Apps → long-press this app → Enable JIT, then return to the launcher. Waiting up to 30 seconds…";
 "jit.wait.sideloadly" = "Keep Sideloadly running on your PC/Mac (Sideloadly Daemon; same Wi-Fi or USB), put this app in the foreground, then pick Enable JIT for it from Sideloadly, then return to the launcher. Waiting up to 30 seconds…";
@@ -1950,6 +2077,8 @@
 "jit.wait.blocked.message" = "The JIT debugger is not responding (nothing is servicing the breakpoint). Make sure JIT is enabled in a way that keeps the debugger attached and uses the UniversalJIT26 script, then launch again.";
 "jit.wait.missing.tool" = "No JIT enabler tool was detected. Install or check %@, or change the JIT enabler in Settings, then try again.";
 "jit.wait.missing.generic" = "No JIT enabler tool was detected. Install a JIT tool (TrollStore, StikDebug, SideStore / SideJIT, JitStreamer, …), or change the JIT enabler in Settings, then try again.";
+
+/* ★ [I18N] launcher tab titles / language picker keys (added by I18N fix) */
 "tab.home" = "Home";
 "tab.download" = "Download";
 "tab.resources" = "Resources";
@@ -1959,17 +2088,20 @@
 "dashboard.version.label" = "SELECTED VERSION";
 "dashboard.launch" = "Launch Minecraft 26.3";
 "dashboard.settings" = "Settings";
+
+
+/* ★ [I18N] key-set alignment vs zh-Hans base; English placeholder pending translation */
 "preference.detail.debug_always_attached_jit" = "preference.detail.debug_always_attached_jit";
 "preference.title.debug_universal_script_jit" = "preference.title.debug_universal_script_jit";
 "preference.title.debug_always_attached_jit" = "preference.title.debug_always_attached_jit";
 "preference.title.renderer.release.mg" = "preference.title.renderer.release.mg";
-"login.warn.title.ios19_jitdead" = "Terra-iOS is not supported on iOS 26 or later.";
+"login.warn.title.ios19_jitdead" = "Terra-iOS is not supported on iOS 26 or later.";  // ★ [AUDIT-FIX]
 "login.warn.message.ios19_jitdead" = "Due to changes in iOS that inhibit the ability to enable JIT, Terra-iOS cannot work in its current state and requires heavy research to find a new path forward.\nPressing OK will close the app.";  // ★ [AUDIT-FIX]
 "preference.group.runtime" = "Memory & Performance";
 "preference.group.java" = "Java & Launch Options";
 
-/* ★ [HOST-BUG-A] AI 页面顶部标题本地化 */
-/* ★ [I18N-MISS] 设置页 3 行文案在 ea419d4fb 上游重构中丢失了 preference.title/detail 键 ⇒ 界面直接显示生键：启动器背景 / CurseForge API 密钥 / 公告展示详细度。本次从上游恢复，并同步 4 语(含 sfpew_overlay 同类生键) */
+/* ★ [HOST-BUG-A] Localized title for the AI page */
+/* ★ [I18N-MISS] Restore the three settings title/detail keys dropped during the upstream refactor, including the matching sfpew_overlay keys. */
 "preference.title.launcher_background" = "Launcher Background";
 "preference.detail.launcher_background" = "Set a launcher background (image/video), or restore the default solid color.";
 "preference.title.curseforge_api_key" = "CurseForge API Key";
@@ -1978,14 +2110,14 @@
 "preference.detail.announcement_preview_level" = "How much detail announcements show on the home screen.";
 "preference.title.sfpew_overlay" = "SimpleFPEWrapper overlay";
 "preference.detail.sfpew_overlay" = "Overlays the SimpleFPEWrapper fixed-function (GL 1.x) emulation layer on top of the GLES backend for legacy compatibility; not applicable to gl4es / zink / Vulkan and other backends.";
-/* ★ [I18N-MISS] 语言切换确认弹窗(SceneDelegate 语言流程)键全 6 语都缺 ⇒ 切语言后弹窗直接显示生键。本次补齐 */
+/* ★ [I18N-MISS] Add missing keys for the language-switch confirmation dialog used by SceneDelegate. */
 "preference.lang.switched.title" = "Language switched";
 "preference.lang.switched.message" = "The interface has been reloaded in the selected language.";
 
 "login.title" = "Accounts";  // ★ [AUDIT-FIX]
 "login.cancelled" = "Login cancelled";  // ★ [AUDIT-FIX]
 
-/* ★ [AUDIT-DECIDE] 新增键（简体） */
+/* ★ [AUDIT-DECIDE] Localized strings for copy feedback, sizing, sign-in, CurseForge, instance badges, and Terracotta notices */
 "custom_controls.control_menu.copy.ok" = "Copied";  // ★ [AUDIT-DECIDE]
 "custom_controls.control_menu.copy.ok.message" = "The control configuration was copied to the clipboard. You can save it as a .json file and import it with Load.";  // ★ [AUDIT-DECIDE]
 "custom_controls.control_menu.copy.error.none" = "Nothing to copy";  // ★ [AUDIT-DECIDE]
@@ -2002,7 +2134,7 @@
 "multiplayer.unavailable.title" = "Multiplayer unavailable";  // ★ [AUDIT-DECIDE]
 "multiplayer.unavailable.message" = "The libterracotta library is not linked. Follow the “Terracotta integration” section in the README to download the xcframework, then rebuild the app.";  // ★ [AUDIT-DECIDE]
 
-/* 陶瓦联机界面（TerracottaViewController 重构） */
+/* Terracotta multiplayer UI (TerracottaViewController refactor) */
 "terracotta_title" = "Terracotta";
 "terracotta_host_desc" = "Host a room and share the room code with friends";
 "terracotta_guest_desc" = "Join with the room code a friend gave you";
@@ -2044,3 +2176,22 @@
 "terracotta_log" = "Log";
 "terracotta_log_empty" = "No log yet";
 "terracotta_copy_log" = "Copy log";
+"Options" = "Options";
+"login.jit.fail.JitStreamer" = "%@: JitStreamer error";
+"login.jit.found.JitStreamer" = "Found JitStreamer; enabling JIT";
+"login.jit.start.AltKit" = "Attempting to use AltKit for JIT";
+"login.jit.fail.AltKit" = "AltKit error: %@";
+"login.warn.title.ram_unjb" = "The memory slider is enabled";
+"login.warn.message.ram_unjb" = "Changing this setting can make the game unstable or prevent it from running.";
+"login.warn.title.a7" = "PojavLauncher 2.2 is not supported on this device.";
+"login.warn.title.iosver" = "This is the last update for this iOS version.";
+"login.warn.message.iosver" = "A future version of PojavLauncher will not support iOS 12 or 13 due to feature incompatibilities and development difficulties.";
+"login.warn.title.2gb" = "Your device has limited RAM.";
+"login.warn.message.2gb" = "Devices with less than 3 GB of memory may run into memory constraints. We recommend leaving the automatic selector enabled.";
+"preference.title.renderer.auto" = "Auto: gl4es or ANGLE";
+"preference.title.renderer.gl4es" = "gl4es 1.1.4 - OpenGL 2.1 exports";
+"preference.title.renderer.angle" = "ANGLE (11.7+) - OpenGL 3.2 exports (Core Profile, limited)";
+"preference.title.renderer.zink" = "Zink (Mesa 21.0) - OpenGL 4.1 exports";
+"preference.title.disable_gesture" = "Disable gestures";
+"preference.title.java_home" = "Use Java 17 for Minecraft < 1.17";
+"preference.detail.java_home" = "Java 8 is used by default for these versions. Enable this option to force Java 17, but compatibility with mods is not guaranteed.";

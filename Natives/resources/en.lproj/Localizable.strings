@@ -181,12 +181,12 @@
 "preference.title.confirm" = "Are you sure?";
 
 "preference.title.game_directory" = "Game directory";
-/* ★ [VER-ISOLATE-PCL] 版本隔离 */
+/* ★ [VER-ISOLATE-PCL] Version isolation */
 "preference.title.version_isolation" = "Default version isolation";
 "preference.profile.title.version_isolation" = "Version isolation";
 "preference.detail.version_isolation" = "When enabled, versions follow the isolation default: mods, config and saves are kept under versions/<version>/. Existing versions keep their own setting.";
 "preference.detail.versionIsolation" = "When enabled, this version's mods, config and saves live in versions/<version>/ independently of other versions. Turning it off restores the shared folders - no files are ever moved.";
-/* ★ [VER-ISOLATE-MIGRATE] 版本隔离数据迁移（逐实例、复制式、可中断重跑；默认不自动搬） */
+/* ★ [VER-ISOLATE-MIGRATE] Per-instance, copy-only migration; safe to rerun and disabled by default */
 "preference.profile.title.migrate_version_data" = "Migrate version data";
 "preference.detail.migrate_version_data" = "Copy this instance's mods, config and saves into the isolation folder versions/<version>/. Copy only - source files are kept, and files that already exist are never silently overwritten.";
 "preference.migrate.need_isolation" = "Turn on \"Version isolation\" above (and save) before migrating; otherwise the data stays shared with other versions.";
@@ -201,7 +201,7 @@
 "preference.migrate.issues" = "Notes:";
 "preference.migrate.cleanup_source" = "Delete the copied source files";
 "preference.migrate.removed" = "Source files deleted after verification.";
-// ★ [VI-MIGRATE-AUTO] 自动识别迁移
+// ★ [VI-MIGRATE-AUTO] Automatic migration detection
 "preference.migrate.auto.title" = "Auto-detect migration";
 "preference.migrate.auto.subtitle" = "Pick a folder; auto-detect version + loader; confirm; then copy";
 "preference.migrate.auto.source" = "Source folder";
@@ -368,7 +368,7 @@
 "preference.title.allow_microphone" = "Allow microphone input";
 "preference.detail.allow_microphone" = "Enable this only if you are using voice chat mod. Silent switch option will be ignored, and audio quality from other apps will be affected.";
 
-/* MobileGlues 设置 */
+/* MobileGlues settings */
 "preference.title.enable_angle" = "ANGLE ES Driver";
 "preference.detail.enable_angle" = "Use ANGLE as the OpenGL ES driver instead of the system driver. May improve compatibility on some devices.";
 "preference.title.enable_no_error" = "GL No Error";
@@ -435,7 +435,7 @@
 "preference.title.tap_click_mode-right" = "Always right";
 "preference.title.tap_click_button_right" = "Tap sends right-click instead";
 "preference.detail.tap_click_button_right" = "Legacy. On forces tap = right-click (same as mode = Always right).";
-// ★ [TAP-BTN] 非按键区域轻触默认动作开关
+// ★ [TAP-BTN] Default action toggle for taps outside buttons
 "preference.title.tap_default_left" = "Tap defaults to left-click (non-button area)";
 "preference.detail.tap_default_left" = "Off (default): the tap button is chosen automatically. On: a tap on the non-button area always sends left-click. Has no effect when Tap button is set to Always left / Always right.";
 "preference.title.button_scale" = "On-screen button scale (%)";
@@ -446,7 +446,7 @@
 "preference.detail.mouse_speed" = "Change the speed of the virtual mouse";
 "preference.title.virtmouse_enable" = "Virtual mouse";
 "preference.detail.virtmouse_enable" = "Enable this option to start with virtual mouse on";
-// ★ [ISSUE-152] 隐藏游戏内悬浮球(小齿轮)开关（设置页 自定义控制键 分区）
+// ★ [ISSUE-152] Toggle for hiding the in-game floating gear in Custom Controls settings
 "preference.title.menu_button_visible" = "Show In-Game Menu Button";
 "preference.detail.menu_button_visible" = "Hide the in-game settings button (gear). Re-enable it in Settings → Control customization.";
 "preference.title.slideable_hotbar" = "Slideable hotbar";
@@ -657,7 +657,7 @@
 "crash.reason.java_version" = "Java version mismatch (UnsupportedClassVersionError)";
 "crash.reason.renderer" = "Renderer error (OpenGL/Metal/EGL initialization failed)";
 "crash.reason.mod_loading" = "Mod loading failure (Forge/Fabric/OptiFine)";
-// 快速修复建议文案
+// Quick-fix recommendation text
 "crash.suggestion.oom_ram" = "Reduce memory allocation (recommended 1024-2048MB)";
 "crash.suggestion.oom_getmoream" = "Use GetMoreRam (LiveContainer) to bypass iOS memory limit";
 "crash.suggestion.oom_mods" = "Remove heavy mods (shaders, high-res textures)";
@@ -686,7 +686,7 @@
 "crash.suggestion.java_mods" = "Check mod compatibility (remove recently added mods)";
 "crash.suggestion.java_restart" = "Restart launcher and retry";
 
-// 启动加载界面（参照 FCL/ZL2 风格）
+// Launcher loading screen (FCL/ZL2-inspired)
 "launch.title" = "Starting Minecraft";
 "launch.stage.init_env" = "Initializing environment...";
 "launch.stage.verify_files" = "Verifying game files...";
@@ -725,7 +725,7 @@
 "preference.title.check_update" = "Check for Updates";
 "preference.detail.check_update" = "Check GitHub Releases for the latest stable version of Terra-iOS iOS";
 
-// 检查更新
+// Check for updates
 "check_update" = "Check for Updates";
 "check_update.checking" = "Checking for updates…";
 "check_update.failed" = "Update check failed";
@@ -735,22 +735,22 @@
 "check_update.new_version_message" = "Tap \"Download\" to open the GitHub Releases page and get the latest version.";
 "check_update.download" = "Download";
 
-// Minecraft 新闻（参考 PCL-CE）
+// Minecraft news (PCL-CE-inspired)
 "mc_news.title" = "Minecraft News";
 "mc_news.read_more" = "Read more";
 "mc_news.retry" = "Retry";
 "mc_news.load_failed" = "Failed to load";
 
-// 内存限制帮助弹窗
+// Memory-limit help dialog
 "mem_help.title" = "About Memory Limit";
 "mem_help.message" = "iOS 18 / iOS 26 single-instance memory limit is about 1440MB. Large modpacks may crash due to insufficient memory.\n\nSolution:\nUse GetMoreRam (a LiveContainer plugin) to lift the memory limit.\nGetMoreRam repo: github.com/hugeBlack/GetMoreRam\n\nRestart the launcher after installation to take effect.\n\nIf you don't use LiveContainer, try lowering the memory allocation (Settings > Java > Memory Allocation), but some modpacks may not run under the memory limit.";
 
-// 下载进度与速率（Phase 6 Task 6.1）
+// Download progress and speed (Phase 6 Task 6.1)
 "download.speed.format" = "%@/s";
 "download.progress.file_count" = "%1$ld/%2$ld files · %3$@/%4$@";
 "download.progress.file_count_short" = "%1$ld/%2$ld · %3$@";
 
-// 下载历史（Phase 6 Task 6.2）
+// Download history (Phase 6 Task 6.2)
 "download.history.title" = "Download History";
 "download.history.entry" = "History";
 "download.history.clear" = "Clear";
@@ -760,7 +760,7 @@
 "download.history.result.success" = "Success";
 "download.history.result.failed" = "Failed";
 
-// 统一任务阶段标题（redesign-download-ui Phase 1 Task 1.4 / Phase 7 Task 7.1）
+// Unified task-stage titles (redesign-download-ui Phase 1 Task 1.4 / Phase 7 Task 7.1)
 "taskStage.title.fetchVersionManifest" = "Fetch version manifest";
 "taskStage.title.downloadVersionJSON" = "Download version JSON";
 "taskStage.title.downloadClient" = "Download client";
@@ -780,7 +780,7 @@
 "taskStage.title.finalizeConfig" = "Finalize configuration";
 "taskStage.title.downloadFile" = "Download file";
 
-// 统一进度页（redesign-download-ui Phase 2 / Phase 7 Task 7.1）
+// Unified progress screen (redesign-download-ui Phase 2 / Phase 7 Task 7.1)
 "taskProgress.stage.running" = "Running";
 "taskProgress.state.pending" = "Pending";
 "taskProgress.state.downloading" = "Downloading";
@@ -812,7 +812,7 @@
 "taskProgress.errorDetail.retry" = "Retried: %1$ld/%2$ld";
 "taskProgress.errorDetail.stage" = "Current stage: %@";
 
-// 资源管理界面通用（redesign-resource-managers：六界面 + 基类共用）
+// Shared strings for resource managers (six screens and their base class)
 "resman.common.cancel" = "Cancel";
 "resman.common.delete" = "Delete";
 "resman.common.ok" = "OK";
@@ -843,7 +843,7 @@
 "resman.common.batch_delete" = "Batch Delete";
 "resman.common.delete_complete_failures" = "Delete finished, %ld failed";
 
-// Mod 管理
+// Mod management
 "resman.mods.title" = "Manage Mods";
 "resman.mods.search_placeholder" = "Search local mods...";
 "resman.mods.import" = "Import Mods";
@@ -885,7 +885,7 @@
 "resman.mods.update.done_title" = "Update Complete";
 "resman.mods.update.done_message" = "%1$ld succeeded / %2$ld failed / %3$ld skipped";
 
-// 数据包管理
+// Data pack management
 "resman.datapacks.title" = "Manage Data Packs";
 "resman.datapacks.search_placeholder" = "Search local data packs...";
 "resman.datapacks.import" = "Import Data Packs";
@@ -895,7 +895,7 @@
 "resman.datapacks.empty" = "No data packs found";
 "resman.datapacks.search_empty" = "No matching data packs";
 
-// 资源包管理
+// Resource pack management
 "resman.resourcepacks.title" = "Manage Resource Packs";
 "resman.resourcepacks.search_placeholder" = "Search local resource packs...";
 "resman.resourcepacks.import" = "Import Resource Packs";
@@ -904,7 +904,7 @@
 "resman.resourcepacks.empty" = "No resource packs found";
 "resman.resourcepacks.search_empty" = "No matching resource packs";
 
-// 世界管理
+// World management
 "resman.worlds.title" = "Manage Worlds";
 "resman.worlds.search_placeholder" = "Search local worlds...";
 "resman.worlds.import" = "Import Worlds";
@@ -916,7 +916,7 @@
 "resman.worlds.importing" = "Importing";
 "resman.worlds.delete_message" = "Are you sure you want to delete the world %@?\nThis action cannot be undone.";
 
-// 光影管理
+// Shader management
 "resman.shaders.title" = "Manage Shaders";
 "resman.shaders.search_placeholder" = "Search local shaders...";
 "resman.shaders.import" = "Import Shaders";
@@ -1331,7 +1331,7 @@
 "i18n_str_464" = "No Loader";
 "i18n_str_465" = "CurseForge Unavailable";
 "i18n_str_466" = "No CurseForge API Key is configured. Configure it in Settings and retry, or continue using the Modrinth source.";
-/* ★ [MODSRC-403] 有 key 但被官方/镜像以 401/403 拒绝时的用户提示（区分「无效或未填」，指向设置页）。 */
+/* ★ [MODSRC-403] Explain when an API key is missing or rejected, and point to the settings page. */
 "i18n_str_9103" = "The CurseForge API Key is invalid or missing. Check it in Settings and retry.";
 "i18n_str_467" = "Unable to fetch version information. Please check your network connection or switch download source";
 "i18n_str_468" = "No downloadable versions found. Try switching the download source (Modrinth/CurseForge) or changing the filter conditions";
@@ -1769,7 +1769,7 @@
 "i18n_str_1208" = "No versions available";
 "i18n_str_1209" = "Load failed. Please check the network.";
 "i18n_str_1210" = "Load failed: %@";
-// ★ [NEOFORGE-FIX] NeoForge 尚未为该 Minecraft 版本发版（诚实告知，不谎报版本）
+// ★ [NEOFORGE-FIX] Report when NeoForge has not released for this Minecraft version; do not imply otherwise.
 "neoforge.no_version_for_mc" = "No NeoForge build has been released for Minecraft %@ yet";
 "i18n_str_1211" = "Select installation method";
 "i18n_str_1212" = "Original (Vanilla)";
@@ -2039,7 +2039,7 @@
 "preference.style.footer.supported" = "Auto follows the system: Liquid Glass on iOS 26 and later, Native on earlier versions.";
 "preference.style.footer.unsupported" = "This system is older than iOS 26, so only the Native style is available. The launcher uses standard system materials instead of drawing its own glass.";
 "preference.style.footer.native" = "Native style is in effect: no hand-drawn glass overlay is added, and the glass switch and strength below are unavailable.";
-// ★ [GLASS-LIQUID] 纯系统材质 + 可选自绘高光
+// ★ [GLASS-LIQUID] System materials with optional custom highlights
 "preference.title.glass_handdrawn" = "Hand-drawn Highlight";
 "preference.style.footer.pure" = "System materials only (default): the material is provided entirely by the system (Liquid Glass on iOS 26+) — no hand-drawn glass is added.";
 "preference.style.footer.handdrawn" = "Hand-drawn highlight is on: an extra rim/inner highlight is drawn on top of the system glass (optional).";
@@ -2051,17 +2051,17 @@
 "preference.lang.section.system" = "System";
 "preference.lang.section.available" = "Available Languages";
 "preference.lang.search_placeholder" = "Search languages";
-// ★ [I18N-PARTIAL] 部分翻译语言标注（单一事实源：AmeLauncherPartiallyTranslatedLanguageCodes）
+// ★ [I18N-PARTIAL] Partially translated language labels (single source: AmeLauncherPartiallyTranslatedLanguageCodes)
 "preference.lang.partial_suffix" = " (Partial translation)";
 "preference.lang.partial_note" = "Some screens are still in Chinese";
 "preference.lang.restart_hint.title" = "Language Changed";
 "preference.lang.restart_hint.message" = "The interface has been reloaded in the selected language.";
 
-// ★ [JIT-WAIT] 主启动 JIT 等待/调起失败提示(launchJVM 失败分支 + ame139_requestJIT)
+// ★ [JIT-WAIT] Main-launch JIT wait and request-failure messages (launchJVM and ame139_requestJIT)
 "jit.wait.auto" = "Waiting for JIT to become ready. Enable JIT for this app with your JIT tool (TrollStore, StikDebug, SideStore / SideJIT, JitStreamer, …), then return to the launcher. Waiting up to 30 seconds…";
 "jit.wait.manual" = "Attach a debugger from your computer (Xcode → Debug → Attach to Process / Wait for Debugger, or idevicedebug / lldb with the pairing file), or enable JIT in your JIT tool, then return to the launcher. Waiting up to 30 seconds…";
 "jit.guide.title" = "Enable JIT";
-// ★ [JIT-ADAPT] 逐工具引导：这些工具本机没有 URL 可调，必须由用户在自己的 App/电脑上开。
+// ★ [JIT-ADAPT] Per-tool guidance: these tools have no URL scheme and must be opened by the user on their device or computer.
 "jit.wait.sidejitserver" = "Run the SideJITServer Shortcut on this device (with a SideJITServer + pymobiledevice3 host on the same Wi-Fi or VPN), pick this app, then return to the launcher. Waiting up to 30 seconds…";
 "jit.wait.altstore" = "On the same Wi-Fi as AltServer (USB required on iOS 17+), open AltStore → My Apps → long-press this app → Enable JIT, then return to the launcher. Waiting up to 30 seconds…";
 "jit.wait.sideloadly" = "Keep Sideloadly running on your PC/Mac (Sideloadly Daemon; same Wi-Fi or USB), put this app in the foreground, then pick Enable JIT for it from Sideloadly, then return to the launcher. Waiting up to 30 seconds…";
@@ -2100,8 +2100,8 @@
 "preference.group.runtime" = "Memory & Performance";
 "preference.group.java" = "Java & Launch Options";
 
-/* ★ [HOST-BUG-A] AI 页面顶部标题本地化 */
-/* ★ [I18N-MISS] 设置页 3 行文案在 ea419d4fb 上游重构中丢失了 preference.title/detail 键 ⇒ 界面直接显示生键：启动器背景 / CurseForge API 密钥 / 公告展示详细度。本次从上游恢复，并同步 4 语(含 sfpew_overlay 同类生键) */
+/* ★ [HOST-BUG-A] Localized title for the AI page */
+/* ★ [I18N-MISS] Restore the three settings title/detail keys dropped during the upstream refactor, including the matching sfpew_overlay keys. */
 "preference.title.launcher_background" = "Launcher Background";
 "preference.detail.launcher_background" = "Set a launcher background (image/video), or restore the default solid color.";
 "preference.title.curseforge_api_key" = "CurseForge API Key";
@@ -2110,14 +2110,14 @@
 "preference.detail.announcement_preview_level" = "How much detail announcements show on the home screen.";
 "preference.title.sfpew_overlay" = "SimpleFPEWrapper overlay";
 "preference.detail.sfpew_overlay" = "Overlays the SimpleFPEWrapper fixed-function (GL 1.x) emulation layer on top of the GLES backend for legacy compatibility; not applicable to gl4es / zink / Vulkan and other backends.";
-/* ★ [I18N-MISS] 语言切换确认弹窗(SceneDelegate 语言流程)键全 6 语都缺 ⇒ 切语言后弹窗直接显示生键。本次补齐 */
+/* ★ [I18N-MISS] Add missing keys for the language-switch confirmation dialog used by SceneDelegate. */
 "preference.lang.switched.title" = "Language switched";
 "preference.lang.switched.message" = "The interface has been reloaded in the selected language.";
 
 "login.title" = "Accounts";  // ★ [AUDIT-FIX]
 "login.cancelled" = "Login cancelled";  // ★ [AUDIT-FIX]
 
-/* ★ [AUDIT-DECIDE] 新增键（硬编码英文 → localize）：Copy 反馈/尺寸/登录/CurseForge/实例 chip/陶瓦提示 */
+/* ★ [AUDIT-DECIDE] Localized strings for copy feedback, sizing, sign-in, CurseForge, instance badges, and Terracotta notices */
 "custom_controls.control_menu.copy.ok" = "Copied";  // ★ [AUDIT-DECIDE]
 "custom_controls.control_menu.copy.ok.message" = "The control configuration was copied to the clipboard. You can save it as a .json file and import it with Load.";  // ★ [AUDIT-DECIDE]
 "custom_controls.control_menu.copy.error.none" = "Nothing to copy";  // ★ [AUDIT-DECIDE]
