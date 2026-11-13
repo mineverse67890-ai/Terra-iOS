@@ -8,10 +8,10 @@
 //      【右边】(inline 版式),容器 68→92 也救不回来(截图 md5 与 ② 完全相同);
 //    · 参考对象 LiveContainer(LiveContainerSwiftUI/Views/LCTabView.swift)其实
 //      只有一句 `TabView { … .tabItem { Label(…) } }`,没有任何自绘 / appearance。
-//  ⇒ 本文件照它的做法:纯 SwiftUI TabView + 5 个 .tabItem { Label },
+//  ⇒ 本文件照它的做法:纯 SwiftUI TabView + 4 个 .tabItem { Label },
 //    **外观一个字节都不自定义**(玻璃 / 圆角 / 图标在上中文在下的版式全交给系统),
 //    只负责三件事:
-//      ① 5 项菜单(★ 已按用户指示删掉「多人游戏」);
+//      ① 4 项菜单;
 //      ② 选中时广播 ObjC 通知 AmeTabSelected(userInfo = @{@"index": @(v)});
 //      ③ 暴露 setIconSize: / setHeight: / setStyle: 三个可调口(UserDefaults 键)。
 //
@@ -43,22 +43,21 @@ enum AmeTabBarPrefKey {
     static let iconSize = "ameTabIconSize"
 }
 
-// MARK: - 菜单定义(★ 5 项;id == tag == ObjC menuItems 下标,一一对应)
+// MARK: - 菜单定义(4 项;id == tag == ObjC menuItems 下标,一一对应)
 
 struct AmeTabItem: Identifiable {
     let id: Int          // == menuItems 下标
-    let title: String    // 中文短名(标签栏宽度有限,统一两字 / AI)
+    let title: String    // 中文短名(标签栏宽度有限)
     let symbol: String   // SF Symbol
 }
 
-/// ★ 5 项,与 LauncherMenuViewController.m 的 menuItems 顺序严格一致(无「多人游戏」):
-///   0 实例 · 1 下载 · 2 AI · 3 资源 · 4 设置
+/// 4 项,与 LauncherMenuViewController.m 的 menuItems 顺序严格一致:
+///   0 实例 · 1 下载 · 2 资源 · 3 设置
 let AmeTabItems: [AmeTabItem] = [
-    AmeTabItem(id: 0, title: "主页", symbol: "house.fill"),
+    AmeTabItem(id: 0, title: "实例", symbol: "house.fill"),
     AmeTabItem(id: 1, title: "下载", symbol: "arrow.down.circle.fill"),
-    AmeTabItem(id: 2, title: "AI",   symbol: "sparkles"),
-    AmeTabItem(id: 3, title: "实例", symbol: "square.stack.3d.up.fill"),
-    AmeTabItem(id: 4, title: "设置", symbol: "gearshape.fill"),
+    AmeTabItem(id: 2, title: "资源", symbol: "square.stack.3d.up.fill"),
+    AmeTabItem(id: 3, title: "设置", symbol: "gearshape.fill"),
 ]
 
 // MARK: - 状态

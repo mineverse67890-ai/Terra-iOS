@@ -641,42 +641,6 @@ add_executable(AngelAuraAmethyst
   AnnouncementListViewController.m
   AnnouncementDetailViewController.m
 
-  # Air AI Agent（OpenAI 兼容聊天助手）
-  AI/AiProvider.m
-  AI/AiProviderStore.m
-  AI/AiMessage.m
-  AI/AiSession.m
-  AI/AiSessionStore.m
-  AI/AiSettings.m
-  AI/AiAPIClient.m
-  AI/AiAgent.m
-  AI/AIMessageCell.m
-  AI/AIInputBarView.m
-  AI/AIViewController.m
-  AI/AISessionListViewController.m
-  AI/AIProviderConfigViewController.m
-  AI/AISystemPromptEditorViewController.m
-
-  # Air AI Agent 工具基础层（3a：注册表 / 安全机制 / 实例 / 日志 / 崩溃 / 文件 / 问答）
-  AI/AiToolRegistry.m
-  AI/AiSafetyManager.m
-  AI/AiToolBootstrapper.m
-  AI/AiInstancesTool.m
-  AI/AiLogReader.m
-  AI/AiCrashAnalyzer.m
-  AI/AiFileTools.m
-  AI/AiAskTool.m
-
-  # Air AI Agent 资源/网络工具（3b：Modrinth 搜索 + 资源安装/引导）
-  AI/AiAssetTools.m
-
-  # Air AI Agent 第二轮增强（enhance-ai-agent：设置 / to-do / sleep / 下载查询 / 实例创建）
-  AI/AiSettingsTools.m
-  AI/AiTodoTool.m
-  AI/AiSleepTool.m
-  AI/AiDownloadProbe.m
-  AI/AiInstanceCreator.m
-
   # ★ [SWIFT-BAR] SwiftUI 底部标签栏目标文件(swiftc 产出;只追加,不动上面既有 OBJC 顺序)
   ${AME_TABBAR_OBJ}
   # ★ [ROOTTAB] 根标签栏控制器(真正的 UITabBarController;音乐/LiveContainer 同构)

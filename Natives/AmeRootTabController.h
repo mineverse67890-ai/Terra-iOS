@@ -10,13 +10,12 @@
 //
 #import <UIKit/UIKit.h>
 
-/// 标签被点:userInfo = @{@"index": @(0…4)}。LauncherMenuViewController 监听后
+/// 标签被点:userInfo = @{@"index": @(0…3)}。LauncherMenuViewController 监听后
 /// 直接调用已有的 handleMenuSelection: —— 导航语义一个字不变。
 extern NSString * const AmeTabTappedNotification;
 
 @interface AmeRootTabController : UITabBarController
-/// 用给定主页(内容)建控制器:5 个标签 = 主页 / 下载 / AI / 实例 / 设置。
-/// 主页承载真实内容(LauncherRootViewController 或 CardLayout),其余 4 个是空壳,
-/// 点中后只广播通知并立刻把选中切回主页 —— 内容始终在屏幕上,底栏始终是系统的。
+/// 用给定主页(内容)建控制器:4 个标签 = 实例 / 下载 / 资源 / 设置。
+/// 实例页承载主页内容(LauncherRootViewController 或 CardLayout)，下载、资源和设置各自显示对应页面。
 + (instancetype)tabControllerWithHomeViewController:(UIViewController *)home;
 @end

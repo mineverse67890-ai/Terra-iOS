@@ -12,15 +12,14 @@
 //    拿到【图标在上 / 中文在下】+【系统液态玻璃】的做法。
 //
 //  做法(v3,本文件):底栏换成 SwiftUI —— Natives/AmeTabBar.swift 里的 `AmeBar`
-//    (TabView + 5 个 .tabItem{ Label })。本文件只负责:
+//    (TabView + 4 个 .tabItem{ Label })。本文件只负责:
 //      ① 把宿主子 VC([AmeTabBarHost makeHostWithTag:0])四边铺满本 VC 的 view;
 //      ② 监听 NSNotificationCenter 通知名 "AmeTabSelected"(userInfo @{@"index"}),
 //         转发给既有的 handleMenuSelection:(导航语义与 v1/v2 逐条相同)。
 //
-//  ★ 5 项(★ 用户指示:删掉「多人游戏」—— 还在维护、无实际入口):
+//  ★ 4 项:
 //     0 实例 → ShowHomePage          1 下载 → ShowDownloadPage
-//     2 AI   → showAI(present)       3 资源 → ShowVersionManager
-//     4 设置 → ShowSettings
+//     2 资源 → ShowVersionManager   3 设置 → ShowSettings
 //
 //  ★ 外观(玻璃/圆角/版式)一个字节都不自绘,也不设 UITabBarAppearance —— 全部
 //    交给系统,与 LiveContainer 底栏同一思路。本文件仅保留"未选中项 tint"能力。
@@ -127,20 +126,19 @@
                                                  name:@"LauncherAppearanceChanged"
                                                object:nil];
 
-    // ★ [SYS-TABBAR] 菜单项配置(★ [TABC] 5 项:已按用户指示删掉「多人游戏」)。
-    //   icon = SF Symbol;tab = 标签栏短名(标签栏横向空间有限,统一两字/AI);
+    // 菜单项配置(4 项)。
+    //   icon = SF Symbol;tab = 标签栏短名;
     //   portrait / landscape 仅保留给 onMenuItemSelected 回调用。
     self.menuItems = @[
-        @{@"icon": @"house.fill",             @"tab": @"主页", @"portrait": @"主页", @"landscape": @"主页",     @"index": @0},
+        @{@"icon": @"house.fill",             @"tab": @"实例", @"portrait": @"实例", @"landscape": @"实例",     @"index": @0},
         @{@"icon": @"arrow.down.circle.fill", @"tab": @"下载", @"portrait": @"下载", @"landscape": @"下载中心", @"index": @1},
-        @{@"icon": @"sparkles",               @"tab": @"AI",   @"portrait": @"AI",   @"landscape": @"AI",       @"index": @2},
-        @{@"icon": @"square.stack.3d.up.fill",@"tab": @"实例", @"portrait": @"实例", @"landscape": @"实例",     @"index": @3},
-        @{@"icon": @"gearshape.fill",         @"tab": @"设置", @"portrait": @"设置", @"landscape": @"设置",     @"index": @4}
+        @{@"icon": @"square.stack.3d.up.fill",@"tab": @"资源", @"portrait": @"资源", @"landscape": @"资源",     @"index": @2},
+        @{@"icon": @"gearshape.fill",         @"tab": @"设置", @"portrait": @"设置", @"landscape": @"设置",     @"index": @3}
     ];
 
     self.selectedIndex = 0;
 
-    // ★ [ROOTTAB] 底栏 = 根 UITabBarController 的**真页面**标签(下载/AI/实例/设置各自是 VC),
+    // ★ [ROOTTAB] 底栏 = 根 UITabBarController 的**真页面**标签(下载/资源/设置各自是 VC),
     //   切换由 UIKit 完成 ⇒ 这里【不再】监听 AmeTabTapped 去弹旧页面(否则会重叠弹两次)。
     //   LauncherMenuViewController 只保留 setCompactHorizontalLayout: 等既有职责。
     [self applyCustomAppearance];  // ★ [SWIFT-BAR] 应用用户自定义未选中文字色(tint,不动玻璃)
@@ -253,16 +251,14 @@
 
 #pragma mark - Navigation
 
-/// ★ [TABC] 导航映射(沿用既有通知名,不改父控制器行为)。
-/// ★ 用户指示删掉「多人游戏」⇒ 原 index 5(设置)前移为 4,此后没有 index 5。
-///   0 实例 → ShowHomePage(主页/实例页)
+/// 标签导航映射(沿用既有通知名,不改父控制器行为)。
+///   0 实例 → ShowHomePage
 ///   1 下载 → ShowDownloadPage
-///   2 AI   → 直接 present AI 会话列表
-///   3 资源 → ShowVersionManager(资源/版本管理,沿用原 index 3 语义)
-///   4 设置 → ShowSettings
+///   2 资源 → ShowVersionManager
+///   3 设置 → ShowSettings
 - (void)handleMenuSelection:(NSInteger)index {
     switch (index) {
-        case 0: // 实例 / 主页
+        case 0: // 实例
             [[NSNotificationCenter defaultCenter] postNotificationName:@"ShowHomePage" object:nil];
             break;
 
@@ -270,32 +266,14 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:@"ShowDownloadPage" object:nil];
             break;
 
-        case 2: // AI 入口
-            [self showAI];
-            break;
-
-        case 3: // 资源 / 资源管理(版本管理,合并了原"当前版本设置"功能)
+        case 2: // 资源 / 版本管理
             [self showVersionManager];
             break;
 
-        case 4: // 设置
+        case 3: // 设置
             [self showSettings];
             break;
-
-        // ★ [SWIFT-BAR] 原 case 4(多人游戏)已删除:该入口不再出现在标签栏上
     }
-}
-
-- (void)showAI {
-    // 直接 present AI 会话列表(自包含,不依赖 RootVC 的通知处理器)
-    Class cls = NSClassFromString(@"AISessionListViewController");
-    if (!cls) { NSLog(@"[SYS-TABBAR][MENU] AISessionListViewController 不存在,AI 入口无动作"); return; }
-    UIViewController *vc = [[cls alloc] init];
-    if (!vc) return;
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
-    nav.modalPresentationStyle = UIModalPresentationFullScreen;
-    UIViewController *host = self.view.window.rootViewController ?: self;
-    [host presentViewController:nav animated:YES completion:nil];
 }
 
 - (void)showVersionManager {

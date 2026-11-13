@@ -23,8 +23,6 @@
 #import "TerracottaManager.h"
 #import "TerracottaBridge.h"
 #import "AccountListViewController.h"
-#import "AI/AIViewController.h"
-#import "AI/AiSessionStore.h"
 
 // 布局常量（iPad 基准值；iPhone 上通过 LauncherRootLayoutWidth 适配后会变窄）
 static const CGFloat kSidebarWidthPad = 70.0;      // iPad 左侧边栏宽度
@@ -674,11 +672,6 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
                                              selector:@selector(showSettings)
                                                  name:@"ShowSettings"
                                                object:nil];
-    // 监听显示 AI 助手页面
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(showAIPage)
-                                                 name:@"ShowAIPage"
-                                               object:nil];
     // ★ [MP-RESTORE] 联机恢复：菜单/瓷砖发通知 ⇒ 在中间内容区显示联机页
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(showMultiplayer)
@@ -802,9 +795,9 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     // ★ [HOST-BUG-B] 管理版本入口「进入了实例页但底栏没切、返回不了主页」根因:
     //   本页(主页 tab,index 0)收到 ShowVersionManager 后调 setContentViewController: 把【主页内容区】
     //   整体换成版本管理页 ⇒ 底栏仍高亮主页、新页又成了另一栈的根,用户返回后主页内容也停在版本管理(串台)。
-    //   改为:切到「实例」标签(index 3 —— 其根页本即 VersionManagerViewController)并 pop 回根页,
+    //   改为:切到「资源」标签(index 2 —— 其根页本即 VersionManagerViewController)并 pop 回根页,
     //   与主页快捷入口 fix2PushTab / e1NewInstanceTapped 同一范式;主页内容区完全不被替换。
-    if (AmeHomeSwitchToTab(self, 3, YES)) return;
+    if (AmeHomeSwitchToTab(self, 2, YES)) return;
     // 兜底:不在标签栏(老流程)保持原行为 —— 在中间内容区显示版本管理页面，包在 NavigationController
     // 中以便子流程（模组/光影/游戏目录管理）push
     VersionManagerViewController *vc = [[VersionManagerViewController alloc] init];
@@ -840,22 +833,13 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
 }
 
 - (void)showSettings {
-    // ★ [HOST-BUG-B] 设置页本就是标签 4 ⇒ 切标签(不再换主页内容)。
-    if (AmeHomeSwitchToTab(self, 4, YES)) return;
+    // ★ [HOST-BUG-B] 设置页本就是标签 3 ⇒ 切标签(不再换主页内容)。
+    if (AmeHomeSwitchToTab(self, 3, YES)) return;
     // 兜底(老流程):在中间内容区显示设置页面
     LauncherPreferencesViewController *vc = [[LauncherPreferencesViewController alloc] init];
     // 包装在导航控制器中，使其子页面能够正常导航
     UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
     navVC.navigationBar.prefersLargeTitles = YES;
-    [self setContentViewController:navVC animated:YES];
-}
-
-- (void)showAIPage {
-    // 从 AiSessionStore 取最近会话，没有则让 AIViewController 新建一个
-    AiSession *session = [[AiSessionStore sharedStore] lastActiveSession];
-    AIViewController *vc = [[AIViewController alloc] initWithSession:session];
-    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
-    navVC.navigationBar.prefersLargeTitles = NO;
     [self setContentViewController:navVC animated:YES];
 }
 

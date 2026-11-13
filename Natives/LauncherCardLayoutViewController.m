@@ -25,8 +25,6 @@
 #import "TerracottaManager.h"
 #import "TerracottaBridge.h"
 #import "AccountListViewController.h"
-#import "AI/AIViewController.h"
-#import "AI/AiSessionStore.h"
 
 // 布局常量（iPad/宽屏基准值；iPhone 上通过 traitCollection 适配后会变窄）
 static const CGFloat kSidebarWidthPad = 70.0;      // iPad 左侧边栏卡片宽度
@@ -877,13 +875,6 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
                                              selector:@selector(showAccountManager)
                                                  name:@"ShowAccountManager"
                                                object:nil];
-    // AI 助手：卡片布局下点侧边栏 AI Agent 按钮发 ShowAIPage 通知。
-    // 关键修复（点 AI 中间栏不切换）：卡片布局此前未监听 ShowAIPage，
-    // 导致菜单发出通知后无人响应、中间栏不变。与 LauncherRootViewController 对齐。
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(showAIPage)
-                                                 name:@"ShowAIPage"
-                                               object:nil];
     // 首页快捷瓷砖触发：切到对应内容区子页面（不再 FormSheet 弹窗）
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(showModsManager)
@@ -1010,9 +1001,9 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     // ★ [HOST-BUG-B] 管理版本入口「进入了实例页但底栏没切、返回不了主页」根因:
     //   本页(主页 tab,index 0)收到 ShowVersionManager 后调 setContentViewController: 把【主页内容区】
     //   整体换成版本管理页 ⇒ 底栏仍高亮主页、新页又成了另一栈的根,用户返回后主页内容也停在版本管理(串台)。
-    //   改为:切到「实例」标签(index 3 —— 其根页本即 VersionManagerViewController)并 pop 回根页,
+    //   改为:切到「资源」标签(index 2 —— 其根页本即 VersionManagerViewController)并 pop 回根页,
     //   与主页快捷入口 fix2PushTab / e1NewInstanceTapped 同一范式;主页内容区完全不被替换。
-    if (AmeHomeSwitchToTab(self, 3, YES)) return;
+    if (AmeHomeSwitchToTab(self, 2, YES)) return;
     // 兜底:不在标签栏(老流程)保持原行为 —— 在中间内容区显示版本管理页面
     VersionManagerViewController *vc = [[VersionManagerViewController alloc] init];
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
@@ -1047,25 +1038,13 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
 }
 
 - (void)showSettings {
-    // ★ [HOST-BUG-B] 设置页本就是标签 4 ⇒ 切标签(不再换主页内容)。
-    if (AmeHomeSwitchToTab(self, 4, YES)) return;
+    // ★ [HOST-BUG-B] 设置页本就是标签 3 ⇒ 切标签(不再换主页内容)。
+    if (AmeHomeSwitchToTab(self, 3, YES)) return;
     // 兜底(老流程):在中间内容区显示设置页面
     LauncherPreferencesViewController *vc = [[LauncherPreferencesViewController alloc] init];
     // 包装在导航控制器中，使其子页面能够正常导航
     UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
     navVC.navigationBar.prefersLargeTitles = YES;
-    [self setContentViewController:navVC animated:YES];
-}
-
-- (void)showAIPage {
-    // 在中间内容区显示 AI 助手页面（与 LauncherRootViewController showAIPage 一致）。
-    // 关键修复（点 AI 中间栏不切换）：卡片布局此前缺失此方法，
-    // 现在 ShowAIPage 通知到达后能正常切到 AI 页面。
-    // 从 AiSessionStore 取最近会话，没有则让 AIViewController 新建一个。
-    AiSession *session = [[AiSessionStore sharedStore] lastActiveSession];
-    AIViewController *vc = [[AIViewController alloc] initWithSession:session];
-    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
-    navVC.navigationBar.prefersLargeTitles = NO;
     [self setContentViewController:navVC animated:YES];
 }
 
@@ -1358,10 +1337,10 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
 //   (见 AmeRootTabController.m)——不再有分段容器;E1InstancesPanelView 目前无活宿主(见本文件 248 行起的注释)。
 // ============================================================================
 
-/// ★ [TAB-CROSSTALK] 「实例」页统一落地:实例本就是「实例」标签(index 3)的页 ⇒ 切标签 + 回根,
+/// ★ [TAB-CROSSTALK] 「实例」页统一落地:实例本就是「实例」标签(index 0)的页 ⇒ 切标签 + 回根,
 ///   而不是把实例网格塞进「主页」内容区(那正是用户报的「主页变实例列表」串台)。
 - (void)e1ShowInstancesPage {
-    if (AmeHomeSwitchToTab(self, 3, YES)) {
+    if (AmeHomeSwitchToTab(self, 0, YES)) {
         if (self.instancesPanelView && !self.instancesPanelView.hidden) {
             self.instancesPanelView.hidden = YES;
         }
@@ -1411,18 +1390,18 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
 - (void)e1ApplyInstancesPanelAppearance { [self.instancesPanelView applyAppearance]; }
 - (void)e1RefreshInstanceCardChrome { [self.instancesPanelView refreshCardChrome]; }
 
-/// 「＋新建实例」落点:切「实例」标签(index 3)+ 回根(落到版本管理页。「＋新建实例」本就是去版本管理里新建版本)。
+/// 「＋新建实例」落点:切「资源」标签(index 2)+ 回根(落到版本管理页。「＋新建实例」本就是去版本管理里新建版本)。
 /// ★ [TAB-INST-REVERT] 该标签已恢复为单页 VersionManagerViewController(无分段)⇒ 原先那条
 ///   `AmeInstancesTabShowVersionsPage`(唯一观察者是已删除的 InstancesTabViewController)已无宿主,
-///   这里一并删掉,不留无人观察的通知;落点行为不变(切标签 3 + 回根 = 版本管理页)。
+///   这里一并删掉,不留无人观察的通知;落点行为不变(切标签 2 + 回根 = 版本管理页)。
 - (void)e1NewInstanceTapped {
-    // ★ [TAB-CROSSTALK] 与主页快捷入口同一范式:切「实例」标签,不碰主页内容区。
+    // ★ [TAB-CROSSTALK] 与主页快捷入口同一范式:切「资源」标签,不碰主页内容区。
     UITabBarController *tbc = self.tabBarController;
     if ([tbc isKindOfClass:[UITabBarController class]] &&
-        tbc.viewControllers.count > 3 &&
-        [tbc.viewControllers[3] isKindOfClass:[UINavigationController class]]) {
-        tbc.selectedIndex = 3;
-        [(UINavigationController *)tbc.viewControllers[3] popToRootViewControllerAnimated:YES];
+        tbc.viewControllers.count > 2 &&
+        [tbc.viewControllers[2] isKindOfClass:[UINavigationController class]]) {
+        tbc.selectedIndex = 2;
+        [(UINavigationController *)tbc.viewControllers[2] popToRootViewControllerAnimated:YES];
         return;
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:@"ShowVersionManager" object:nil];

@@ -3,7 +3,7 @@
 //  ★ [ROOTTAB] 见头文件注释。
 //
 //  ★ 第 3 版(正经结构,和音乐 / LiveContainer / SideStore 同构):
-//    根 = UITabBarController,5 个标签【各自是真页面】,统统交给 UIKit:
+//    根 = UITabBarController,4 个标签【各自是真页面】,统统交给 UIKit:
 //      · 触摸:UIKit 自己管(不再手工塞视图、不再关交互 —— 上一版的坑)
 //      · 生命周期:真子控制器 ⇒ viewWillAppear 等回调正常(修「JIT 一直检测中」)
 //      · 横竖屏 / 安全区:UIKit 自己算
@@ -18,7 +18,6 @@
 // ★ [TAB-INST-REVERT] 「实例」标签改回单页 ⇒ 本文件不再需要 LauncherCardLayoutViewController.h
 //   (E1InstancesPanelView 不在这里实例化;类仍保留在 LauncherCardLayoutViewController.{h,m})。
 #import "LauncherPreferencesViewController.h"
-#import "AI/AISessionListViewController.h"
 // ★ [MP-RESTORE] 联机入口
 #import "TerracottaViewController.h"
 
@@ -27,10 +26,9 @@ NSString * const AmeTabTappedNotification = @"AmeTabTapped";   // ★ [ROOTTAB]
 @interface AmeRootTabController () <UITabBarControllerDelegate>   // ★ 声明协议,消掉 delegate 赋值警告
 @end
 
-// ★ [TAB-INST-REVERT] 已删除分段容器 InstancesTabViewController:「实例」标签(index 3)
-//   恢复为单页 VersionManagerViewController(与 [TAB-CROSSTALK] 之前一致,带它自己的导航栈/返回键行为)。
+// 「资源」标签(index 2)使用 VersionManagerViewController 单页(带它自己的导航栈/返回键行为)。
 //   E1 实例网格 E1InstancesPanelView 保留在 LauncherCardLayoutViewController.{h,m},
-//   但当前无活宿主(全仓无人调 e1ShowInstancesPage)⇒ 不在「主页」或「实例」标签下占任何位置。
+//   但当前无活宿主(全仓无人调 e1ShowInstancesPage)⇒ 不在「实例」标签下占任何位置。
 
 #pragma mark - ★ [TAB-OVERLAP] 零时长标签过渡(保证任一时刻只有一个页面视图)
 
@@ -89,14 +87,13 @@ static UIViewController *AmeWrapInNav(UIViewController *vc) {
 + (instancetype)tabControllerWithHomeViewController:(UIViewController *)home {
     AmeRootTabController *tbc = [[AmeRootTabController alloc] init];
 
-    // ★ [I18N] 5 项:主页 · 下载 · AI · 实例 · 设置（★ 已按用户指示删掉「多人游戏」）
+    // 4 项:实例 · 下载 · 资源 · 设置
     // 标题经 localize 现取（键名 tab.*，四语同步在 Localizable.strings）；语言切换时
     // SceneDelegate 会重建根 UI，这里的标题自然跟新。
     NSArray<NSDictionary *> *items = @[
-        @{@"t": localize(@"tab.home", @"主页"),      @"i": @"house.fill"},
+        @{@"t": localize(@"tab.instances", @"实例"), @"i": @"house.fill"},
         @{@"t": localize(@"tab.download", @"下载"),  @"i": @"arrow.down.circle.fill"},
-        @{@"t": localize(@"tab.ai", @"AI"),          @"i": @"sparkles"},
-        @{@"t": localize(@"tab.instances", @"实例"), @"i": @"square.stack.3d.up.fill"},
+        @{@"t": localize(@"tab.resources", @"资源"), @"i": @"square.stack.3d.up.fill"},
         @{@"t": localize(@"tab.settings", @"设置"),  @"i": @"gearshape.fill"},
     ];
 
@@ -104,18 +101,17 @@ static UIViewController *AmeWrapInNav(UIViewController *vc) {
     for (NSInteger i = 0; i < (NSInteger)items.count; i++) {
         UIViewController *content = nil;
         switch (i) {
-            case 0: content = home ?: [[UIViewController alloc] init]; break;   // 主页 = 启动器现有全部界面
+            case 0: content = home ?: [[UIViewController alloc] init]; break;   // 实例 = 启动器主页现有全部界面
             // ★ [ROOTTAB-FIX] 下载 = 【下载实例】(DownloadViewController:版本/模组/光影/资源包…七标签),
             //   ★ 不包导航控制器 —— 包了会多一条导航栏,把内容整体压低(用户报"下载实例界面还是有点低")。
             case 1: content = [[DownloadViewController alloc] init]; break;
-            case 2: content = [[AISessionListViewController alloc] init]; break;
-            case 3: content = [[VersionManagerViewController alloc] init]; break;   // ★ [TAB-INST-REVERT] 实例标签 = 版本管理单页(恢复原状,无分段)
-            case 4: content = [[LauncherPreferencesViewController alloc] init]; break;
+            case 2: content = [[VersionManagerViewController alloc] init]; break;
+            case 3: content = [[LauncherPreferencesViewController alloc] init]; break;
             default: content = [[UIViewController alloc] init]; break;
         }
 
         // ★ [ROOTTAB-FIX] tabBarItem 必须设在【内容 VC】上:导航控制器会用它 push 栈顶页面的
-        //   item 覆盖自己那个 —— 上一版设在 nav 上 ⇒ 第 3 个标签显示成了"会话列表"。
+        //   item 覆盖自己那个 —— tabBarItem 必须与实际页面一致。
         content.tabBarItem = [[UITabBarItem alloc] initWithTitle:items[i][@"t"]
                                                           image:[UIImage systemImageNamed:items[i][@"i"]]
                                                   selectedImage:nil];

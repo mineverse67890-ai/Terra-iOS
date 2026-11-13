@@ -1,0 +1,39 @@
+name: Build Amethyst 26.3 IPA
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Fork with Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build Unsigned App Bundle
+        run: |
+          xcodebuild -project Amethyst.xcodeproj \
+            -scheme "Amethyst" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package into IPA
+        run: |
+          mkdir -p Payload
+          mv build/Build/Products/Release-iphoneos/Amethyst.app Payload/
+          zip -r Amethyst-26.3-Remastered.ipa Payload/
+          rm -rf Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Amethyst-26.3-IPA
+          path: Amethyst-26.3-Remastered.ipa

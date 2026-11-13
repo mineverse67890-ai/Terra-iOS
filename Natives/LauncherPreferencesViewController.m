@@ -24,10 +24,6 @@
 #import "CurseForgeAPIKeyViewController.h"
 #import "CustomControlsViewController.h"
 #import "LauncherLanguageViewController.h"   // ★ [LANG-SWITCH] 语言选择子页
-#import "AI/AIProviderConfigViewController.h"
-#import "AI/AISessionListViewController.h"
-#import "AI/AISystemPromptEditorViewController.h"
-#import "AI/AiSettings.h"
 
 @interface LauncherPreferencesViewController()
 @property(nonatomic) NSArray<NSString*> *rendererKeys, *rendererList;
@@ -281,20 +277,6 @@
             }
             return name;
         }
-        // AI 助手分区：直接与 AiSettings 打通（AiSettings 读写 NSUserDefaults，不走通用偏好存储）
-        if ([section isEqualToString:@"ai"]) {
-            if ([key isEqualToString:@"safety_mode"]) {
-                switch ([[AiSettings sharedSettings] safetyMode]) {
-                    case AiSafetyModeSafe:  return @"只读自动执行（Safe）";
-                    case AiSafetyModeAsk:   return @"写操作逐次确认（Ask）";
-                    case AiSafetyModeYOLO:  return @"自动批准（YOLO）";
-                }
-            }
-            if ([key isEqualToString:@"markdown_enabled"]) {
-                return @([[AiSettings sharedSettings] markdownEnabled]);
-            }
-            return nil;
-        }
         // ★ [SETTINGS-VISIBLE] 界面风格(玻璃):读 NSUserDefaults 的 background_glass_* 键(与背景设置子页同源)
         if ([section isEqualToString:@"general"] && [key isEqualToString:@"glass_style"]) {
             return localize([NSString stringWithFormat:@"preference.style.%@", AMEGlassStyleStringFromEnum(AMEGlassStyleConfigured())], nil);
@@ -309,26 +291,6 @@
         // ★ [LANG-SWITCH] 语言项由子页 LauncherLanguageViewController 直接写 NSUserDefaults，
         // 这里拦截，避免误写入通用偏好存储（保持单一数据源）。
         if ([section isEqualToString:@"general"] && [key isEqualToString:@"launcher_language"]) {
-            return;
-        }
-        // AI 助手分区：回写到 AiSettings
-        if ([section isEqualToString:@"ai"]) {
-            if ([key isEqualToString:@"safety_mode"]) {
-                AiSafetyMode mode = AiSafetyModeSafe;
-                if ([value isKindOfClass:[NSNumber class]]) {
-                    mode = (AiSafetyMode)[value integerValue];
-                } else if ([value isKindOfClass:[NSString class]]) {
-                    NSString *s = value;
-                    if ([s containsString:@"逐次确认"]) {
-                        mode = AiSafetyModeAsk;
-                    } else if ([s containsString:@"自动批准"]) {
-                        mode = AiSafetyModeYOLO;
-                    }
-                }
-                [[AiSettings sharedSettings] setSafetyMode:mode];
-            } else if ([key isEqualToString:@"markdown_enabled"]) {
-                [[AiSettings sharedSettings] setMarkdownEnabled:[value boolValue]];
-            }
             return;
         }
         // ★ [SETTINGS-VISIBLE] 界面风格(玻璃):写 NSUserDefaults 的 background_glass_* 键 + 广播即时生效
@@ -363,7 +325,7 @@
     self.hasDetail = YES;
     self.prefDetailVisible = self.navigationController == nil;
     
-    self.prefSections = @[@"general", @"download", @"video", @"mobileglues", @"control", @"java", @"debug", @"ai"];
+    self.prefSections = @[@"general", @"download", @"video", @"mobileglues", @"control", @"java", @"debug"];
 
     self.rendererKeys = getRendererKeys(NO);
     self.rendererList = getRendererNames(NO);
@@ -1404,62 +1366,6 @@
                 @"hasDetail": @YES,
                 @"icon": @"textformat.abc.dottedunderline",
                 @"type": self.typeSwitch
-            }
-        ], @[
-            // AI 助手 settings（Air AI Agent Phase 2）
-            @{@"icon": @"sparkles"},
-            @{@"key": @"provider_config",
-              @"title": @"提供商配置",
-              @"icon": @"globe.asia.australia.fill",
-              @"type": self.typeButton,
-              @"action": ^void(){
-                  AIProviderConfigViewController *vc = [[AIProviderConfigViewController alloc] init];
-                  UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
-                  nav.modalPresentationStyle = UIModalPresentationFormSheet;
-                  [self presentViewController:nav animated:YES completion:nil];
-              }
-            },
-            @{@"key": @"session_list",
-              @"title": @"会话列表",
-              @"icon": @"rectangle.stack.badge.person.crop",
-              @"type": self.typeButton,
-              @"action": ^void(){
-                  AISessionListViewController *vc = [[AISessionListViewController alloc] init];
-                  UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
-                  nav.modalPresentationStyle = UIModalPresentationFormSheet;
-                  [self presentViewController:nav animated:YES completion:nil];
-              }
-            },
-            @{@"key": @"safety_mode",
-              @"title": @"默认安全模式",
-              @"icon": @"hand.raised.fill",
-              @"type": self.typePickField,
-              @"pickKeys": @[
-                  @"只读自动执行（Safe）",
-                  @"写操作逐次确认（Ask）",
-                  @"自动批准（YOLO）"
-              ],
-              @"pickList": @[
-                  @"只读自动执行（Safe）",
-                  @"写操作逐次确认（Ask）",
-                  @"自动批准（YOLO）"
-              ]
-            },
-            @{@"key": @"markdown_enabled",
-              @"title": @"Markdown 渲染",
-              @"icon": @"textformat",
-              @"type": self.typeSwitch
-            },
-            @{@"key": @"system_prompt",
-              @"title": @"系统提示词",
-              @"icon": @"text.book.closed.fill",
-              @"type": self.typeButton,
-              @"action": ^void(){
-                  AISystemPromptEditorViewController *vc = [[AISystemPromptEditorViewController alloc] init];
-                  UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
-                  nav.modalPresentationStyle = UIModalPresentationFormSheet;
-                  [self presentViewController:nav animated:YES completion:nil];
-              }
             }
         ]
     ];
