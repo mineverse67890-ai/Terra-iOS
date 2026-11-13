@@ -18,6 +18,7 @@
 
 #include "utils.h"
 #import "VersionDataMigration.h"
+#import "PLProfiles.h"
 
 // ★ [VER-ISOLATE-PCL] 版本隔离解析需要读全局偏好键 general.version_isolation，
 // 故引入偏好访问层（LauncherPreferences.h 不反向包含 utils.h，无循环依赖风险）。
