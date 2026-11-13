@@ -1692,7 +1692,11 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
                                                           error:&gameDirectoryError]) {
             NSLog(@"[Terra-iOS] Unable to create profile game directory %@: %@",
                   gameDir, gameDirectoryError.localizedDescription);
-            return;
+            UIKit_returnToSplitView();
+            showDialog(localize(@"Error", nil), [NSString stringWithFormat:
+                @"Unable to create the instance directory: %@",
+                gameDirectoryError.localizedDescription ?: @"Unknown file-system error."]);
+            return 1;
         }
         NSLog(@"[Terra-iOS] Profile game directory: %@", gameDir);
 
