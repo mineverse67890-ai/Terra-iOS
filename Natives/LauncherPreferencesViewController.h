@@ -3,4 +3,6 @@
 
 @interface LauncherPreferencesViewController : PLPrefTableViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIColorPickerViewControllerDelegate>
 
+@property (nonatomic, copy, nullable) NSString *settingsCategory;
+
 @end

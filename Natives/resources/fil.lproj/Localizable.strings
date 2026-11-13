@@ -58,13 +58,13 @@
 "custom_controls.error.incompatible" = "This control version (code %d) is not implemented in this launcher build.";
 "custom_controls.hint" = "Long-press anywhere on screen for more options";
 
-"init.migrateDir" = "The Amethyst data directory is now %@. All of your existing data has been moved to the new location.";
+"init.migrateDir" = "The Terra-iOS data directory is now %@. All of your existing data has been moved to the new location.";
 
 "launcher.menu.custom_controls" = "Custom controls";
 "launcher.menu.install_jar" = "Install .jar";
 
 "launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
-"launcher.wait_jit.message" = "Amethyst relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
+"launcher.wait_jit.message" = "Terra-iOS relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 
 "login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 
@@ -123,9 +123,9 @@
 "preference.title.jitstreamer_server" = "The server address of JitStreamer";
 "preference.detail.jitstreamer_server" = "This option gives custom access to JitStreamer servers for JIT addresses.";
 "preference.title.appicon" = "Set app icon";
-"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
-"preference.title.appicon-default" = "Familiar Amethyst light";
-"preference.title.appicon-dark" = "Familiar Amethyst dark";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Terra-iOS.";
+"preference.title.appicon-default" = "Familiar Terra-iOS light";
+"preference.title.appicon-dark" = "Familiar Terra-iOS dark";
 "preference.title.hidden_sidebar" = "Hide main menu sidebar by default";
 
 "preference.title.reset_warnings" = "Reset all warnings";

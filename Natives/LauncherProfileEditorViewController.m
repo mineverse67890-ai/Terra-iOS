@@ -131,42 +131,6 @@
               @"placeholder": self.getPreference(nil, @"lastVersionId"),
               @"customClass": PickTextField.class
             },
-            @{@"key": @"gameDir",
-              @"icon": @"folder",
-              @"title": @"preference.title.game_directory",
-              @"type": self.typeTextField,
-              @"placeholder": [NSString stringWithFormat:@". -> /Documents/instances/%@", getPrefObject(@"general.game_directory")]
-            },
-            // ★ [VER-ISOLATE-PCL] 版本隔离开关（对齐 PCL-CE 实例设置页的「实例隔离」）：
-            // 开 = 该版本的 mods/config/saves/... 独立落 <实例根>/versions/<版本 id>/；
-            // 关 = 与实例内其它版本共享（现状）。值以字符串存 profile（"1"/"0"），
-            // 与 profile 内其它键（NSDictionary<NSString*,NSString*>）类型一致。
-            @{@"key": @"versionIsolation",
-              @"icon": @"square.on.square.dashed",
-              @"title": @"preference.profile.title.version_isolation",
-              @"type": self.typeSwitch,
-              @"customSwitchValue": @[@"0", @"1"],
-              @"hasDetail": @YES,
-              // ★ [VER-ISOLATE-MIGRATE] 切换隔离会改变下方「迁移版本数据」行是否可用，
-              // 故请求整表刷新以重算 enableCondition（复用既有机制，未改视觉）。
-              @"requestReload": @YES
-            },
-            // ★ [VER-ISOLATE-MIGRATE] 版本隔离「数据迁移」入口（逐实例、复制式、默认不自动搬）：
-            // 仅在「版本隔离」已开启时可用（enableCondition）。点击后列出将搬运的目录/文件
-            // 与体量，用户确认才复制；只复制不删除源；同名文件默认跳过并保留两边。
-            // 复用既有 typeButton 行样式，未改视觉。
-            @{@"key": @"migrate_version_data",
-              @"icon": @"arrow.right.square.on.square",
-              @"title": @"preference.profile.title.migrate_version_data",
-              @"type": self.typeButton,
-              @"hasDetail": @YES,
-              @"enableCondition": ^BOOL{
-                  id vid = weakSelf.profile[@"lastVersionId"];
-                  return amePCLVersionIsolationForProfile(weakSelf.profile,
-                             [vid isKindOfClass:NSString.class] ? (NSString *)vid : nil);
-              },
-              @"action": ^void(){ [weakSelf actionMigrateVersionData]; }
-            },
             // Video and renderer settings
             @{@"key": @"renderer",
               @"icon": @"cpu",
@@ -269,6 +233,20 @@
     if ([self.profile[@"name"] length] == 0 && self.oldName.length > 0) {
         // Return to its old name
         self.profile[@"name"] = self.oldName;
+    }
+
+    NSString *gameDirectory = amePCLVersionGameDirAbsolute(self.profile, nil);
+    NSError *directoryError = nil;
+    if (![NSFileManager.defaultManager createDirectoryAtPath:gameDirectory
+                                withIntermediateDirectories:YES
+                                                 attributes:nil
+                                                      error:&directoryError]) {
+        showDialog(@"Unable to create instance directory",
+                   directoryError.localizedDescription ?: @"The instance directory could not be created.");
+        return;
+    }
+    if (![self.profile[@"terraDirectoryName"] isKindOfClass:NSString.class]) {
+        self.profile[@"terraDirectoryName"] = [gameDirectory stringByDeletingLastPathComponent].lastPathComponent;
     }
 
     if ([self.oldName isEqualToString:self.profile[@"name"]]) {

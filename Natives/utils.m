@@ -14,8 +14,10 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/sysctl.h>
+#include <CommonCrypto/CommonDigest.h>
 
 #include "utils.h"
+#import "VersionDataMigration.h"
 
 // ★ [VER-ISOLATE-PCL] 版本隔离解析需要读全局偏好键 general.version_isolation，
 // 故引入偏好访问层（LauncherPreferences.h 不反向包含 utils.h，无循环依赖风险）。
@@ -1873,7 +1875,7 @@ static BOOL amePCLVersionFolderHasUserData(NSString *versionId) {
     return [s[@"hasMods"] boolValue] || [s[@"hasSaves"] boolValue];
 }
 
-BOOL amePCLVersionIsolationForProfile(NSDictionary *prof, NSString *concreteVersionId) {
+static BOOL amePCLLegacyVersionIsolationForProfile(NSDictionary *prof, NSString *concreteVersionId) {
     if (![prof isKindOfClass:NSDictionary.class]) prof = nil;
 
     // 1) profile 显式值（PCL: VersionArgumentIndieV2）
@@ -1894,34 +1896,66 @@ BOOL amePCLVersionIsolationForProfile(NSDictionary *prof, NSString *concreteVers
     return getPrefBool(kAmePCLVersionIsolationPref);
 }
 
+BOOL amePCLVersionIsolationForProfile(NSDictionary *prof, NSString *concreteVersionId) {
+    (void)prof;
+    (void)concreteVersionId;
+    return YES;
+}
+
 NSString *amePCLVersionGameDirSubpath(NSDictionary *prof, NSString *concreteVersionId) {
-    if (![prof isKindOfClass:NSDictionary.class]) prof = nil;
-
-    // 显式 gameDir（非 "."）永远优先：保持既有"自定义游戏目录"语义不受隔离开关影响。
-    id gd = prof[@"gameDir"];
-    if ([gd isKindOfClass:NSString.class] && [(NSString *)gd length] > 0 &&
-        ![(NSString *)gd isEqualToString:@"."]) {
-        return (NSString *)gd;
-    }
-
-    if (!amePCLVersionIsolationForProfile(prof, concreteVersionId)) return @".";
-
-    NSString *vid = amePCLProfileVersionId(prof, concreteVersionId);
-    if (vid.length == 0) {
-        NSLog(@"★ [VER-ISOLATE-PCL] 版本 id 不可确定，本版本回退共享目录（不隔离）");
-        return @".";
-    }
-    return [NSString stringWithFormat:@"versions/%@", vid];
+    return amePCLVersionGameDirAbsolute(prof, concreteVersionId);
 }
 
 NSString *amePCLVersionGameDirAbsolute(NSDictionary *prof, NSString *concreteVersionId) {
-    NSString *sub = amePCLVersionGameDirSubpath(prof, concreteVersionId);
-    const char *env = getenv("POJAV_GAME_DIR");
-    NSString *base = env ? [NSString stringWithUTF8String:env] : NSHomeDirectory();
-    if (sub.length == 0 || [sub isEqualToString:@"."]) return base;
-    if ([sub isAbsolutePath]) return sub;
-    NSString *clean = [sub hasPrefix:@"./"] ? [sub substringFromIndex:2] : sub;
-    return [[base stringByAppendingPathComponent:clean] stringByStandardizingPath];
+    if (![prof isKindOfClass:NSDictionary.class]) prof = @{};
+    id storedDirectoryName = prof[@"terraDirectoryName"];
+    NSString *directoryName = [storedDirectoryName isKindOfClass:NSString.class] ? storedDirectoryName : nil;
+    NSCharacterSet *validDirectoryCharacters = [NSCharacterSet characterSetWithCharactersInString:
+                                                 @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"];
+    for (NSUInteger index = 0; index < directoryName.length; index++) {
+        if (![validDirectoryCharacters characterIsMember:[directoryName characterAtIndex:index]]) {
+            directoryName = nil;
+            break;
+        }
+    }
+    if ([directoryName isEqualToString:@"."] || [directoryName isEqualToString:@".."]) {
+        directoryName = nil;
+    }
+    if (directoryName.length == 0) {
+        NSString *profileName = [prof[@"name"] isKindOfClass:NSString.class] ? prof[@"name"] : nil;
+        if (profileName.length == 0) profileName = concreteVersionId;
+        if (profileName.length == 0) profileName = @"default";
+
+        NSMutableString *slug = [NSMutableString string];
+        NSCharacterSet *allowed = [NSCharacterSet characterSetWithCharactersInString:
+                                   @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"];
+        for (NSUInteger index = 0; index < profileName.length; index++) {
+            unichar character = [profileName characterAtIndex:index];
+            if ([allowed characterIsMember:character] || character == '-' || character == '_') {
+                [slug appendFormat:@"%C", character];
+            } else if (slug.length > 0 && ![slug hasSuffix:@"_"]) {
+                [slug appendString:@"_"];
+            }
+        }
+        while ([slug hasSuffix:@"_"]) [slug deleteCharactersInRange:NSMakeRange(slug.length - 1, 1)];
+        if (slug.length == 0) [slug appendString:@"profile"];
+        if (slug.length > 64) {
+            [slug deleteCharactersInRange:NSMakeRange(64, slug.length - 64)];
+        }
+
+        NSData *nameData = [profileName dataUsingEncoding:NSUTF8StringEncoding];
+        unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+        CC_SHA256(nameData.bytes, (CC_LONG)nameData.length, digest);
+        NSMutableString *suffix = [NSMutableString stringWithCapacity:12];
+        for (NSUInteger index = 0; index < 6; index++) [suffix appendFormat:@"%02x", digest[index]];
+        directoryName = [NSString stringWithFormat:@"%@-%@", slug, suffix];
+    }
+
+    const char *home = getenv("POJAV_HOME");
+    NSString *homePath = home && *home ? [NSString stringWithUTF8String:home] : NSHomeDirectory();
+    return [[[homePath stringByAppendingPathComponent:@"instances"]
+             stringByAppendingPathComponent:directoryName]
+            stringByAppendingPathComponent:@"minecraft"].stringByStandardizingPath;
 }
 
 void amePCLMigrateVersionIsolationOnce(void) {
@@ -1984,9 +2018,109 @@ NSString *amePCLSharedGameDirAbsolute(void) {
 // 自己绝不另拼一套路径（约束：目标/源都必须来自隔离 resolver）。
 NSString *amePCLSharedGameDirForProfile(NSDictionary *prof, NSString *concreteVersionId) {
     if (![prof isKindOfClass:NSDictionary.class]) return amePCLSharedGameDirAbsolute();
-    NSMutableDictionary *off = [prof mutableCopy];
-    off[@"versionIsolation"] = @"0";       // 显式关 ⇒ resolver 第 1 步直接返回共享语义
-    return amePCLVersionGameDirAbsolute(off, concreteVersionId);
+    id gameDir = prof[@"gameDir"];
+    if ([gameDir isKindOfClass:NSString.class] && [(NSString *)gameDir length] > 0 &&
+        ![(NSString *)gameDir isEqualToString:@"."]) {
+        NSString *path = (NSString *)gameDir;
+        if (path.isAbsolutePath) return path.stringByStandardizingPath;
+        NSString *cleanPath = [path hasPrefix:@"./"] ? [path substringFromIndex:2] : path;
+        return [[amePCLSharedGameDirAbsolute() stringByAppendingPathComponent:cleanPath]
+                stringByStandardizingPath];
+    }
+    if (amePCLLegacyVersionIsolationForProfile(prof, concreteVersionId)) {
+        NSString *versionId = amePCLProfileVersionId(prof, concreteVersionId);
+        if (versionId.length > 0) {
+            return [[amePCLSharedGameDirAbsolute() stringByAppendingPathComponent:
+                     [NSString stringWithFormat:@"versions/%@", versionId]] stringByStandardizingPath];
+        }
+    }
+    return amePCLSharedGameDirAbsolute();
+}
+
+void amePCLMigrateProfileDirectoriesOnce(void) {
+    NSString *root = ameVIInstanceRoot();
+    if (root.length == 0) return;
+    NSData *rootData = [root dataUsingEncoding:NSUTF8StringEncoding];
+    unsigned char rootDigest[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(rootData.bytes, (CC_LONG)rootData.length, rootDigest);
+    NSMutableString *rootHash = [NSMutableString stringWithCapacity:16];
+    for (NSUInteger index = 0; index < 8; index++) [rootHash appendFormat:@"%02x", rootDigest[index]];
+
+    NSString *marker = [@"internal.terra_profile_directories_migrated." stringByAppendingString:rootHash];
+    NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+    if ([defaults boolForKey:marker]) return;
+
+    NSString *profilePath = [root stringByAppendingPathComponent:@"launcher_profiles.json"];
+    NSMutableDictionary *profileData = parseJSONFromFile(profilePath);
+    if (![profileData isKindOfClass:NSMutableDictionary.class]) {
+        NSLog(@"[Terra-iOS] Unable to read launcher profiles for directory migration at %@", profilePath);
+        return;
+    }
+    NSMutableDictionary *profiles = [profileData[@"profiles"] mutableCopy];
+    if (profiles.count == 0) {
+        [defaults setBool:YES forKey:marker];
+        return;
+    }
+
+    NSMutableArray<NSString *> *migrationErrors = [NSMutableArray array];
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    for (NSString *profileKey in profiles.allKeys) {
+        NSMutableDictionary *profile = [profiles[profileKey] mutableCopy];
+        if (![profile isKindOfClass:NSMutableDictionary.class]) continue;
+        if (![profile[@"name"] isKindOfClass:NSString.class] || [profile[@"name"] length] == 0) {
+            profile[@"name"] = profileKey;
+        }
+
+        NSString *source = amePCLSharedGameDirForProfile(profile, nil);
+        NSString *target = amePCLVersionGameDirAbsolute(profile, nil);
+        if (source.length == 0 || target.length == 0) {
+            [migrationErrors addObject:[NSString stringWithFormat:@"%@: unable to resolve the existing or target directory", profileKey]];
+            continue;
+        }
+
+        NSError *directoryError = nil;
+        if (![fileManager createDirectoryAtPath:target withIntermediateDirectories:YES attributes:nil error:&directoryError]) {
+            [migrationErrors addObject:[NSString stringWithFormat:@"%@: %@", profileKey, directoryError.localizedDescription ?: @"unable to create the instance directory"]];
+            continue;
+        }
+        if (![source.stringByStandardizingPath isEqualToString:target.stringByStandardizingPath]) {
+            ameVDMCleanupStaleTemps(target, ameVDMDefaultItemNames());
+            NSDictionary *report = ameVDMExecute(source, target, ameVDMDefaultItemNames(),
+                                                   @{@"conflictPolicy": @(ameVDMConflictSkip), @"removeSource": @NO});
+            NSMutableArray<NSString *> *profileErrors = [NSMutableArray array];
+            for (NSDictionary *itemReport in report[@"items"]) {
+                NSArray *errors = [itemReport[@"errors"] isKindOfClass:NSArray.class] ? itemReport[@"errors"] : @[];
+                if ([itemReport[@"status"] isEqualToString:@"error"] || errors.count > 0) {
+                    [profileErrors addObjectsFromArray:errors];
+                    if (errors.count == 0) {
+                        [profileErrors addObject:[NSString stringWithFormat:@"%@ could not be copied", itemReport[@"name"] ?: @"Profile data"]];
+                    }
+                }
+            }
+            if (profileErrors.count > 0) {
+                [migrationErrors addObject:[NSString stringWithFormat:@"%@: %@", profileKey, [profileErrors componentsJoinedByString:@"; "]]];
+                continue;
+            }
+        }
+
+        if (profile[@"terraDirectoryName"] == nil) {
+            profile[@"terraDirectoryName"] = [target stringByDeletingLastPathComponent].lastPathComponent;
+        }
+        profiles[profileKey] = profile;
+        if ([PLProfiles.current.profiles isKindOfClass:NSMutableDictionary.class]) {
+            PLProfiles.current.profiles[profileKey] = profile;
+        }
+    }
+
+    if (migrationErrors.count == 0) {
+        profileData[@"profiles"] = profiles;
+        saveJSONToFile(profileData, profilePath);
+        [PLProfiles.current save];
+        [defaults setBool:YES forKey:marker];
+    } else {
+        [defaults setObject:migrationErrors forKey:@"terra.instanceMigrationErrors"];
+        NSLog(@"[Terra-iOS] Profile data migration requires attention: %@", migrationErrors);
+    }
 }
 
 // ★ [VI-POLISH] ==============================================================

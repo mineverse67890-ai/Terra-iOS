@@ -1,9 +1,16 @@
 #import "LauncherNewsViewController.h"
 #import "HomeCustomizeViewController.h"
 #import "LauncherPreferencesViewController.h"
+#import "ProfileSettingsViewController.h"
 #import "authenticator/BaseAuthenticator.h"
 #import "LauncherPreferences.h"
 #import "ModsManagerViewController.h"
+#import "ModService.h"
+#import "ModItem.h"
+#import "ModVersion.h"
+#import "installer/modpack/ModrinthAPI.h"
+#import "NMToast.h"
+#import <CommonCrypto/CommonDigest.h>
 #import "ShadersManagerViewController.h"
 #import "ModpackImportViewController.h"
 #import "VersionManagerViewController.h"   // ★ [FIX3] 版本管理快捷入口改「切标签 + 栈内定位」需要该类
@@ -27,9 +34,67 @@
 
 @interface AmeLauncherDashboardHostController : UIViewController
 + (instancetype)makeHostWithLaunchHandler:(void (^)(void))launchHandler
-             settingsControllerProvider:(UIViewController * (^)(void))settingsControllerProvider;
+             settingsControllerProvider:(UIViewController * (^)(void))settingsControllerProvider
+                          actionHandler:(void (^)(NSString *action))actionHandler
+                   optimizationHandler:(void (^)(void))optimizationHandler;
 - (void)updateVersionText:(NSString *)versionText launchEnabled:(BOOL)launchEnabled;
+- (void)updateOptimizationProgress:(double)progress message:(NSString *)message state:(NSInteger)state;
 @end
+
+@interface AmeTerraInstancesHostController : UIViewController
++ (instancetype)makeHostWithProfilesProvider:(NSArray<NSDictionary<NSString *, NSString *> *> *(^)(void))profilesProvider
+                               actionHandler:(void (^)(NSString *action, NSString *profileName))actionHandler;
+@end
+
+@interface AmeTerraSettingsHostController : UIViewController
++ (instancetype)makeHostWithOpenCategoryHandler:(void (^)(NSString *category))handler;
+@end
+
+static NSString *AmeOptimizationGameVersion(NSString *versionId, NSDictionary *manifest) {
+    NSString *inheritedVersion = [manifest[@"inheritsFrom"] isKindOfClass:NSString.class]
+        ? manifest[@"inheritsFrom"] : nil;
+    if (inheritedVersion.length > 0) return inheritedVersion;
+
+    NSString *pattern = @"(?:[0-9]+\\.[0-9]+(?:\\.[0-9]+)*|[0-9]{2}w[0-9]{2}[a-z])";
+    NSRegularExpression *expression = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
+    NSTextCheckingResult *match = [expression firstMatchInString:versionId options:0
+                                                           range:NSMakeRange(0, versionId.length)];
+    return match ? [versionId substringWithRange:[match rangeAtIndex:0]] : nil;
+}
+
+static BOOL AmeOptimizationProfileUsesFabric(NSString *versionId, NSDictionary *manifest) {
+    if ([versionId.lowercaseString containsString:@"fabric"]) return YES;
+    NSArray *libraries = [manifest[@"libraries"] isKindOfClass:NSArray.class] ? manifest[@"libraries"] : @[];
+    for (NSDictionary *library in libraries) {
+        NSString *name = [library[@"name"] isKindOfClass:NSString.class] ? library[@"name"] : @"";
+        if ([name.lowercaseString containsString:@"net.fabricmc:fabric-loader"]) return YES;
+    }
+    return NO;
+}
+
+static NSString *AmeOptimizationSHA1ForFile(NSString *path) {
+    NSInputStream *stream = [NSInputStream inputStreamWithFileAtPath:path];
+    if (!stream) return nil;
+    [stream open];
+    CC_SHA1_CTX context;
+    CC_SHA1_Init(&context);
+    uint8_t buffer[64 * 1024];
+    NSInteger bytesRead = 0;
+    while ((bytesRead = [stream read:buffer maxLength:sizeof(buffer)]) > 0) {
+        CC_SHA1_Update(&context, buffer, (CC_LONG)bytesRead);
+    }
+    BOOL failed = stream.streamError != nil || bytesRead < 0;
+    [stream close];
+    if (failed) return nil;
+
+    unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1_Final(digest, &context);
+    NSMutableString *result = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    for (NSUInteger index = 0; index < CC_SHA1_DIGEST_LENGTH; index++) {
+        [result appendFormat:@"%02x", digest[index]];
+    }
+    return result;
+}
 
 // MARK: - Shortcut Action Constants
 
@@ -1291,6 +1356,7 @@ static NSString *festivalGreeting(void) {
 @property (nonatomic, strong) UIButton *customizeButton;
 @property (nonatomic, strong) UIView *dashboardContainerView;
 @property (nonatomic, strong) AmeLauncherDashboardHostController *dashboardHostController;
+@property (nonatomic, assign) BOOL optimizationInProgress;
 
 // ★ [HOME6] 两套头部约束集(竖/横),同一属性只被一套钉住
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *headerPortraitConstraints;
@@ -1378,6 +1444,13 @@ static NSString *festivalGreeting(void) {
 - (void)homeEditRebuildAllConfigsFromVisibleOrder;
 - (void)homeEditPersistLayout;
 - (void)setupDashboard;
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)instanceProfileSummaries;
+- (void)dashboardAction:(NSString *)action;
+- (void)handleInstanceAction:(NSString *)action profileName:(NSString *)profileName;
+- (void)showDashboardAlertWithTitle:(NSString *)title message:(NSString *)message;
+- (void)installOptimizationBundle;
+- (void)updateOptimizationProgress:(double)progress message:(NSString *)message state:(NSInteger)state;
+- (void)failOptimizationWithMessage:(NSString *)message;
 
 @end
 
@@ -1468,8 +1541,22 @@ static NSString *festivalGreeting(void) {
 /// 每次主页出现都向(不可见的)右栏索取一次最新状态(版本号 / JIT / 启动键文案)。
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    self.navigationController.navigationBarHidden = YES;
     // ★ [NORIGHT] 右栏 viewDidLoad 可能早于本页注册监听 ⇒ 这里主动索取一次,保证首屏就有值。
     [[NSNotificationCenter defaultCenter] postNotificationName:AmeRightPanelRequestStateNotification object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    NSArray<NSString *> *errors = [NSUserDefaults.standardUserDefaults objectForKey:@"terra.instanceMigrationErrors"];
+    if (errors.count == 0) return;
+    [NSUserDefaults.standardUserDefaults removeObjectForKey:@"terra.instanceMigrationErrors"];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *presenter = self;
+        while (presenter.presentedViewController) presenter = presenter.presentedViewController;
+        [presenter showDashboardAlertWithTitle:@"Instance data migration needs attention"
+                                        message:[errors componentsJoinedByString:@"\n"]];
+    });
 }
 
 /// 右栏广播的状态 → 欢迎卡版本号 / 顶栏 JIT pill / SwiftUI dashboard。
@@ -1524,6 +1611,375 @@ static NSString *festivalGreeting(void) {
     [LauncherRightPanelViewController norightPostAction:@"launch"];
 }
 
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)instanceProfileSummaries {
+    NSMutableArray *summaries = [NSMutableArray array];
+    NSDictionary *profiles = PLProfiles.current.profiles;
+    NSArray<NSString *> *names = [[profiles allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    for (NSString *name in names) {
+        NSDictionary *profile = profiles[name];
+        if (![profile isKindOfClass:NSDictionary.class]) continue;
+
+        NSString *gameDirectory = amePCLVersionGameDirAbsolute(profile, nil);
+        [summaries addObject:@{
+            @"name": [profile[@"name"] isKindOfClass:NSString.class] ? profile[@"name"] : name,
+            @"version": [profile[@"lastVersionId"] isKindOfClass:NSString.class] ? profile[@"lastVersionId"] : @"No version selected",
+            @"path": gameDirectory ?: @"",
+            @"size": @"Calculating…",
+            @"selected": [name isEqualToString:PLProfiles.current.selectedProfileName] ? @"true" : @"false",
+        }];
+    }
+    return summaries;
+}
+
+- (void)dashboardAction:(NSString *)action {
+    if ([action isEqualToString:@"instances"]) {
+        __weak typeof(self) weakSelf = self;
+        AmeTerraInstancesHostController *instances =
+            [AmeTerraInstancesHostController makeHostWithProfilesProvider:^NSArray<NSDictionary<NSString *,NSString *> *> *{
+                return [weakSelf instanceProfileSummaries] ?: @[];
+            } actionHandler:^(NSString *actionName, NSString *profileName) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (!strongSelf) return;
+                [strongSelf handleInstanceAction:actionName profileName:profileName];
+            }];
+        self.navigationController.navigationBarHidden = YES;
+        [self.navigationController pushViewController:instances animated:YES];
+    } else if ([action isEqualToString:@"mods"]) {
+        ModsManagerViewController *mods = [[ModsManagerViewController alloc] init];
+        mods.profileName = PLProfiles.current.selectedProfileName ?: @"default";
+        self.navigationController.navigationBarHidden = NO;
+        [self.navigationController pushViewController:mods animated:YES];
+    } else if ([action isEqualToString:@"customize"]) {
+        [self openCustomize];
+    } else {
+        [LauncherRightPanelViewController norightPostAction:action];
+    }
+}
+
+- (void)handleInstanceAction:(NSString *)action profileName:(NSString *)profileName {
+    if ([action isEqualToString:@"create"]) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"New instance"
+                                                                       message:@"Choose a name for this profile."
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+            textField.placeholder = @"Instance name";
+            textField.autocapitalizationType = UITextAutocapitalizationTypeWords;
+        }];
+        __weak typeof(self) weakSelf = self;
+        [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"Create" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            NSString *name = [alert.textFields.firstObject.text stringByTrimmingCharactersInSet:
+                              NSCharacterSet.whitespaceAndNewlineCharacterSet];
+            if (name.length == 0 || PLProfiles.current.profiles[name]) {
+                [strongSelf showDashboardAlertWithTitle:@"Unable to create instance"
+                                                 message:name.length == 0 ? @"Enter a name." : @"An instance with this name already exists."];
+                return;
+            }
+
+            NSMutableDictionary *profile = [PLProfiles.current.selectedProfile mutableCopy] ?: [NSMutableDictionary dictionary];
+            [profile removeObjectForKey:@"terraDirectoryName"];
+            [profile removeObjectForKey:@"gameDir"];
+            [profile removeObjectForKey:@"lastPlayed"];
+            profile[@"name"] = name;
+            NSString *gameDirectory = amePCLVersionGameDirAbsolute(profile, nil);
+            NSError *directoryError = nil;
+            if (![NSFileManager.defaultManager createDirectoryAtPath:gameDirectory
+                                        withIntermediateDirectories:YES
+                                                         attributes:nil
+                                                              error:&directoryError]) {
+                [strongSelf showDashboardAlertWithTitle:@"Unable to create instance"
+                                                 message:directoryError.localizedDescription ?: @"The instance directory could not be created."];
+                return;
+            }
+            profile[@"terraDirectoryName"] = [gameDirectory stringByDeletingLastPathComponent].lastPathComponent;
+            PLProfiles.current.profiles[name] = profile;
+            PLProfiles.current.selectedProfileName = name;
+            [PLProfiles.current save];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"SelectedProfileChanged" object:name];
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
+        return;
+    }
+
+    if (![action isEqualToString:@"launch"] && ![action isEqualToString:@"edit"]) return;
+    if (profileName.length == 0 || !PLProfiles.current.profiles[profileName]) return;
+
+    PLProfiles.current.selectedProfileName = profileName;
+    [PLProfiles.current save];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"SelectedProfileChanged" object:profileName];
+    if ([action isEqualToString:@"launch"]) {
+        [self norightLaunchTapped];
+        return;
+    }
+
+    ProfileSettingsViewController *settings = [[ProfileSettingsViewController alloc] init];
+    settings.profileName = profileName;
+    self.navigationController.navigationBarHidden = NO;
+    [self.navigationController pushViewController:settings animated:YES];
+}
+
+- (void)showDashboardAlertWithTitle:(NSString *)title message:(NSString *)message {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)updateOptimizationProgress:(double)progress message:(NSString *)message state:(NSInteger)state {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.dashboardHostController updateOptimizationProgress:progress message:message state:state];
+    });
+}
+
+- (void)failOptimizationWithMessage:(NSString *)message {
+    self.optimizationInProgress = NO;
+    [self updateOptimizationProgress:0 message:message state:3];
+    [NMToast showMessage:message duration:5.0];
+}
+
+- (void)installOptimizationBundle {
+    if (self.optimizationInProgress) return;
+    self.optimizationInProgress = YES;
+    [self updateOptimizationProgress:0.02 message:@"Checking the active profile…" state:1];
+
+    NSString *profileName = PLProfiles.current.selectedProfileName ?: @"default";
+    NSDictionary *profile = PLProfiles.current.profiles[profileName];
+    NSString *versionId = [profile[@"lastVersionId"] isKindOfClass:NSString.class]
+        ? profile[@"lastVersionId"] : nil;
+    if (versionId.length == 0) {
+        [self failOptimizationWithMessage:@"Select an installed Minecraft version before installing optimization mods."];
+        return;
+    }
+
+    const char *gameDirEnvironment = getenv("POJAV_GAME_DIR");
+    NSString *gameRoot = gameDirEnvironment ? [NSString stringWithUTF8String:gameDirEnvironment] : nil;
+    if (gameRoot.length == 0) {
+        [self failOptimizationWithMessage:@"The launcher game directory is unavailable. Restart the launcher and try again."];
+        return;
+    }
+
+    NSString *manifestPath = [gameRoot stringByAppendingPathComponent:
+                              [NSString stringWithFormat:@"versions/%@/%@.json", versionId, versionId]];
+    NSData *manifestData = [NSData dataWithContentsOfFile:manifestPath];
+    if (!manifestData) {
+        [self failOptimizationWithMessage:[NSString stringWithFormat:@"Unable to read the version manifest for %@.", versionId]];
+        return;
+    }
+    NSError *manifestError = nil;
+    id manifestObject = [NSJSONSerialization JSONObjectWithData:manifestData options:0 error:&manifestError];
+    if (![manifestObject isKindOfClass:NSDictionary.class]) {
+        [self failOptimizationWithMessage:manifestError.localizedDescription ?:
+            [NSString stringWithFormat:@"The version manifest for %@ is invalid.", versionId]];
+        return;
+    }
+    NSDictionary *manifest = manifestObject;
+    if (!AmeOptimizationProfileUsesFabric(versionId, manifest)) {
+        [self failOptimizationWithMessage:@"The active profile is not a Fabric installation. Select a Fabric profile and retry."];
+        return;
+    }
+
+    NSString *gameVersion = AmeOptimizationGameVersion(versionId, manifest);
+    if (gameVersion.length == 0) {
+        [self failOptimizationWithMessage:[NSString stringWithFormat:@"Unable to determine the Minecraft version for profile %@.", profileName]];
+        return;
+    }
+
+    NSArray<NSString *> *projectSlugs = @[@"sodium", @"lithium", @"ferrite-core", @"entityculling"];
+    NSDictionary<NSString *, NSString *> *displayNames = @{
+        @"sodium": @"Sodium",
+        @"lithium": @"Lithium",
+        @"ferrite-core": @"FerriteCore",
+        @"entityculling": @"Entity Culling",
+    };
+    dispatch_group_t group = dispatch_group_create();
+    NSMutableDictionary<NSString *, NSArray<ModVersion *> *> *versionsByProject = [NSMutableDictionary dictionary];
+    NSMutableArray<NSError *> *fetchErrors = [NSMutableArray array];
+    id versionsLock = [NSObject new];
+    ModrinthAPI *api = [ModrinthAPI sharedInstance];
+
+    [self updateOptimizationProgress:0.08
+                             message:[NSString stringWithFormat:@"Finding Fabric releases for Minecraft %@…", gameVersion]
+                               state:1];
+
+    for (NSString *slug in projectSlugs) {
+        dispatch_group_enter(group);
+        [api getVersionsForModWithID:slug completion:^(NSArray<ModVersion *> *versions, NSError *error) {
+            @synchronized (versionsLock) {
+                if (error) {
+                    [fetchErrors addObject:error];
+                } else if (versions) {
+                    versionsByProject[slug] = versions;
+                } else {
+                    [fetchErrors addObject:[NSError errorWithDomain:@"TerraOptimizationError"
+                                                               code:1
+                                                           userInfo:@{NSLocalizedDescriptionKey:
+                                                                          [NSString stringWithFormat:@"No release data was returned for %@.", slug]}]];
+                }
+            }
+            dispatch_group_leave(group);
+        }];
+    }
+
+    __weak typeof(self) weakSelf = self;
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        if (fetchErrors.count > 0) {
+            [strongSelf failOptimizationWithMessage:[NSString stringWithFormat:
+                @"Could not load compatible Modrinth releases: %@", fetchErrors.firstObject.localizedDescription]];
+            return;
+        }
+
+        NSMutableArray<NSDictionary *> *downloads = [NSMutableArray arrayWithCapacity:projectSlugs.count];
+        for (NSString *slug in projectSlugs) {
+            NSArray<ModVersion *> *versions = versionsByProject[slug];
+            NSArray<ModVersion *> *newestFirst = [versions sortedArrayUsingComparator:^NSComparisonResult(ModVersion *left, ModVersion *right) {
+                return [right.datePublished compare:left.datePublished];
+            }];
+            NSDictionary *selectedFile = nil;
+            ModVersion *selectedVersion = nil;
+
+            for (ModVersion *candidate in newestFirst) {
+                if (![candidate.versionType.lowercaseString isEqualToString:@"release"] ||
+                    ![candidate.gameVersions containsObject:gameVersion]) continue;
+
+                BOOL supportsFabric = NO;
+                for (NSString *loader in candidate.loaders) {
+                    if ([loader.lowercaseString isEqualToString:@"fabric"]) {
+                        supportsFabric = YES;
+                        break;
+                    }
+                }
+                if (!supportsFabric) continue;
+
+                NSMutableArray<NSDictionary *> *files = [NSMutableArray array];
+                if ([candidate.primaryFile isKindOfClass:NSDictionary.class]) {
+                    [files addObject:candidate.primaryFile];
+                }
+                NSArray *rawFiles = [candidate.rawDictionary[@"files"] isKindOfClass:NSArray.class]
+                    ? candidate.rawDictionary[@"files"] : @[];
+                for (NSDictionary *file in rawFiles) {
+                    if ([file isKindOfClass:NSDictionary.class] && ![files containsObject:file]) {
+                        [files addObject:file];
+                    }
+                }
+
+                for (NSDictionary *file in files) {
+                    NSString *fileName = [file[@"filename"] isKindOfClass:NSString.class] ? file[@"filename"] : nil;
+                    NSString *urlString = [file[@"url"] isKindOfClass:NSString.class] ? file[@"url"] : nil;
+                    NSString *sha1 = [file[@"hashes"][@"sha1"] isKindOfClass:NSString.class]
+                        ? file[@"hashes"][@"sha1"] : nil;
+                    NSURLComponents *url = urlString.length > 0 ? [NSURLComponents componentsWithString:urlString] : nil;
+                    NSString *host = url.host.lowercaseString;
+                    BOOL validModrinthHost = [host isEqualToString:@"modrinth.com"] ||
+                        [host hasSuffix:@".modrinth.com"];
+                    BOOL validURL = [url.scheme.lowercaseString isEqualToString:@"https"] &&
+                        validModrinthHost && (url.port == nil || url.port.integerValue == 443);
+                    BOOL validFileName = fileName.length > 0 && fileName.length <= 180 &&
+                        [[fileName lastPathComponent] isEqualToString:fileName] &&
+                        [fileName.pathExtension.lowercaseString isEqualToString:@"jar"];
+                    NSCharacterSet *sha1Characters =
+                        [NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"];
+                    BOOL validSHA1 = sha1.length == CC_SHA1_DIGEST_LENGTH * 2 &&
+                        [sha1 rangeOfCharacterFromSet:sha1Characters.invertedSet].location == NSNotFound;
+                    if (!validURL || !validFileName || !validSHA1) continue;
+                    selectedFile = file;
+                    selectedVersion = candidate;
+                    break;
+                }
+                if (selectedFile) break;
+            }
+
+            if (!selectedFile || !selectedVersion) {
+                [strongSelf failOptimizationWithMessage:[NSString stringWithFormat:
+                    @"No Fabric release of %@ is available for Minecraft %@.", displayNames[slug], gameVersion]];
+                return;
+            }
+
+            ModItem *mod = [[ModItem alloc] init];
+            mod.onlineID = slug;
+            mod.displayName = displayNames[slug];
+            mod.fileName = selectedFile[@"filename"];
+            mod.selectedVersionDownloadURL = selectedFile[@"url"];
+            mod.fileSHA1 = selectedFile[@"hashes"][@"sha1"];
+            mod.version = selectedVersion.versionNumber;
+            mod.gameVersion = gameVersion;
+            mod.isFabric = YES;
+            [downloads addObject:@{@"mod": mod, @"sha1": mod.fileSHA1}];
+        }
+
+        NSError *folderError = nil;
+        NSString *modsFolder = [[ModService sharedService] ensureModsFolderForProfile:profileName error:&folderError];
+        if (modsFolder.length == 0) {
+            [strongSelf failOptimizationWithMessage:folderError.localizedDescription ?: @"Unable to create the active profile's mods folder."];
+            return;
+        }
+
+        NSMutableArray<NSDictionary *> *pendingDownloads = [NSMutableArray array];
+        for (NSDictionary *item in downloads) {
+            ModItem *mod = item[@"mod"];
+            NSString *expectedSHA1 = item[@"sha1"];
+            NSString *destination = [modsFolder stringByAppendingPathComponent:mod.fileName];
+            if ([NSFileManager.defaultManager fileExistsAtPath:destination]) {
+                NSString *existingSHA1 = AmeOptimizationSHA1ForFile(destination);
+                if ([existingSHA1.lowercaseString isEqualToString:expectedSHA1.lowercaseString]) continue;
+                [strongSelf failOptimizationWithMessage:[NSString stringWithFormat:
+                    @"A different file already exists at %@. Move it out of the mods folder before retrying.", mod.fileName]];
+                return;
+            }
+            [pendingDownloads addObject:item];
+        }
+
+        if (pendingDownloads.count == 0) {
+            strongSelf.optimizationInProgress = NO;
+            [strongSelf updateOptimizationProgress:1 message:@"All four optimization mods are already installed." state:2];
+            [NMToast showMessage:@"Optimization mods are ready."];
+            return;
+        }
+
+        __block NSUInteger completedCount = downloads.count - pendingDownloads.count;
+        __block void (^downloadNext)(NSUInteger) = nil;
+        downloadNext = ^(NSUInteger index) {
+            if (index >= pendingDownloads.count) {
+                strongSelf.optimizationInProgress = NO;
+                [strongSelf updateOptimizationProgress:1 message:@"All four optimization mods are installed." state:2];
+                [NMToast showMessage:@"Optimization mods are ready."];
+                downloadNext = nil;
+                return;
+            }
+
+            NSDictionary *item = pendingDownloads[index];
+            ModItem *mod = item[@"mod"];
+            NSString *expectedSHA1 = item[@"sha1"];
+            NSString *message = [NSString stringWithFormat:@"Downloading %@ (%lu/%lu)…",
+                                 mod.displayName, (unsigned long)(completedCount + 1),
+                                 (unsigned long)downloads.count];
+            [strongSelf updateOptimizationProgress:(double)completedCount / downloads.count
+                                           message:message
+                                             state:1];
+            [[ModService sharedService] downloadMod:mod
+                                          toProfile:profileName
+                                       expectedSHA1:expectedSHA1
+                                           progress:^(NSProgress *progress) {
+                double fraction = ((double)completedCount + progress.fractionCompleted) / downloads.count;
+                [strongSelf updateOptimizationProgress:fraction message:message state:1];
+            } completion:^(NSError *error) {
+                if (error) {
+                    [strongSelf failOptimizationWithMessage:[NSString stringWithFormat:
+                        @"Failed to download %@: %@", mod.displayName, error.localizedDescription]];
+                    downloadNext = nil;
+                    return;
+                }
+                completedCount++;
+                downloadNext(index + 1);
+            }];
+        };
+        downloadNext(0);
+    });
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -1549,6 +2005,21 @@ static NSString *festivalGreeting(void) {
 // MARK: - Header Setup
 
 - (void)setupHeader {
+    self.headerView = [[UIView alloc] init];
+    self.headerView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.headerView.backgroundColor = UIColor.clearColor;
+    [self.view addSubview:self.headerView];
+    self.headerPortraitConstraints = @[];
+    self.headerLandscapeConstraints = @[];
+    [NSLayoutConstraint activateConstraints:@[
+        [self.headerView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+        [self.headerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.headerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.headerView.heightAnchor constraintEqualToConstant:0],
+    ]];
+}
+
+- (void)setupLegacyHeader {
     // ★ [HOME6] 紧凑头部(照 home6 `.c6 .chd`):标题 1.02em≈15.5pt / 高 34(原 44)/ 左右 .85em≈13(原 20)。
     self.headerView = [[UIView alloc] init];
     self.headerView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -1729,11 +2200,12 @@ static NSString *festivalGreeting(void) {
         } settingsControllerProvider:^UIViewController *{
             LauncherPreferencesViewController *settings =
                 [[LauncherPreferencesViewController alloc] init];
-            settings.title = localize(@"tab.settings", @"设置");
-            UINavigationController *navigationController =
-                [[UINavigationController alloc] initWithRootViewController:settings];
-            navigationController.navigationBar.prefersLargeTitles = YES;
-            return navigationController;
+            settings.title = @"Settings";
+            return settings;
+        } actionHandler:^(NSString *action) {
+            [weakSelf dashboardAction:action];
+        } optimizationHandler:^{
+            [weakSelf installOptimizationBundle];
         }];
 
     UIViewController *host = self.dashboardHostController;
@@ -1753,7 +2225,7 @@ static NSString *festivalGreeting(void) {
         [self.dashboardContainerView.topAnchor constraintEqualToAnchor:self.headerView.bottomAnchor],
         [self.dashboardContainerView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
         [self.dashboardContainerView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.dashboardContainerView.heightAnchor constraintEqualToConstant:156.0],
+        [self.dashboardContainerView.heightAnchor constraintEqualToConstant:520.0],
     ]];
     [self.dashboardHostController updateVersionText:self.norightVersionText
                                        launchEnabled:self.dashboardLaunchEnabled];
@@ -3188,8 +3660,9 @@ static NSString *festivalGreeting(void) {
     NSLog(@"[HOME6] safeArea l=%.0f t=%.0f r=%.0f b=%.0f landscape=%d",
           sa.left, sa.top, sa.right, sa.bottom, [self homeIsLandscape] ? 1 : 0);
 
-    // ★ [GLASS-LIQUID] 深浅色切换后重刷顶栏胶囊:系统材质路径不自绘,自绘路径才刷新描边/白底
-    AmeApplyGlassChipStyle(self.customizeButton, AmeRadiusPill, NO);   // ★ [HOME6]
+    if (self.customizeButton) {
+        AmeApplyGlassChipStyle(self.customizeButton, AmeRadiusPill, NO);
+    }
 
     UICollectionView *cv = self.collectionView;
     if (cv) {
@@ -3199,15 +3672,6 @@ static NSString *festivalGreeting(void) {
     }
 
     [self activateHeaderConstraintsForLandscape:[self homeIsLandscape]];
-
-    // ★ [TOPBAR2] 朝向变了 ⇒ 顶栏动作 pill 在「图标-only(竖屏)/ 图标+小字(横屏)」之间切文案
-    [self norightApplyTopBarPillTitlesForLandscape:[self homeIsLandscape]];
-    if (self.topbarExecuteJarPill) {   // 顶栏 pill 一定在(防御:安全区回调早于 setupHeader 时也不会崩)
-        for (UIButton *p in @[self.topbarExecuteJarPill, self.topbarVersionPickerPill, self.topbarDownloadCenterPill]) {
-            // ★ [GLASS-LIQUID] 系统材质路径不自绘;自绘路径才刷新描边/白底
-            AmeApplyGlassChipStyle(p, AmeRadiusPill, NO);   // ★ [TOPBAR2]
-        }
-    }
 
     // ★ [HOME6] 切换后必须重算:invalidate 让 provider 用新的 safeInsets / 列数重建 section,
     //   setNeedsLayout 让头部两套约束的新位置立即生效。

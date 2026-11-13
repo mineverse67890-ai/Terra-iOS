@@ -538,33 +538,24 @@ BOOL ameVIHardLinkLog(NSString *srcPath, NSString *dstPath); // 建硬链接；�
 // 版本隔离（对齐 PCL2 社区版 PCL-CE 的「实例隔离」语义，源码键
 // VersionArgumentIndieV2 / LaunchArgumentIndieV2）。
 //
-// 语义（与 PCL 一致，纯目录指针切换，**不搬运文件**）：
-//   开启 → 该版本的 gameDir = <实例根>/versions/<版本 id>/   （mods/config/saves/
-//          resourcepacks/shaderpacks/logs/options.txt 全部落在此，与其它版本互不干涉）
-//   关闭 → 该版本的 gameDir = <实例根>/                      （与实例内其它版本共享，现状）
-// versions/ 目录本身、libraries/、assets/ 始终按实例共享 —— 与 PCL 相同：
-//   只有"游戏数据目录"被隔离，不是把整棵树复制一份。
-//
-// 判定顺序（对应 PCL McInstance.PathIndie / ShouldBeIndie）：
-//   1) profile 显式值 versionIsolation（"1"/"0"）——对应 PCL 的 VersionArgumentIndieV2
-//   2) 自动判定：<实例根>/versions/<id>/ 下已有 mods(含文件) 或 saves(含目录) ⇒ 开启
-//   3) 全局默认 general.version_isolation ——对应 PCL 的「默认实例隔离」LaunchArgumentIndieV2
+// Each launcher profile uses a dedicated Minecraft data directory:
+// <POJAV_HOME>/instances/<profile-directory>/minecraft.
 //
 // 解析给定 profile 的版本隔离是否开启。concreteVersionId 可为 nil（启动期可传
 // launchTarget[@“id”] 以拿到比 lastVersionId 更准确的版本 id）。
 BOOL amePCLVersionIsolationForProfile(NSDictionary *prof, NSString *concreteVersionId);
 
-// 生效的 gameDir 子路径（相对当前实例根）：@“.”（共享）或 @“versions/<id>”（隔离）。
-// profile 里显式写了非 @“.” 的 gameDir 时以显式值为准（保持既有语义不变）。
+// Returns the absolute profile-specific Minecraft directory.
 NSString *amePCLVersionGameDirSubpath(NSDictionary *prof, NSString *concreteVersionId);
 
-// 生效的 gameDir 绝对路径（POJAV_GAME_DIR + 上面的子路径）。
+// Returns the absolute profile-specific Minecraft directory.
 NSString *amePCLVersionGameDirAbsolute(NSDictionary *prof, NSString *concreteVersionId);
 
 // 一次性幂等迁移（哨兵键 internal.version_isolation_migrated）：
 // 把"升级前已手工隔离过"的 profile（gameDir 指向 versions/*，或对应版本目录下
 // 已有 mods/saves）显式写成 versionIsolation=@"1"，使其在设置页可见、可回退。
 void amePCLMigrateVersionIsolationOnce(void);
+void amePCLMigrateProfileDirectoriesOnce(void);
 
 // ★ [VER-ISOLATE-MIGRATE] ====================================================
 // 实例【共享游戏根】绝对路径（= POJAV_GAME_DIR；不可得时回退 ameVIInstanceRoot()）。

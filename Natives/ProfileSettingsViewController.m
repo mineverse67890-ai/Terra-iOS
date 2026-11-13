@@ -92,13 +92,6 @@ static NSString * localizeProfileTitle(NSString *title) {
             @"清除JVM参数": @"i18n_str_2038",
             @"名称": @"preference.profile.title.name",
             @"游戏版本": @"i18n_str_2031",
-            @"游戏目录": @"preference.title.game_directory",
-            // ★ [VI-SWITCH-UI] 版本隔离（本页才是实例设置的真实页面；LauncherProfileEditorViewController 已被本类取代且无实例化点）
-            @"版本隔离": @"preference.profile.title.version_isolation",
-            // ★ [VI-MIGRATE-AUTO] 版本数据自动识别迁移入口
-            @"版本自动迁移": @"preference.migrate.auto.title",
-            // ★ [VI-FLOW] 手动重新打开版本隔离向导（哨兵落了也能再看）
-            @"版本隔离向导": @"preference.vi.wizard.reopen",
             @"模组管理": @"i18n_str_2039",
             @"光影管理": @"i18n_str_2016",
             @"资源包管理": @"i18n_str_2040",
@@ -384,9 +377,7 @@ static NSString * localizeProfileTitle(NSString *title) {
 
     // ===== 副标题（游戏目录，12pt regular，secondaryLabelColor）=====
     UILabel *subtitleLabel = [[UILabel alloc] init];
-    NSString *gameDir = self.profile[@"gameDir"] ?: @".";
-    NSString *instanceName = getPrefObject(@"general.game_directory") ?: @"default";
-    subtitleLabel.text = [NSString stringWithFormat:@"%@ → /instances/%@", gameDir, instanceName];
+    subtitleLabel.text = amePCLVersionGameDirAbsolute(self.profile, nil);
     subtitleLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
     subtitleLabel.textColor = [UIColor secondaryLabelColor];
     subtitleLabel.adjustsFontSizeToFitWidth = YES;
@@ -477,9 +468,7 @@ static NSString * localizeProfileTitle(NSString *title) {
                 NSString *currentVersion = self.profile[@"lastVersionId"];
                 label.text = currentVersion.length > 0 ? currentVersion : localize(@"i18n_str_864", nil);
             } else {
-                NSString *gameDir = self.profile[@"gameDir"] ?: @".";
-                NSString *instanceName = getPrefObject(@"general.game_directory") ?: @"default";
-                label.text = [NSString stringWithFormat:@"%@ → /instances/%@", gameDir, instanceName];
+                label.text = amePCLVersionGameDirAbsolute(self.profile, nil);
             }
         }
     }
@@ -555,12 +544,8 @@ static NSString * localizeProfileTitle(NSString *title) {
         [runtimeRows addObject:@"图形 API"];
     }
 
-    // ★ [VI-SWITCH-UI] 版本信息组补「版本隔离」开关行 —— 这是用户实际能打开的实例设置页，
-    //   默认展开（不在 ameCollapsedSections 内），保证「设置 → 实例/版本 → 版本信息」即可见可切。
-    // ★ [VI-POLISH] A：该行升级为「自动 / 隔离 / 共享」三态选择；紧随其后补一行只读的「隔离判定」
-    //   说明（当前判定为什么是这个结果 —— 哪个目录存在），行本身不可点、不写任何键。
     self.sections = @[
-        @[@"名称", @"游戏版本", @"游戏目录", @"版本隔离", @"隔离判定", @"版本自动迁移", @"版本隔离向导"],
+        @[@"名称", @"游戏版本"],
         [runtimeRows copy],
         @[@"Java版本", @"JVM 启动参数", @"清除JVM参数"],
         @[@"模组管理", @"光影管理", @"资源包管理", @"数据包管理", @"世界管理"],
@@ -690,14 +675,11 @@ static NSString * localizeProfileTitle(NSString *title) {
     } else {
         [existing removeObjectForKey:@"javaArgs"];
     }
-    // 保存游戏目录（版本隔离用）：gameDir 为 nil 时默认 "."，与 main 分支行为一致
-    existing[@"gameDir"] = self.profile[@"gameDir"] ?: @".";
-    // ★ [VI-SWITCH-UI] 版本隔离显式值（"1"/"0"）：用户在本页切过才写；未切过不落键，
-    // 让其继续走 utils.m 的自动判定 → 全局默认。
-    if ([self.profile[@"versionIsolation"] isKindOfClass:[NSString class]]) {
-        existing[@"versionIsolation"] = self.profile[@"versionIsolation"];
-    } else {
-        [existing removeObjectForKey:@"versionIsolation"];
+    [existing removeObjectForKey:@"gameDir"];
+    [existing removeObjectForKey:@"versionIsolation"];
+    if (![existing[@"terraDirectoryName"] isKindOfClass:NSString.class]) {
+        NSString *directory = amePCLVersionGameDirAbsolute(existing, nil);
+        existing[@"terraDirectoryName"] = [directory stringByDeletingLastPathComponent].lastPathComponent;
     }
     // existing 中的 name 和 lastVersionId 字段保持原始值不变
     PLProfiles.current.profiles[profName] = existing;
@@ -947,42 +929,6 @@ static NSString * localizeProfileTitle(NSString *title) {
                 // 版本选择器(弹出式 inputView)仍是承载控件；点整行 ⇒ becomeFirstResponder 弹起
                 cell.accessoryView = [self buildVersionTextField];
                 cell.detailTextLabel.text = nil;
-            } else if ([title isEqualToString:@"游戏目录"]) {
-                cell.imageView.image = [UIImage systemImageNamed:@"folder"];
-                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                cell.detailTextLabel.text = self.profile[@"gameDir"] ?: @".";
-            } else if ([title isEqualToString:@"版本隔离"]) {
-                // ★ [VI-POLISH] A：由 UISwitch 升级为「自动 / 隔离 / 共享」三态选择（对齐 Zalith 的
-                //   全局 + 实例三态；我们 profile 的 versionIsolation 本就是这三态，这里只是显式化）。
-                //   自动 = 不落键（走 嗅探 → 全局默认，★ 默认值未改：默认仍是关）；隔离 = "1"；共享 = "0"。
-                //   显示的是「显式三态」而非解析后布尔值 —— 三态必须能看到用户到底选的是哪一种。
-                cell.imageView.image = [UIImage systemImageNamed:@"square.on.square.dashed"];
-                cell.accessoryType = UITableViewCellAccessoryNone;
-                UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:@[
-                    localize(@"preference.vi.state.auto", nil),
-                    localize(@"preference.vi.state.isolated", nil),
-                    localize(@"preference.vi.state.shared", nil)]];
-                seg.selectedSegmentIndex = [self ameExplicitSegmentIndex];
-                [seg addTarget:self
-                        action:@selector(ameVersionIsolationSegmentChanged:)
-              forControlEvents:UIControlEventValueChanged];
-                // accessoryView 用显式尺寸（三段短文案），避免不同语言/字号下宽度漂移。
-                CGSize segFit = [seg sizeThatFits:CGSizeMake(CGFLOAT_MAX, 44.0)];
-                seg.frame = CGRectMake(0, 0, MAX(186.0, segFit.width), 32.0);
-                cell.accessoryView = seg;
-                cell.detailTextLabel.text = nil;
-            } else if ([title isEqualToString:@"版本自动迁移"]) {
-                // ★ [VI-MIGRATE-AUTO] 点整行打开「选文件夹 → 自动识别 → 分组确认」页。
-                // 复用既有「图标+标题+detail+chevron」行范式；不在此行做任何扫描/搬运。
-                cell.imageView.image = [UIImage systemImageNamed:@"arrow.triangle.branch"];
-                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                cell.detailTextLabel.text = localize(@"preference.migrate.auto.subtitle", nil);
-            } else if ([title isEqualToString:@"版本隔离向导"]) {
-                // ★ [VI-FLOW]（用户修正 1）：手动重新打开版本隔离向导的入口 —— 即使用户已选过
-                //   「以后不再提示」，也能随时再看（本入口不经过哨兵）。复用同一「行范式」。
-                cell.imageView.image = [UIImage systemImageNamed:@"wand.and.stars"];
-                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                cell.detailTextLabel.text = localize(@"preference.vi.wizard.reopen.subtitle", nil);
             }
             break;
 
@@ -1393,16 +1339,6 @@ static NSString * localizeProfileTitle(NSString *title) {
                 [self ameEditProfileName];                     // 弹出式文本输入
             } else if ([title isEqualToString:@"游戏版本"]) {
                 if (self.versionTextField) [self.versionTextField becomeFirstResponder];  // 弹出式 picker
-            } else if ([title isEqualToString:@"游戏目录"]) {
-                [self editGameDir];                            // 既有弹出式文本输入
-            } else if ([title isEqualToString:@"版本隔离"]) {
-                [self ameCycleVersionIsolation];                // ★ [VI-POLISH] A：点整行在三态间循环
-            } else if ([title isEqualToString:@"隔离判定"]) {
-                // ★ [VI-POLISH] A：只读说明行，点它不产生任何动作（无写入、无弹窗）。
-            } else if ([title isEqualToString:@"版本自动迁移"]) {
-                [self ameOpenAutoMigrate];                      // ★ [VI-MIGRATE-AUTO]
-            } else if ([title isEqualToString:@"版本隔离向导"]) {
-                [self ameOpenVersionIsolationWizard];           // ★ [VI-FLOW] 手动重开向导
             }
             break;
 
@@ -1770,55 +1706,6 @@ static NSString * localizeProfileTitle(NSString *title) {
 }
 
 #pragma mark - Actions
-
-/// 编辑游戏目录（仿 main 分支 LauncherProfileEditorViewController 的 gameDir 文本框）
-/// gameDir="." 表示使用当前 POJAV_GAME_DIR（即"游戏目录切换"选中的实例目录）
-/// 也可以输入相对路径（相对于 POJAV_GAME_DIR）或绝对路径来实现版本隔离
-- (void)editGameDir {
-    NSString *currentGameDir = self.profile[@"gameDir"] ?: @".";
-    NSString *currentInstance = getPrefObject(@"general.game_directory") ?: @"default";
-
-    UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:localize(@"i18n_str_2004", nil)
-                         message:[NSString stringWithFormat:
-                                  [[[localize(@"i18n_str_897", nil)
-                                      stringByAppendingString:localize(@"i18n_str_2010", nil)]
-                                     stringByAppendingString:localize(@"i18n_str_2011", nil)]
-                                    stringByAppendingString:localize(@"i18n_str_2012", nil)],
-                                  currentInstance]
-                  preferredStyle:UIAlertControllerStyleAlert];
-
-    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.text = currentGameDir;
-        textField.placeholder = [NSString stringWithFormat:@". -> /Documents/instances/%@", currentInstance];
-        textField.autocorrectionType = UITextAutocorrectionTypeNo;
-        textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-        textField.clearButtonMode = UITextFieldViewModeWhileEditing;
-    }];
-
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"i18n_str_898", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-        self.profile[@"gameDir"] = @".";
-        [self saveSettings];
-        [self reloadAllTableViews];
-        [self updateHeroCard];
-    }]];
-
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"resman.common.cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
-
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"i18n_str_44", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        NSString *newGameDir = alert.textFields.firstObject.text;
-        newGameDir = [newGameDir stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        if (newGameDir.length == 0) {
-            newGameDir = @".";
-        }
-        self.profile[@"gameDir"] = newGameDir;
-        [self saveSettings];
-        [self reloadAllTableViews];
-        [self updateHeroCard];
-    }]];
-
-    [self presentViewController:alert animated:YES completion:nil];
-}
 
 - (void)openModsManager {
     ModsManagerViewController *vc = [[ModsManagerViewController alloc] init];
@@ -2541,7 +2428,6 @@ static NSString * localizeProfileTitle(NSString *title) {
             NSMutableDictionary *profile = [NSMutableDictionary dictionary];
             profile[@"name"] = versionId;
             profile[@"lastVersionId"] = versionId;
-            profile[@"gameDir"] = @".";
             profile[@"type"] = @"custom";
             profile[@"created"] = [NSDate date].description;
             [PLProfiles.current saveProfile:profile withName:versionId];

@@ -21,6 +21,10 @@
 // ★ [MP-RESTORE] 联机入口
 #import "TerracottaViewController.h"
 
+@interface AmeTerraSettingsHostController : UIViewController
++ (instancetype)makeHostWithOpenCategoryHandler:(void (^)(NSString *category))handler;
+@end
+
 NSString * const AmeTabTappedNotification = @"AmeTabTapped";   // ★ [ROOTTAB]
 
 @interface AmeRootTabController () <UITabBarControllerDelegate>   // ★ 声明协议,消掉 delegate 赋值警告
@@ -106,7 +110,23 @@ static UIViewController *AmeWrapInNav(UIViewController *vc) {
             //   ★ 不包导航控制器 —— 包了会多一条导航栏,把内容整体压低(用户报"下载实例界面还是有点低")。
             case 1: content = [[DownloadViewController alloc] init]; break;
             case 2: content = [[VersionManagerViewController alloc] init]; break;
-            case 3: content = [[LauncherPreferencesViewController alloc] init]; break;
+            case 3: {
+                __block __weak AmeTerraSettingsHostController *weakSettingsHost = nil;
+                AmeTerraSettingsHostController *settingsHost =
+                    [AmeTerraSettingsHostController makeHostWithOpenCategoryHandler:^(NSString *category) {
+                        LauncherPreferencesViewController *preferences =
+                            [[LauncherPreferencesViewController alloc] init];
+                        preferences.settingsCategory = category;
+                        preferences.title = category.capitalizedString;
+                        UINavigationController *navigationController =
+                            [[UINavigationController alloc] initWithRootViewController:preferences];
+                        navigationController.navigationBar.prefersLargeTitles = YES;
+                        [weakSettingsHost presentViewController:navigationController animated:YES completion:nil];
+                    }];
+                weakSettingsHost = settingsHost;
+                content = settingsHost;
+                break;
+            }
             default: content = [[UIViewController alloc] init]; break;
         }
 
@@ -118,6 +138,9 @@ static UIViewController *AmeWrapInNav(UIViewController *vc) {
         content.tabBarItem.tag = i;
 
         UIViewController *vc = AmeWrapInNav(content);   // ★ 全部包 nav:页面内要 push 子流程(见 RootVC:719 注释)
+        if (i == 3 && [vc isKindOfClass:UINavigationController.class]) {
+            ((UINavigationController *)vc).navigationBarHidden = YES;
+        }
         [vcs addObject:vc];
     }
     tbc.viewControllers = vcs;

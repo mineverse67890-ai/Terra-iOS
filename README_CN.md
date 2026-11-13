@@ -1,16 +1,16 @@
 <div align="center">
-  <img src="Natives/Assets.xcassets/AppIcon-Light.appiconset/1024x1024.png" alt="Air 图标" width="120" style="border-radius: 24px;">
+  <img src="Natives/Assets.xcassets/AppIcon-Light.appiconset/1024x1024.png" alt="Terra-iOS 图标" width="120" style="border-radius: 24px;">
 </div>
 
-<h1 align="center">Air</h1>
-<p align="center"><sub>Amethyst iOS 重制版</sub></p>
+<h1 align="center">Terra-iOS</h1>
+<p align="center"><sub>iOS Minecraft Launcher</sub></p>
 
 <div align="center">
-  <img alt="构建状态" src="https://github.com/herbrine8403/Amethyst-iOS-MyRemastered/actions/workflows/development.yml/badge.svg?branch=main">
-  <img alt="下载量" src="https://img.shields.io/github/downloads/herbrine8403/Amethyst-iOS-MyRemastered/total?label=Downloads&style=flat">
-  <img alt="版本" src="https://img.shields.io/github/v/release/herbrine8403/Amethyst-iOS-MyRemastered?style=flat">
-  <img alt="许可证" src="https://img.shields.io/github/license/herbrine8403/Amethyst-iOS-MyRemastered?style=flat">
-  <img alt="最后提交" src="https://img.shields.io/github/last-commit/herbrine8403/Amethyst-iOS-MyRemastered?color=c78aff&label=last%20commit&style=flat">
+  <img alt="构建状态" src="https://github.com/mineverse67890-ai/Terra-iOS/actions/workflows/development.yml/badge.svg?branch=main">
+  <img alt="下载量" src="https://img.shields.io/github/downloads/mineverse67890-ai/Terra-iOS/total?label=Downloads&style=flat">
+  <img alt="版本" src="https://img.shields.io/github/v/release/mineverse67890-ai/Terra-iOS?style=flat">
+  <img alt="许可证" src="https://img.shields.io/github/license/mineverse67890-ai/Terra-iOS?style=flat">
+  <img alt="最后提交" src="https://img.shields.io/github/last-commit/mineverse67890-ai/Terra-iOS?color=c78aff&label=last%20commit&style=flat">
 </div>
 
 <p align="center">
@@ -18,8 +18,8 @@
 </p>
 
 > [!IMPORTANT]
-> **本仓库是 Air 唯一官方仓库：** [herbrine8403/Amethyst-iOS-MyRemastered](https://github.com/herbrine8403/Amethyst-iOS-MyRemastered)。
-> 请警惕使用 "Air" 名称的非官方 fork 或镜像仓库——请认准仓库所有者 [@herbrine8403](https://github.com/herbrine8403)，并核对网址是否为上方链接。
+> **Official Terra-iOS repository:** [mineverse67890-ai/Terra-iOS](https://github.com/mineverse67890-ai/Terra-iOS).
+> Verify repository ownership and URL before downloading an unofficial fork or mirror.
 
 ---
 
@@ -89,14 +89,14 @@
 <details>
 <summary><b>正式版（TrollStore 渠道）</b></summary>
 
-1. 前往 [Releases](https://github.com/herbrine8403/Amethyst-iOS-MyRemastered/releases) 下载 `.tipa` 安装包。
+1. 前往 [Releases](https://github.com/mineverse67890-ai/Terra-iOS/releases) 下载 `.tipa` 安装包。
 2. 通过系统分享菜单，选择用 TrollStore 打开，即可自动完成安装。
 </details>
 
 <details>
 <summary><b>正式版（AltStore / SideStore 渠道）</b></summary>
 
-1. 前往 [Releases](https://github.com/herbrine8403/Amethyst-iOS-MyRemastered/releases) 下载 `.ipa` 安装包。
+1. 前往 [Releases](https://github.com/mineverse67890-ai/Terra-iOS/releases) 下载 `.ipa` 安装包。
 2. 按照侧载工具的标准流程导入 IPA 完成安装。
 </details>
 
@@ -106,7 +106,7 @@
 > [!CAUTION]
 > 测试版可能包含崩溃、无法启动等严重缺陷，仅限开发测试使用。
 
-1. 前往 [GitHub Actions](https://github.com/herbrine8403/Amethyst-iOS-MyRemastered/actions) 页面下载最新 IPA 构建产物。
+1. 前往 [GitHub Actions](https://github.com/mineverse67890-ai/Terra-iOS/actions) 页面下载最新 IPA 构建产物。
 2. 在侧载工具（AltStore、SideStore 等）中导入 IPA 完成安装。
 </details>
 
@@ -166,10 +166,10 @@ JIT（即时编译）是流畅运行游戏的关键。请根据自身环境选�
 
 ## Star History
 
-<a href="https://star-history.com/#herbrine8403/Amethyst-iOS-MyRemastered&Date">
+<a href="https://star-history.com/#mineverse67890-ai/Terra-iOS&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=herbrine8403/Amethyst-iOS-MyRemastered&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=herbrine8403/Amethyst-iOS-MyRemastered&type=Date" />
-   <img alt="Star history" src="https://api.star-history.com/svg?repos=herbrine8403/Amethyst-iOS-MyRemastered&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=mineverse67890-ai/Terra-iOS&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=mineverse67890-ai/Terra-iOS&type=Date" />
+   <img alt="Star history" src="https://api.star-history.com/svg?repos=mineverse67890-ai/Terra-iOS&type=Date" />
  </picture>
 </a>

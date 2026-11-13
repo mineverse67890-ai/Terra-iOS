@@ -58,7 +58,7 @@
 "custom_controls.error.incompatible" = "This control version (code %d) is not implemented in this launcher build.";
 "custom_controls.hint" = "Long-press anywhere on screen for more options";
 
-"init.migrateDir" = "The Amethyst data directory is now %@. All of your existing data has been moved to the new location.";
+"init.migrateDir" = "The Terra-iOS data directory is now %@. All of your existing data has been moved to the new location.";
 
 "launcher.mcl.downloading_file" = "Downloading %@";
 "launcher.mcl.error_download" = "Failed to download %@: %@";
@@ -67,7 +67,7 @@
 "launcher.menu.install_jar" = "Install .jar";
 
 "launcher.wait_jit.title" = "Waiting for JIT(Just-in-time)";
-"launcher.wait_jit.message" = "Amethyst relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
+"launcher.wait_jit.message" = "Terra-iOS relies on JIT(Just-in-time) compilation for Java to work at maximum performance";
 
 "login.error.username.outOfRange" = "Username must be at least 3 characters and a maximum of 16 characters";
 
@@ -87,9 +87,9 @@
 "login.option.microsoft" = "Microsoft account";
 "login.option.local" = "Local account";
 
-"login.warn.title.legacy_device" = "The next release of Amethyst will not be compatible with this device.";
+"login.warn.title.legacy_device" = "The next release of Terra-iOS will not be compatible with this device.";
 "login.warn.message.legacy_device" = "To run the next major release, a device capable of running iOS 14 is required.";
-"login.warn.title.legacy_ios" = "The next release of Amethyst will require a system update.";
+"login.warn.title.legacy_ios" = "The next release of Terra-iOS will require a system update.";
 "login.warn.message.legacy_ios" = "To run the next major release, this device needs to be running iOS 14 or later.";
 "login.warn.title.limited_ram" = "This device has a limited amount of memory available.";
 "login.warn.message.limited_ram" = "We recommend leaving auto RAM enabled to prevent instability and performance issues.";
@@ -117,7 +117,7 @@
 
 "preference.section.general" = "General Settings";
 "preference.section.video" = "Video and Audio Settings";
-"preference.section.footer.video" = "Auto renderer allows Amethyst to choose the best option based on Minecraft version. Decreasing resolution reduces GPU workload for better performance.";
+"preference.section.footer.video" = "Auto renderer allows Terra-iOS to choose the best option based on Minecraft version. Decreasing resolution reduces GPU workload for better performance.";
 "preference.section.control" = "Control customization";
 "preference.section.debug" = "UI Debugging settings";
 "preference.section.footer.debug" = "In addition to debugging these settings may be useful for custom controls. You may need to restart the launcher to make the changes effective.";
@@ -140,11 +140,11 @@
 "preference.title.jitstreamer_server" = "The server address of JitStreamer";
 "preference.detail.jitstreamer_server" = "This option gives custom access to JitStreamer servers for JIT addresses.";
 "preference.title.enable_altkit" = "Enable JIT using AltKit";
-"preference.detail.enable_altkit" = "When enabled, Air will try to connect to local AltServers to enable JIT.";
+"preference.detail.enable_altkit" = "When enabled, Terra-iOS will try to connect to local AltServers to enable JIT.";
 "preference.title.appicon" = "Set app icon";
-"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
-"preference.title.appicon-default" = "Familiar Amethyst light";
-"preference.title.appicon-dark" = "Familiar Amethyst dark";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Terra-iOS.";
+"preference.title.appicon-default" = "Familiar Terra-iOS light";
+"preference.title.appicon-dark" = "Familiar Terra-iOS dark";
 "preference.title.hidden_sidebar" = "Hide main menu sidebar by default";
 "preference.detail.hidden_sidebar" = "Allows you to hide the sidebar on the main menu by default and when rotating.";
 
@@ -179,7 +179,7 @@
 "preference.title.fullscreen_airplay" = "Fullscreen AirPlay";
 "preference.detail.fullscreen_airplay" = "Allows presenting fullscreen game window on the external display rather than mirroring everything on screen.";
 "preference.title.silence_other_audio" = "Pause audio when game opens";
-"preference.detail.silence_other_audio" = "Enable to allow Amethyst to pause audio from other apps, such as Music, when launching the game.";
+"preference.detail.silence_other_audio" = "Enable to allow Terra-iOS to pause audio from other apps, such as Music, when launching the game.";
 "preference.title.silence_with_switch" = "Disable audio with silent switch";
 "preference.detail.silence_with_switch" = "Enable to disable audio when Silent Mode is on. Headphones and external speakers are not affected.";
 "preference.title.default_gamepad_ctrl" = "Controller configuration";

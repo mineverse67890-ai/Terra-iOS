@@ -9,7 +9,7 @@ OUTPUTDIR   := $(SOURCEDIR)/artifacts
 WORKINGDIR  := $(SOURCEDIR)/Natives/build
 DETECTPLAT  := $(shell uname -s)
 DETECTARCH  := $(shell uname -m)
-VERSION     := 6.0.0
+VERSION     := 0.1.0
 BRANCH      := $(shell git branch --show-current)
 COMMIT      := $(shell git log --oneline | sed '2,10000000d' | cut -b 1-7)
 PLATFORM    ?= 2
@@ -95,7 +95,7 @@ IOS         := 0
 BOOTJDK     ?= /usr/bin
 $(warning Building on Linux. Note that all targets may not compile or require external components.)
 else
-$(error This platform is not currently supported for building Angel Aura Amethyst.)
+$(error This platform is not currently supported for building Terra-iOS.)
 endif
 
 # ============================================================================
@@ -119,14 +119,14 @@ endif
 
 # ★ [SWIFT-BAR] 编译 SwiftUI 底部标签栏(必须先于 native 的 cmake 链接)
 swift:
-	echo '[Amethyst v$(VERSION)] swift - start'
+	echo '[Terra-iOS v$(VERSION)] swift - start'
 	mkdir -p $(WORKINGDIR)
 	$(SWIFTC) -parse-as-library -emit-object \
 		-target $(SWIFT_TARGET) \
 		-sdk "$(SDKPATH)" \
 		$(if $(filter 1,$(RELEASE)),-O,) \
 		-o $(SWIFT_OBJ) $(SWIFT_SRC)
-	echo '[Amethyst v$(VERSION)] swift - end'
+	echo '[Terra-iOS v$(VERSION)] swift - end'
 
 # Define PLATFORM_NAME from PLATFORM
 ifeq ($(PLATFORM),2)
@@ -215,13 +215,13 @@ METHOD_PACKAGE = \
 	else \
 		IPA_SUFFIX=".ipa"; \
 	fi; \
-	rm -f $(OUTPUTDIR)/com.air-devs.air-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
-	rm -f $(OUTPUTDIR)/com.air-devs.air.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
+	rm -f $(OUTPUTDIR)/Terra-iOS-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
+	rm -f $(OUTPUTDIR)/Terra-iOS.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
 	if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/com.air-devs.air-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
+		zip --symlinks -r $(OUTPUTDIR)/Terra-iOS-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
 	fi; \
 	if [ '$(SLIMMED)' = '1' ] || [ '$(SLIMMED_ONLY)' = '1' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/com.air-devs.air.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
+		zip --symlinks -r $(OUTPUTDIR)/Terra-iOS.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
 	fi
 
 # Function to download and unpack Java runtimes.
@@ -324,7 +324,7 @@ endif
 all: clean native java jre assets payload package dsym
 
 help:
-	echo 'Makefile to compile Angel Aura Amethyst'
+	echo 'Makefile to compile Terra-iOS'
 	echo ''
 	echo 'Usage:'
 	echo '    make                                Makes everything under all'
@@ -336,7 +336,7 @@ help:
 	echo '    make jre                            Downloads/unpacks the iOS JREs'
 	echo '    make assets                         Compiles Assets.xcassets'
 	echo '    make payload                        Makes Payload/AngelAuraAmethyst.app'
-	echo '    make package                        Builds ipa of Angel Aura Amethyst'
+	echo '    make package                        Builds ipa of Terra-iOS'
 	echo '    make deploy                         Copies files to local iDevice'
 	echo '    make dsym                           Generate debug symbol files'
 	echo '    make clean                          Cleans build directories'
@@ -449,7 +449,7 @@ check:
 	)
 
 native: dep_mg swift
-	echo '[Amethyst v$(VERSION)] native - start'
+	echo '[Terra-iOS v$(VERSION)] native - start'
 	mkdir -p $(WORKINGDIR)
 	cd $(WORKINGDIR) && cmake \
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
@@ -470,20 +470,20 @@ native: dep_mg swift
 	cmake --build $(WORKINGDIR) --config $(CMAKE_BUILD_TYPE) -j$(JOBS)
 	#	--target awt_headless awt_xawt libOSMesaOverride.dylib tinygl4angle AngelAuraAmethyst
 	rm $(WORKINGDIR)/libawt_headless.dylib
-	echo '[Amethyst v$(VERSION)] native - end'
+	echo '[Terra-iOS v$(VERSION)] native - end'
 
 java:
-	echo '[Amethyst v$(VERSION)] java - start'
+	echo '[Terra-iOS v$(VERSION)] java - start'
 	# 从 lwjgl-lib/ 源码构建 LWJGL jar（3.3.3 与 3.4.1）。
 	# 默认跳过：预编译 jar 已在 git 中，普通构建与 CI 都不需要 Ant / JDK 8 /
 	# 网络。只有 BUILD_LWJGL=1 时才真正从源码构建（本地改 LWJGL 时用）：
 	#     BUILD_LWJGL=1 make java
 	bash $(SOURCEDIR)/scripts/build_lwjgl.sh
 	$(MAKE) -C JavaApp -j$(JOBS) BOOTJDK=$(BOOTJDK)
-	echo '[Amethyst v$(VERSION)] java - end'
+	echo '[Terra-iOS v$(VERSION)] java - end'
 
 jre: native
-	echo '[Amethyst v$(VERSION)] jre - start'
+	echo '[Terra-iOS v$(VERSION)] jre - start'
 	mkdir -p $(SOURCEDIR)/depends
 	cd $(SOURCEDIR)/depends; \
 	$(call METHOD_JAVA_UNPACK,8,'https://assets.angelauramc.dev/openjdk/ios-arm64/jre8-ios-aarch64.zip'); \
@@ -508,10 +508,10 @@ jre: native
 	cp $(WORKINGDIR)/libawt_xawt.dylib $(OUTPUTDIR)/java_runtimes/java-17-openjdk/lib;
 	cp $(WORKINGDIR)/libawt_xawt.dylib $(OUTPUTDIR)/java_runtimes/java-21-openjdk/lib
 	cp $(WORKINGDIR)/libawt_xawt.dylib $(OUTPUTDIR)/java_runtimes/java-25-openjdk/lib
-	echo '[Amethyst v$(VERSION)] jre - end'
+	echo '[Terra-iOS v$(VERSION)] jre - end'
 
 dep_mg:
-	echo '[Amethyst v$(VERSION)] dep_mg - start'
+	echo '[Terra-iOS v$(VERSION)] dep_mg - start'
 	# ---------------------------------------------------------------------------
 	# 3rdparty 版本对齐 —— 对齐参考仓库 Air 的 .gitmodules pin
 	#
@@ -634,7 +634,7 @@ dep_mg:
 	fi; \
 	echo "[shaderc-impl] glslang static libs OK (spirv=$$mg_spirv_a glslang=$$mg_glslang_a rl=$$mg_rl_a)"
 	cp $(WORKINGDIR)/mobileglues/libmobileglues*.dylib $(WORKINGDIR)/
-	echo '[Amethyst v$(VERSION)] dep_mg - end'
+	echo '[Terra-iOS v$(VERSION)] dep_mg - end'
 # ---------------------------------------------------------------------------
 # shaderc / spirv-cross 串行化垫片（对齐 Air Task 39/42/47/54）
 #
@@ -753,7 +753,7 @@ SHADER_SHIMS ?= 1
 
 ifeq ($(SHADER_SHIMS),1)
 dep_shader_shims: dep_shaderc_impl dep_mg
-	echo '[Amethyst v$(VERSION)] dep_shader_shims - start'
+	echo '[Terra-iOS v$(VERSION)] dep_shader_shims - start'
 	cp $(SOURCEDIR)/Natives/resources/Frameworks/libspirv-cross-c-shared.0.dylib $(WORKINGDIR)/libspirv-cross-c-shared.0.impl.dylib || exit 1
 	install_name_tool -id @rpath/libspirv-cross-c-shared.0.impl.dylib $(WORKINGDIR)/libspirv-cross-c-shared.0.impl.dylib || exit 1
 	printf '_shaderc_*\n_ame_*\n' > $(WORKINGDIR)/shaderc.exports; \
@@ -812,10 +812,10 @@ dep_shader_shims: dep_shaderc_impl dep_mg
 		install_name_tool -change "$$mg_dep" @rpath/libspirv-cross-mg.dylib "$$mg" || exit 1; \
 		echo "[dep_shader_shims] MG spvc decoupled: $$mg_dep -> @rpath/libspirv-cross-mg.dylib"; \
 	done
-	echo '[Amethyst v$(VERSION)] dep_shader_shims - end'
+	echo '[Terra-iOS v$(VERSION)] dep_shader_shims - end'
 else
 dep_shader_shims:
-	echo '[Amethyst v$(VERSION)] dep_shader_shims - DISABLED (SHADER_SHIMS=0): shipping prebuilt libshaderc.dylib + libspirv-cross-c-shared.0.dylib verbatim (pre-3bed818be0 state)'
+	echo '[Terra-iOS v$(VERSION)] dep_shader_shims - DISABLED (SHADER_SHIMS=0): shipping prebuilt libshaderc.dylib + libspirv-cross-c-shared.0.dylib verbatim (pre-3bed818be0 state)'
 endif
 
 
@@ -831,7 +831,7 @@ dep_openal_shim:
 	#   桩返回 ALC_FALSE 使 MC 干净回退 PollingDeviceTracker。
 	# - 与 dep_shader_shims 同款模式：re-export 必须指向 impl 名（LC_ID 先修正），
 	#   否则加载递归；本地函数定义优先于 re-export 符号（shaderc 先例）。
-	echo '[Amethyst v$(VERSION)] dep_openal_shim - start'
+	echo '[Terra-iOS v$(VERSION)] dep_openal_shim - start'
 	# Task 170：dep_openal_shim 与 dep_mg 同为 payload 前置、并行执行（gmake -j），
 	# 而 $(WORKINGDIR) 由 dep_mg 内的 cmake 步骤创建 —— 本目标先跑到时该目录还不存在，
 	# cp 直接失败（ci: "cp: directory .../Natives/build does not exist"）。
@@ -844,10 +844,10 @@ dep_openal_shim:
 		-Wl,-reexport_library,$(WORKINGDIR)/libopenal_impl.dylib \
 		-o $(WORKINGDIR)/libopenal.dylib \
 		$(SOURCEDIR)/Natives/openal_shim.c || exit 1
-	echo '[Amethyst v$(VERSION)] dep_openal_shim - end'
+	echo '[Terra-iOS v$(VERSION)] dep_openal_shim - end'
 
 dep_angle_freeze:
-	echo '[Amethyst v$(VERSION)] dep_angle_freeze - start'
+	echo '[Terra-iOS v$(VERSION)] dep_angle_freeze - start'
 	# Task 57 (画面分裂根治): 8-byte machine-code patch -- ANGLE Metal
 	# WindowSurfaceMtl::checkIfLayerResized: expected size source switched from
 	# bounds*contentsScale (poisoned by windowed-mode background-thread portrait
@@ -861,10 +861,10 @@ dep_angle_freeze:
 	# 补丁改写源文件后签名哈希失效 —— 打包时 ldid -S 全 app 递归重签覆盖。
 	python3 $(SOURCEDIR)/scripts/patch_angle_surface_freeze.py \
 		$(SOURCEDIR)/Natives/resources/Frameworks/libGLESv2.framework/libGLESv2 || exit 1
-	echo '[Amethyst v$(VERSION)] dep_angle_freeze - end'
+	echo '[Terra-iOS v$(VERSION)] dep_angle_freeze - end'
 
 dep_sdl3_guard:
-	echo '[Amethyst v$(VERSION)] dep_sdl3_guard - start'
+	echo '[Terra-iOS v$(VERSION)] dep_sdl3_guard - start'
 	# Task 135 (controlify/JNA closure SIGBUS 源头根治): libSDL3.dylib
 	# 入口机器码守卫 -- SDL_SetEventFilter / SDL_AddEventWatch 的非空回调指针
 	# 一律置空/拒绝注册。controlify 经 JNA 回退加载本 Frameworks 的 iOS 版 SDL3
@@ -876,7 +876,7 @@ dep_sdl3_guard:
 	# 幂等; 字节不匹配 (SDL3 版本漂移) 响亮失败。
 	python3 $(SOURCEDIR)/scripts/patch_sdl3_eventfilter_guard.py \
 		$(SOURCEDIR)/Natives/resources/Frameworks/libSDL3.dylib || exit 1
-	echo '[Amethyst v$(VERSION)] dep_sdl3_guard - end'
+	echo '[Terra-iOS v$(VERSION)] dep_sdl3_guard - end'
 
 # ---------------------------------------------------------------------------
 # dep_sfpew —— SimpleFPEWrapper（MobileGL-Dev，LGPL-3.0）
@@ -892,7 +892,7 @@ dep_sdl3_guard:
 # 保证 SFPEW 编到的是同一份源码。
 # ---------------------------------------------------------------------------
 dep_sfpew: dep_mg
-	echo '[Amethyst v$(VERSION)] dep_sfpew - start'
+	echo '[Terra-iOS v$(VERSION)] dep_sfpew - start'
 	# iOS 适配补丁（AppleClang 15 + deployment target 14.0 下才暴露的两个问题，
 	# Linux/GCC 与 Android NDK 都不触发，故上游源码里没有处理）：
 	#   1. fpe/types.h: glstate_t 的默认构造函数被隐式删除（匿名 union 内含
@@ -931,7 +931,7 @@ dep_sfpew: dep_mg
 	cmake --build $(WORKINGDIR)/sfpew --config RelWithDebInfo -j$(JOBS) --target SimpleFPEWrapper >> $(WORKINGDIR)/sfpew_build.log 2>&1 \
 		|| { echo '[dep_sfpew] build FAILED -- tail:'; tail -n 200 $(WORKINGDIR)/sfpew_build.log; exit 1; }
 	cp $(WORKINGDIR)/sfpew/libSimpleFPEWrapper.dylib $(WORKINGDIR)/ || exit 1
-	echo '[Amethyst v$(VERSION)] dep_sfpew - end'
+	echo '[Terra-iOS v$(VERSION)] dep_sfpew - end'
 
 dep_mobilegl:
 	@{ echo '== MobileGL build diagnostics =='; \
@@ -945,15 +945,15 @@ dep_mobilegl:
 	} 2>&1 | tee $(SOURCEDIR)/mobilegl-build.log
 	@if [ '$(BUILD_MOBILEGL)' != '1' ]; then \
 		if [ -f "$(MOBILEGL_DYLIB)" ] && [ -f "$(MOBILEGL_GLES_DYLIB)" ]; then \
-			echo '[Amethyst v$(VERSION)] dep_mobilegl - using prebuilt dylibs in Natives/resources/Frameworks/'; \
-			echo '[Amethyst v$(VERSION)] dep_mobilegl - (set BUILD_MOBILEGL=1 to rebuild from vendored source)'; \
+			echo '[Terra-iOS v$(VERSION)] dep_mobilegl - using prebuilt dylibs in Natives/resources/Frameworks/'; \
+			echo '[Terra-iOS v$(VERSION)] dep_mobilegl - (set BUILD_MOBILEGL=1 to rebuild from vendored source)'; \
 		else \
-			echo '[Amethyst v$(VERSION)] dep_mobilegl - skipped (set BUILD_MOBILEGL=1 to build from vendored source)'; \
+			echo '[Terra-iOS v$(VERSION)] dep_mobilegl - skipped (set BUILD_MOBILEGL=1 to build from vendored source)'; \
 		fi; \
 	elif [ ! -d "$(MOBILEGL_SOURCE_DIR)" ]; then \
-		echo '[Amethyst v$(VERSION)] dep_mobilegl - skipped (source not found: $(MOBILEGL_SOURCE_DIR))'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mobilegl - skipped (source not found: $(MOBILEGL_SOURCE_DIR))'; \
 	else \
-		echo '[Amethyst v$(VERSION)] dep_mobilegl - start'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mobilegl - start'; \
 		rm -f $(SOURCEDIR)/mobilegl-build.status; \
 		{ echo '== build output =='; \
 		} 2>&1 | tee -a $(SOURCEDIR)/mobilegl-build.log; \
@@ -962,7 +962,7 @@ dep_mobilegl:
 		  } 2>&1 | tee -a $(SOURCEDIR)/mobilegl-build.log; \
 		}; \
 		echo "== exit status = `cat $(SOURCEDIR)/mobilegl-build.status 2>/dev/null` ==" | tee -a $(SOURCEDIR)/mobilegl-build.log; \
-		echo '[Amethyst v$(VERSION)] dep_mobilegl - end (log: $(SOURCEDIR)/mobilegl-build.log)'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mobilegl - end (log: $(SOURCEDIR)/mobilegl-build.log)'; \
 	fi
 
 # MobileGL（MobileGL-Dev，LGPL-3.0）：
@@ -983,11 +983,11 @@ dep_mobilegl_build:
 	# 用 tag（asio-1-38-2）而非分支：tag 不会被 force push，避免上游变动导致
 	# 构建突然中断。以 post.hpp 是否存在为判据（而非目录），残缺目录也能补齐。
 	if [ ! -f "$(MOBILEGL_SOURCE_DIR)/3rdparty/asio/include/asio/post.hpp" ]; then \
-		echo '[Amethyst v$(VERSION)] dep_mobilegl - fetching asio (asio-1-38-2)'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mobilegl - fetching asio (asio-1-38-2)'; \
 		rm -rf $(MOBILEGL_SOURCE_DIR)/3rdparty/asio; \
 		git clone --depth 1 --branch asio-1-38-2 https://github.com/chriskohlhoff/asio.git \
 			$(MOBILEGL_SOURCE_DIR)/3rdparty/asio || \
-			echo '[Amethyst v$(VERSION)] dep_mobilegl - WARNING: asio fetch failed, build will likely fail'; \
+			echo '[Terra-iOS v$(VERSION)] dep_mobilegl - WARNING: asio fetch failed, build will likely fail'; \
 	fi
 	mkdir -p $(MOBILEGL_SOURCE_DIR)/3rdparty/glslang/External
 	ln -sfn $(MOBILEGL_SOURCE_DIR)/3rdparty/DiligentCore/ThirdParty/SPIRV-Tools $(MOBILEGL_SOURCE_DIR)/3rdparty/glslang/External/spirv-tools
@@ -1040,9 +1040,9 @@ dep_mobilegl_build:
 	# 先探测再改：install_name_tool -change 找不到目标时会中断构建，不能无条件执行。
 	if otool -l $(WORKINGDIR)/mobilegl/libMobileGL.dylib | grep -q 'MoltenVK.framework/MoltenVK'; then \
 		install_name_tool -change @rpath/MoltenVK.framework/MoltenVK @rpath/libMoltenVK.dylib $(WORKINGDIR)/mobilegl/libMobileGL.dylib; \
-		echo '[Amethyst v$(VERSION)] dep_mobilegl - rewrote MoltenVK install name (legacy layout)'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mobilegl - rewrote MoltenVK install name (legacy layout)'; \
 	else \
-		echo '[Amethyst v$(VERSION)] dep_mobilegl - MoltenVK install name already @rpath/libMoltenVK.dylib, no rewrite needed'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mobilegl - MoltenVK install name already @rpath/libMoltenVK.dylib, no rewrite needed'; \
 	fi
 	if otool -l $(WORKINGDIR)/mobilegl/libMobileGL.dylib | grep -q 'path $(SOURCEDIR)/Natives/resources/Frameworks '; then \
 		install_name_tool -delete_rpath $(SOURCEDIR)/Natives/resources/Frameworks $(WORKINGDIR)/mobilegl/libMobileGL.dylib; \
@@ -1055,7 +1055,7 @@ dep_mobilegl_build:
 	# GLES 变体是同一个二进制的副本，install_name 改掉以便两个 dylib 能同时加载
 	cp $(WORKINGDIR)/mobilegl/libMobileGL.dylib $(WORKINGDIR)/libMobileGL-gles.dylib
 	install_name_tool -id @rpath/libMobileGL-gles.dylib $(WORKINGDIR)/libMobileGL-gles.dylib
-	echo '[Amethyst v$(VERSION)] dep_mobilegl - end'
+	echo '[Terra-iOS v$(VERSION)] dep_mobilegl - end'
 
 # Mithril（Uniaball/Mithril-Wrapper）：OpenGL 3.3 Core -> Vulkan -> MoltenVK -> Metal。
 # 与 MobileGL 不同，Mithril 只发布预编译 dylib，本仓库不从源码编译。
@@ -1066,16 +1066,16 @@ dep_mobilegl_build:
 dep_mithril:
 	if [ -f "$(MITHRIL_PREBUILT_DIR)/libmithril.dylib" ]; then \
 		cp "$(MITHRIL_PREBUILT_DIR)/libmithril.dylib" $(SOURCEDIR)/Natives/resources/Frameworks/libmithril.dylib; \
-		echo '[Amethyst v$(VERSION)] dep_mithril - installed from prebuilt/'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mithril - installed from prebuilt/'; \
 	elif [ -f "$(SOURCEDIR)/Natives/resources/Frameworks/libmithril.dylib" ]; then \
-		echo '[Amethyst v$(VERSION)] dep_mithril - using existing Natives/resources/Frameworks/libmithril.dylib'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mithril - using existing Natives/resources/Frameworks/libmithril.dylib'; \
 	else \
-		echo '[Amethyst v$(VERSION)] dep_mithril - libmithril.dylib not found, Mithril renderer will be hidden'; \
-		echo '[Amethyst v$(VERSION)] dep_mithril - run scripts/fetch_mithril.sh to download it'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mithril - libmithril.dylib not found, Mithril renderer will be hidden'; \
+		echo '[Terra-iOS v$(VERSION)] dep_mithril - run scripts/fetch_mithril.sh to download it'; \
 	fi
 
 assets:
-	echo '[Amethyst v$(VERSION)] assets - start'
+	echo '[Terra-iOS v$(VERSION)] assets - start'
 	if [ '$(IOS)' = '0' ] && [ '$(DETECTPLAT)' = 'Darwin' ]; then \
 		mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/Base.lproj; \
 		xcrun actool $(SOURCEDIR)/Natives/Assets.xcassets \
@@ -1085,12 +1085,12 @@ assets:
 			--app-icon AppIcon-Light \
 			--output-partial-info-plist /dev/null || exit 1; \
 	else \
-		echo 'Due to the required tools not being available, you cannot compile the extras for Angel Aura Amethyst with an iOS device.'; \
+		echo 'Due to the required tools not being available, you cannot compile the extras for Terra-iOS with an iOS device.'; \
 	fi
-	echo '[Amethyst v$(VERSION)] assets - end'
+	echo '[Terra-iOS v$(VERSION)] assets - end'
 
 payload: native dep_mg dep_shader_shims dep_openal_shim dep_angle_freeze dep_sdl3_guard dep_nggl4es java jre assets shader-glslang-pack $(RENDERER_GAP_PAYLOAD_DEPS)
-	echo '[Amethyst v$(VERSION)] payload - start'
+	echo '[Terra-iOS v$(VERSION)] payload - start'
 	# ★ [26.4-SPVC] 打包前对账 jar 内 natives/ios|ir1 的 libspvc.dylib 与树内
 	#   canonical（设备上真正生效的是 jar 里那份，见 check_spvc_provenance.py）。
 	#   这里刻意**不阻断**主构建（改包链风险大），只把差异写进构建日志；
@@ -1140,13 +1140,13 @@ payload: native dep_mg dep_shader_shims dep_openal_shim dep_angle_freeze dep_sdl
 	if [ -f "$(SOURCEDIR)/TouchController/libproxy_server_ios.a" ]; then \
 		mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks; \
 		cp $(SOURCEDIR)/TouchController/libproxy_server_ios.a $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/ || exit 1; \
-		echo '[Amethyst v$(VERSION)] Copied TouchController device library'; \
+		echo '[Terra-iOS v$(VERSION)] Copied TouchController device library'; \
 	elif [ -f "$(SOURCEDIR)/TouchController/libproxy_server_ios_simulator.a" ]; then \
 		mkdir -p $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks; \
 		cp $(SOURCEDIR)/TouchController/libproxy_server_ios_simulator.a $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/ || exit 1; \
-		echo '[Amethyst v$(VERSION)] Copied TouchController simulator library'; \
+		echo '[Terra-iOS v$(VERSION)] Copied TouchController simulator library'; \
 	else \
-		echo '[Amethyst v$(VERSION)] TouchController library not found, skipping'; \
+		echo '[Terra-iOS v$(VERSION)] TouchController library not found, skipping'; \
 	fi
 	$(call METHOD_DIRCHECK,$(OUTPUTDIR)/Payload)
 	cp -R $(WORKINGDIR)/AngelAuraAmethyst.app $(OUTPUTDIR)/Payload
@@ -1169,10 +1169,10 @@ payload: native dep_mg dep_shader_shims dep_openal_shim dep_angle_freeze dep_sdl
 	# 这个假设在同步 Ynnyny 顶层 dylib 时被打破。
 	$(call METHOD_MACHO,$(OUTPUTDIR)/Payload/AngelAuraAmethyst.app,$(call METHOD_CHANGE_PLAT,$(PLATFORM),$$file)); \
 	$(call METHOD_MACHO,$(OUTPUTDIR)/java_runtimes,$(call METHOD_CHANGE_PLAT,$(PLATFORM),$$file));
-	echo '[Amethyst v$(VERSION)] payload - end'
+	echo '[Terra-iOS v$(VERSION)] payload - end'
 
 deploy:
-	echo '[Amethyst v$(VERSION)] deploy - start'
+	echo '[Terra-iOS v$(VERSION)] deploy - start'
 	cd $(OUTPUTDIR); \
 	if [ '$(IOS)' = '1' ]; then \
 		ldid -S $(WORKINGDIR)/AngelAuraAmethyst.app || exit 1; \
@@ -1191,18 +1191,18 @@ deploy:
 		else \
 			$(call METHOD_PACKAGE); \
 			if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-				open $(OUTPUTDIR)/com.air-devs.air-$(VERSION)-$(PLATFORM_NAME).ipa; \
+				open $(OUTPUTDIR)/Terra-iOS-$(VERSION)-$(PLATFORM_NAME).ipa; \
 			else \
-				open $(OUTPUTDIR)/com.air-devs.air.slimmed-$(VERSION)-$(PLATFORM_NAME).ipa; \
+				open $(OUTPUTDIR)/Terra-iOS.slimmed-$(VERSION)-$(PLATFORM_NAME).ipa; \
 			fi; \
 		fi; \
 	else \
 		echo 'Device not supported for deploy recipe.'; \
 	fi
-	echo '[Amethyst v$(VERSION)] deploy - end'
+	echo '[Terra-iOS v$(VERSION)] deploy - end'
 
 package: payload
-	echo '[Amethyst v$(VERSION)] package - start'
+	echo '[Terra-iOS v$(VERSION)] package - start'
 	if [ '$(TEAMID)' != '-1' ] && [ '$(SIGNING_TEAMID)' != '-1' ] && [ -f '$(PROVISIONING)' ] && [ '$(DETECTPLAT)' = 'Darwin' ]; then \
 		printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n	<key>application-identifier</key>\n	<string>$(TEAMID).com.air-devs.air</string>\n	<key>com.apple.developer.team-identifier</key>\n	<string>$(TEAMID)</string>\n	<key>get-task-allow</key>\n	<true/>\n	<key>keychain-access-groups</key>\n	<array>\n	<string>$(TEAMID).*</string>\n	<string>com.apple.token</string>\n	</array>\n	<key>com.apple.developer.kernel.extended-virtual-addressing</key>\n	<true/>\n	<key>com.apple.developer.kernel.increased-memory-limit</key>\n	<true/>\n</dict>\n</plist>' > entitlements.codesign.xml; \
 		$(MAKE) codesign; \
@@ -1213,28 +1213,28 @@ package: payload
 	cd $(OUTPUTDIR); \
 	$(call METHOD_PACKAGE); \
 	zip --symlinks -r $(OUTPUTDIR)/java_runtimes.zip java_runtimes; \
-	echo '[Amethyst v$(VERSION)] package - end'
+	echo '[Terra-iOS v$(VERSION)] package - end'
 
 dsym: payload
-	echo '[Amethyst v$(VERSION)] dsym - start'
+	echo '[Terra-iOS v$(VERSION)] dsym - start'
 	dsymutil --arch arm64 $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst; \
 	rm -rf $(OUTPUTDIR)/AngelAuraAmethyst.dSYM; \
 	mv $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/AngelAuraAmethyst.dSYM $(OUTPUTDIR)/AngelAuraAmethyst.dSYM
-	echo '[Amethyst v$(VERSION)] dsym - end'
+	echo '[Terra-iOS v$(VERSION)] dsym - end'
 	
 codesign:
-	echo '[Amethyst v$(VERSION)] codesign - start'
+	echo '[Terra-iOS v$(VERSION)] codesign - start'
 	cp '$(PROVISIONING)' $(OUTPUTDIR)/Payload/AngelAuraAmethyst.app/embedded.mobileprovision
 	$(call METHOD_MACHO,$(OUTPUTDIR)/Payload/AngelAuraAmethyst.app,$(call METHOD_CODESIGN,$(SIGNING_TEAMID),$$file))
 	$(call METHOD_MACHO,$(OUTPUTDIR)/java_runtimes,$(call METHOD_CODESIGN,$(SIGNING_TEAMID),$$file))
-	echo '[Amethyst v$(VERSION)] codesign - end'
+	echo '[Terra-iOS v$(VERSION)] codesign - end'
 
 clean:
-	echo '[Amethyst v$(VERSION)] clean - start'
+	echo '[Terra-iOS v$(VERSION)] clean - start'
 	rm -rf $(WORKINGDIR)
 	rm -rf JavaApp/build
 	rm -rf $(OUTPUTDIR)
-	echo '[Amethyst v$(VERSION)] clean - end'
+	echo '[Terra-iOS v$(VERSION)] clean - end'
 
 .PHONY: all clean check native java jre package dsym deploy help swift shader-glslang-pack shader-glslang-check shader-iris-integrate verify-iris-integrate check-spvc-provenance
 
@@ -1261,7 +1261,7 @@ clean:
 # 依赖 dep_mg：glslang 静态库必须先就位（-j 并行下无序，需目标级先决条件）。
 # ★ 无条件挂在 payload 上（用户可见的一等渲染器，不受 RENDERER_GAP_EXTRAS 控制）。
 dep_nggl4es: dep_mg
-	echo '[Amethyst v$(VERSION)] dep_nggl4es - start'
+	echo '[Terra-iOS v$(VERSION)] dep_nggl4es - start'
 	mg_bindir=$(WORKINGDIR)/mobileglues/3rdparty/glslang; \
 	mg_spirv_a=$$mg_bindir/SPIRV/libSPIRV.a; \
 	[ -f "$$mg_spirv_a" ] || mg_spirv_a=$$(find $(WORKINGDIR)/mobileglues -type f -name libSPIRV.a -print -quit 2>/dev/null); \
@@ -1299,10 +1299,10 @@ dep_nggl4es: dep_mg
 		$(SOURCEDIR)/ThirdParty/NG-GL4ES/ || exit 1
 	cmake --build $(WORKINGDIR)/nggl4es --config RelWithDebInfo -j$(JOBS) --target nggl4es || exit 1
 	cp $(WORKINGDIR)/nggl4es/libnggl4es.dylib $(WORKINGDIR)/ || exit 1
-	echo '[Amethyst v$(VERSION)] dep_nggl4es - end'
+	echo '[Terra-iOS v$(VERSION)] dep_nggl4es - end'
 
 dep_gl4eszl2:
-	@echo '[Amethyst v$(VERSION)] [RENDERER-GAP] dep_gl4eszl2 - start'
+	@echo '[Terra-iOS v$(VERSION)] [RENDERER-GAP] dep_gl4eszl2 - start'
 	# GL4ESZL2（PojavLauncherTeam/gl4es_extra_extra）—— ZL2 经典版 "gl4es"。
 	# 纯 C 字符串改写式 GLSL→ESSL（shaderconv.c），无 glslang/SPIRV-Cross 依赖，
 	# 故为独立目标（不依赖 dep_mg，不会与 glslang 静态库竞争）。
@@ -1321,7 +1321,7 @@ dep_gl4eszl2:
 	$(SOURCEDIR)/ThirdParty/gl4es_extra_extra/ || exit 1
 	cmake --build $(WORKINGDIR)/gl4eszl2 --config RelWithDebInfo -j$(JOBS) --target gl4eszl2 || exit 1
 	cp $(WORKINGDIR)/gl4eszl2/libgl4eszl2.dylib $(WORKINGDIR)/ || exit 1
-	@echo '[Amethyst v$(VERSION)] [RENDERER-GAP] dep_gl4eszl2 - end'
+	@echo '[Terra-iOS v$(VERSION)] [RENDERER-GAP] dep_gl4eszl2 - end'
 
 # VirGLRenderer(<=26.2)（ZL2 移植）三件套：
 #  1. libepoxy            —— vendored Natives/external/libepoxy（iOS 补丁：dlopen 指向 ANGLE 框架）
@@ -1333,13 +1333,13 @@ dep_virgl:
 	@if [ -f "$(SOURCEDIR)/Natives/resources/Frameworks/libOSMesaVirgl.dylib" ] && \
 	    [ -f "$(SOURCEDIR)/Natives/resources/Frameworks/libvtestserver.dylib" ] && \
 	    [ -f "$(SOURCEDIR)/Natives/resources/Frameworks/libepoxy.dylib" ]; then \
-		echo '[Amethyst v$(VERSION)] [RENDERER-GAP] dep_virgl - cached (Frameworks prebuilts present)'; \
+		echo '[Terra-iOS v$(VERSION)] [RENDERER-GAP] dep_virgl - cached (Frameworks prebuilts present)'; \
 		cp $(SOURCEDIR)/Natives/resources/Frameworks/libOSMesaVirgl.dylib \
 		   $(SOURCEDIR)/Natives/resources/Frameworks/libvtestserver.dylib \
 		   $(SOURCEDIR)/Natives/resources/Frameworks/libepoxy.dylib $(WORKINGDIR)/; \
 		exit 0; \
 	fi
-	@echo '[Amethyst v$(VERSION)] [RENDERER-GAP] dep_virgl - start'
+	@echo '[Terra-iOS v$(VERSION)] [RENDERER-GAP] dep_virgl - start'
 	printf '%s\n' \
 		'[binaries]' \
 		"c = 'clang'" \
@@ -1406,4 +1406,4 @@ dep_virgl:
 	test -f $(WORKINGDIR)/virgl-mesa/src/gallium/targets/osmesa/libOSMesa.8.dylib || { echo 'ERROR: libOSMesa.8.dylib (virgl guest) missing'; exit 1; }
 	cp $(WORKINGDIR)/virgl-mesa/src/gallium/targets/osmesa/libOSMesa.8.dylib $(WORKINGDIR)/libOSMesaVirgl.dylib
 	install_name_tool -id @rpath/libOSMesaVirgl.dylib $(WORKINGDIR)/libOSMesaVirgl.dylib || exit 1
-	@echo '[Amethyst v$(VERSION)] [RENDERER-GAP] dep_virgl - end'
+	@echo '[Terra-iOS v$(VERSION)] [RENDERER-GAP] dep_virgl - end'

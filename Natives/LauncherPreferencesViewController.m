@@ -1370,6 +1370,28 @@
         ]
     ];
 
+    NSDictionary<NSString *, NSArray<NSString *> *> *categorySections = @{
+        @"general": @[@"general", @"download"],
+        @"video": @[@"video", @"control"],
+        @"renderer": @[@"video", @"mobileglues"],
+        @"java": @[@"java"],
+    };
+    NSArray<NSString *> *selectedSections = categorySections[self.settingsCategory];
+    if (selectedSections.count > 0) {
+        NSArray<NSString *> *allSections = self.prefSections;
+        NSArray *allContents = self.prefContents;
+        NSMutableArray<NSString *> *filteredSections = [NSMutableArray array];
+        NSMutableArray *filteredContents = [NSMutableArray array];
+        for (NSString *section in selectedSections) {
+            NSUInteger index = [allSections indexOfObject:section];
+            if (index == NSNotFound || index >= allContents.count) continue;
+            [filteredSections addObject:section];
+            [filteredContents addObject:allContents[index]];
+        }
+        self.prefSections = filteredSections;
+        self.prefContents = filteredContents;
+    }
+
     [super viewDidLoad];
     // 适配自定义启动器背景：通过 BackgroundManager 将当前视图控制器透明化，
     // 让全局背景容器（图片/视频）能够透出显示。必须在 super viewDidLoad 之后调用，

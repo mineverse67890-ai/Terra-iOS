@@ -304,6 +304,8 @@ target_link_libraries(audio_capture
 set(AME_TABBAR_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/AmeTabBar.swift")
 set(AME_DASHBOARD_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/LauncherDashboardView.swift")
 set(AME_MOD_BROWSER_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/ModBrowserView.swift")
+set(AME_SETTINGS_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/SettingsView.swift")
+set(AME_INSTANCES_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/InstancesView.swift")
 
 # 架构:C 侧统一走 CMAKE_OSX_ARCHITECTURES(Makefile 传 arm64);缺省退回宿主架构
 set(AME_SWIFT_ARCH "${CMAKE_OSX_ARCHITECTURES}")
@@ -405,10 +407,40 @@ add_custom_command(
   VERBATIM)
 add_custom_target(AmeModBrowserSwift DEPENDS "${AME_MOD_BROWSER_OBJ}")
 
+set(AME_SETTINGS_OBJ "${CMAKE_CURRENT_BINARY_DIR}/SettingsView.o")
+add_custom_command(
+  OUTPUT  "${AME_SETTINGS_OBJ}"
+  COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object
+          -target "${AME_SWIFT_TRIPLE}"
+          -sdk "${CMAKE_OSX_SYSROOT}"
+          ${AME_SWIFT_OPT_FLAGS}
+          -o "${AME_SETTINGS_OBJ}"
+          "${AME_SETTINGS_SWIFT_SRC}"
+  DEPENDS "${AME_SETTINGS_SWIFT_SRC}"
+  COMMENT "SwiftUI settings: swiftc ${AME_SWIFT_TRIPLE} -> SettingsView.o"
+  VERBATIM)
+add_custom_target(AmeSettingsSwift DEPENDS "${AME_SETTINGS_OBJ}")
+
+set(AME_INSTANCES_OBJ "${CMAKE_CURRENT_BINARY_DIR}/InstancesView.o")
+add_custom_command(
+  OUTPUT  "${AME_INSTANCES_OBJ}"
+  COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object
+          -target "${AME_SWIFT_TRIPLE}"
+          -sdk "${CMAKE_OSX_SYSROOT}"
+          ${AME_SWIFT_OPT_FLAGS}
+          -o "${AME_INSTANCES_OBJ}"
+          "${AME_INSTANCES_SWIFT_SRC}"
+  DEPENDS "${AME_INSTANCES_SWIFT_SRC}"
+  COMMENT "SwiftUI instances: swiftc ${AME_SWIFT_TRIPLE} -> InstancesView.o"
+  VERBATIM)
+add_custom_target(AmeInstancesSwift DEPENDS "${AME_INSTANCES_OBJ}")
+
 # 外部对象:CMake 只把它放进链接行,不去「编译」它
 set_source_files_properties("${AME_TABBAR_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 set_source_files_properties("${AME_DASHBOARD_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 set_source_files_properties("${AME_MOD_BROWSER_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
+set_source_files_properties("${AME_SETTINGS_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
+set_source_files_properties("${AME_INSTANCES_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 message(STATUS "★ [SWIFT-BAR] swiftc=${AME_SWIFTC} triple=${AME_SWIFT_TRIPLE} obj=${AME_TABBAR_OBJ} swiftlib=${AME_SWIFT_LIBDIR} build=${AME_TABBAR_NEEDS_BUILD}")
 
 # Angel Aura Amethyst
@@ -678,6 +710,8 @@ add_executable(AngelAuraAmethyst
   ${AME_TABBAR_OBJ}
   ${AME_DASHBOARD_OBJ}
   ${AME_MOD_BROWSER_OBJ}
+  ${AME_SETTINGS_OBJ}
+  ${AME_INSTANCES_OBJ}
   # ★ [ROOTTAB] 根标签栏控制器(真正的 UITabBarController;音乐/LiveContainer 同构)
   AmeRootTabController.m
 )
@@ -688,6 +722,8 @@ if(AME_TABBAR_NEEDS_BUILD)
 endif()
 add_dependencies(AngelAuraAmethyst AmeDashboardSwift)
 add_dependencies(AngelAuraAmethyst AmeModBrowserSwift)
+add_dependencies(AngelAuraAmethyst AmeSettingsSwift)
+add_dependencies(AngelAuraAmethyst AmeInstancesSwift)
 
 # Add ModLoaderIcons PNG files into the app bundle Resources/ModLoaderIcons so they are available at runtime.
 # This will copy all *.png under Natives/ModLoaderIcons into the bundle at Resources/ModLoaderIcons/<name>.png

@@ -46,9 +46,9 @@
 "preference.section.java" = "Java Tweaks";
 "preference.title.cosmetica" = "Cosmetica Capes";
 "preference.title.appicon" = "Set app icon";
-"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Amethyst.";
-"preference.title.appicon-default" = "Familiar Amethyst light";
-"preference.title.appicon-dark" = "Familiar Amethyst dark";
+"preference.detail.appicon" = "Allows you to choose between different Home Screen icons for Terra-iOS.";
+"preference.title.appicon-default" = "Familiar Terra-iOS light";
+"preference.title.appicon-dark" = "Familiar Terra-iOS dark";
 
 "preference.title.renderer" = "Renderer";
 

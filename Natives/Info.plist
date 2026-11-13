@@ -21,7 +21,7 @@
 		<string>ja</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Air</string>
+	<string>Terra-iOS</string>
 	<key>CFBundleExecutable</key>
 	<string>AngelAuraAmethyst</string>
 	<key>CFBundleIcons</key>
@@ -104,11 +104,11 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Air</string>
+	<string>Terra-iOS</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>6.0.0</string>
+	<string>0.1.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -123,7 +123,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>6.0.0</string>
+	<string>0.1.0</string>
 	<key>GCSupportedGameControllers</key>
 	<array>
 		<dict>
@@ -164,9 +164,9 @@
 		<string>_altserver._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Air uses the local network to find and communicate with AltServer and LAN servers, and to enable multiplayer connectivity via Terracotta (compatible with HMCL/FCL/ZL2).</string>
+	<string>Terra-iOS uses the local network to find and communicate with AltServer and LAN servers, and to enable multiplayer connectivity via Terracotta.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Air uses the microphone to enable support for voice chat mods.</string>
+	<string>Terra-iOS uses the microphone to support voice chat mods.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
