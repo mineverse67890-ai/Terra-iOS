@@ -99,13 +99,7 @@ private struct LauncherDashboardView: View {
                     ))
                         .font(.headline.weight(.bold))
                         .foregroundColor(.white)
-                    Text("\(NSLocalizedString(
-                        "dashboard.version.label",
-                        tableName: nil,
-                        bundle: .main,
-                        value: "SELECTED VERSION",
-                        comment: "Selected version label"
-                    ))  \(model.versionText)")
+                    Text("\(NSLocalizedString("dashboard.version.label", tableName: nil, bundle: .main, value: "SELECTED VERSION", comment: "Selected version label"))  \(model.versionText)")
                         .font(.caption.weight(.medium))
                         .foregroundColor(.white.opacity(0.76))
                         .lineLimit(1)
