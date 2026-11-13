@@ -1554,8 +1554,14 @@ static NSString *festivalGreeting(void) {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIViewController *presenter = self;
         while (presenter.presentedViewController) presenter = presenter.presentedViewController;
-        [presenter showDashboardAlertWithTitle:@"Instance data migration needs attention"
-                                        message:[errors componentsJoinedByString:@"\n"]];
+        UIAlertController *alert = [UIAlertController
+            alertControllerWithTitle:@"Instance data migration needs attention"
+                              message:[errors componentsJoinedByString:@"\n"]
+                       preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:nil]];
+        [presenter presentViewController:alert animated:YES completion:nil];
     });
 }
 
