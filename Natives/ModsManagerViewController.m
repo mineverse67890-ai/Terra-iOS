@@ -21,6 +21,11 @@
 #import "utils.h"
 #import <CommonCrypto/CommonDigest.h>
 
+@interface AmeModBrowserHostController : UIViewController
++ (instancetype)makeHostWithProfileName:(NSString *)profileName
+                         installHandler:(void (^)(NSDictionary *payload, void (^completion)(NSError * _Nullable error)))installHandler;
+@end
+
 #pragma mark - 内部模型与枚举
 
 /// 更新下载任务（检查命中后的一次待更新项）
@@ -106,6 +111,7 @@ static NSString *ModsManagerSHA1ForFile(NSString *path) {
 @property (nonatomic, strong) UIBarButtonItem *refreshButton;
 @property (nonatomic, strong) UIBarButtonItem *checkUpdateButton;
 @property (nonatomic, strong) UIBarButtonItem *importButton;
+@property (nonatomic, strong) UIBarButtonItem *browseModsButton;
 @property (nonatomic, strong) UIBarButtonItem *selectButtonItem;
 @property (nonatomic, strong) UIBarButtonItem *doneButtonItem;
 @property (nonatomic, strong) UIBarButtonItem *navSpinnerItem;
@@ -189,6 +195,12 @@ static NSString *ModsManagerSHA1ForFile(NSString *path) {
                                                         action:@selector(importModTapped)];
     self.importButton.accessibilityLabel = localize(@"resman.mods.import", nil);
 
+    self.browseModsButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"magnifyingglass"]
+                                                             style:UIBarButtonItemStylePlain
+                                                            target:self
+                                                            action:@selector(browseModsTapped)];
+    self.browseModsButton.accessibilityLabel = @"Browse mods";
+
     UIImage *selectImage = [UIImage systemImageNamed:@"checklist"] ?: [UIImage systemImageNamed:@"checkmark.circle"];
     self.selectButtonItem = [[UIBarButtonItem alloc] initWithImage:selectImage
                                                              style:UIBarButtonItemStylePlain
@@ -223,10 +235,49 @@ static NSString *ModsManagerSHA1ForFile(NSString *path) {
         self.navigationItem.title = self.updateBusyText ?: localize(@"resman.mods.processing", nil);
     } else {
         self.navigationItem.leftBarButtonItem = self.closeButtonItem;
-        // 从右到左：导入、刷新、检查更新、选择
-        self.navigationItem.rightBarButtonItems = @[self.importButton, self.refreshButton, self.checkUpdateButton, self.selectButtonItem];
+        // From right to left: import, browse, refresh, check updates, select.
+        self.navigationItem.rightBarButtonItems = @[self.importButton, self.browseModsButton, self.refreshButton, self.checkUpdateButton, self.selectButtonItem];
         self.navigationItem.title = self.pageTitle;
     }
+}
+
+- (void)browseModsTapped {
+    NSString *profile = self.profileName.length > 0 ? self.profileName : @"default";
+    __weak typeof(self) weakSelf = self;
+    AmeModBrowserHostController *browser = [AmeModBrowserHostController
+        makeHostWithProfileName:profile
+        installHandler:^(NSDictionary *payload, void (^completion)(NSError * _Nullable error)) {
+            NSString *urlString = [payload[@"downloadURL"] isKindOfClass:[NSString class]] ? payload[@"downloadURL"] : nil;
+            NSString *fileName = [payload[@"fileName"] isKindOfClass:[NSString class]] ? payload[@"fileName"] : nil;
+            NSString *sha1 = [payload[@"sha1"] isKindOfClass:[NSString class]] ? payload[@"sha1"] : nil;
+            NSURLComponents *urlComponents = urlString.length > 0 ? [NSURLComponents componentsWithString:urlString] : nil;
+            BOOL validURL = [urlComponents.scheme.lowercaseString isEqualToString:@"https"] && urlComponents.host.length > 0;
+            BOOL validFileName = fileName.length > 0 &&
+                [[fileName lastPathComponent] isEqualToString:fileName] &&
+                [fileName.lowercaseString hasSuffix:@".jar"];
+            if (!validURL || !validFileName) {
+                NSError *error = [NSError errorWithDomain:@"AmeModBrowserInstallError"
+                                                     code:1
+                                                 userInfo:@{NSLocalizedDescriptionKey: @"The selected release has an invalid download URL or JAR filename."}];
+                completion(error);
+                return;
+            }
+
+            ModItem *mod = [[ModItem alloc] initWithOnlineData:payload];
+            mod.fileName = fileName;
+            mod.selectedVersionDownloadURL = urlString;
+            mod.fileSHA1 = sha1;
+            [[ModService sharedService] downloadMod:mod
+                                          toProfile:profile
+                                       expectedSHA1:sha1.length > 0 ? sha1 : nil
+                                           progress:nil
+                                         completion:^(NSError * _Nullable error) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                if (!error) [strongSelf loadMods];
+                completion(error);
+            }];
+        }];
+    [self.navigationController pushViewController:browser animated:YES];
 }
 
 /// 选择模式标题：显示已选数量
