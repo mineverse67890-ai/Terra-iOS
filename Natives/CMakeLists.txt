@@ -302,6 +302,12 @@ target_link_libraries(audio_capture
 # ============================================================================
 
 set(AME_TABBAR_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/AmeTabBar.swift")
+set(TERRA_SWIFT_SRCS
+  "${CMAKE_CURRENT_LIST_DIR}/TerraDashboardView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraInstancesView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraDownloadView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraSettingsView.swift"
+)
 
 # 架构:C 侧统一走 CMAKE_OSX_ARCHITECTURES(Makefile 传 arm64);缺省退回宿主架构
 set(AME_SWIFT_ARCH "${CMAKE_OSX_ARCHITECTURES}")
@@ -352,6 +358,42 @@ else()
   set(AME_TABBAR_NEEDS_BUILD TRUE)
 endif()
 
+# ★ [TERRA-SWIFT] Terra-iOS SwiftUI 视图:为每个 .swift 生成对应的 .o
+set(TERRA_SWIFT_OBJS "")
+foreach(_swift_src IN LISTS TERRA_SWIFT_SRCS)
+  get_filename_component(_swift_name "${_swift_src}" NAME_WE)
+  set(_swift_obj "${CMAKE_CURRENT_BINARY_DIR}/${_swift_name}.o")
+  list(APPEND TERRA_SWIFT_OBJS "${_swift_obj}")
+
+  if(NOT EXISTS "${_swift_obj}")
+    set(_needs_build TRUE)
+  else()
+    set(_needs_build FALSE)
+  endif()
+
+  if(_needs_build AND NOT AME_SWIFTC)
+    message(FATAL_ERROR "★ [TERRA-SWIFT] 找不到 swiftc。${_swift_name}.swift 必须用 Swift 编译;"
+                        "请安装 Xcode / Command Line Tools,或确认 `xcrun -f swiftc` 可用。")
+  endif()
+
+  if(_needs_build)
+    add_custom_command(
+      OUTPUT  "${_swift_obj}"
+      COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object
+              -target "${AME_SWIFT_TRIPLE}"
+              -sdk "${CMAKE_OSX_SYSROOT}"
+              ${AME_SWIFT_OPT_FLAGS}
+              -o "${_swift_obj}"
+              "${_swift_src}"
+      DEPENDS "${_swift_src}"
+      COMMENT "★ [TERRA-SWIFT] swiftc ${AME_SWIFT_TRIPLE} -sdk ${CMAKE_OSX_SYSROOT} -> ${_swift_name}.o"
+      VERBATIM)
+    add_custom_target(TerraSwift_${_swift_name} DEPENDS "${_swift_obj}")
+  endif()
+
+  set_source_files_properties("${_swift_obj}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
+endforeach()
+
 # Swift 现在是底栏的唯一实现(LauncherMenuViewController.m 直接引用 AmeTabBarHost),
 # 编不出来就会在链接期报 undefined symbol ⇒ 这里直接给出可读的失败原因。
 if(AME_TABBAR_NEEDS_BUILD AND NOT AME_SWIFTC)
@@ -377,6 +419,7 @@ endif()
 # 外部对象:CMake 只把它放进链接行,不去「编译」它
 set_source_files_properties("${AME_TABBAR_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 message(STATUS "★ [SWIFT-BAR] swiftc=${AME_SWIFTC} triple=${AME_SWIFT_TRIPLE} obj=${AME_TABBAR_OBJ} swiftlib=${AME_SWIFT_LIBDIR} build=${AME_TABBAR_NEEDS_BUILD}")
+message(STATUS "★ [TERRA-SWIFT] objs=${TERRA_SWIFT_OBJS}")
 
 # Angel Aura Amethyst
 add_executable(AngelAuraAmethyst
@@ -643,6 +686,8 @@ add_executable(AngelAuraAmethyst
 
   # ★ [SWIFT-BAR] SwiftUI 底部标签栏目标文件(swiftc 产出;只追加,不动上面既有 OBJC 顺序)
   ${AME_TABBAR_OBJ}
+  # ★ [TERRA-SWIFT] Terra-iOS SwiftUI 视图目标文件(swiftc 产出;只追加)
+  ${TERRA_SWIFT_OBJS}
   # ★ [ROOTTAB] 根标签栏控制器(真正的 UITabBarController;音乐/LiveContainer 同构)
   AmeRootTabController.m
 )
@@ -651,6 +696,14 @@ add_executable(AngelAuraAmethyst
 if(AME_TABBAR_NEEDS_BUILD)
   add_dependencies(AngelAuraAmethyst AmeTabBarSwift)
 endif()
+
+# ★ [TERRA-SWIFT] 保证 Terra SwiftUI 视图 .o 先于链接生成
+foreach(_swift_src IN LISTS TERRA_SWIFT_SRCS)
+  get_filename_component(_swift_name "${_swift_src}" NAME_WE)
+  if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${_swift_name}.o")
+    add_dependencies(AngelAuraAmethyst TerraSwift_${_swift_name})
+  endif()
+endforeach()
 
 # Add ModLoaderIcons PNG files into the app bundle Resources/ModLoaderIcons so they are available at runtime.
 # This will copy all *.png under Natives/ModLoaderIcons into the bundle at Resources/ModLoaderIcons/<name>.png

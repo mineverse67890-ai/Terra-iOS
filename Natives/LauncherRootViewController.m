@@ -24,6 +24,20 @@
 #import "TerracottaBridge.h"
 #import "AccountListViewController.h"
 
+// ★ [TERRA-SWIFT] Terra-iOS SwiftUI 视图宿主(Obj-C 桥接,由 swiftc 编译并链接)
+@interface TerraDashboardHost : NSObject
++ (UIViewController *)makeHost;
+@end
+@interface TerraInstancesHost : NSObject
++ (UIViewController *)makeHost;
+@end
+@interface TerraDownloadHost : NSObject
++ (UIViewController *)makeHost;
+@end
+@interface TerraSettingsHost : NSObject
++ (UIViewController *)makeHost;
+@end
+
 // 布局常量（iPad 基准值；iPhone 上通过 LauncherRootLayoutWidth 适配后会变窄）
 static const CGFloat kSidebarWidthPad = 70.0;      // iPad 左侧边栏宽度
 static const CGFloat kSidebarWidthPhone = 56.0;    // iPhone 左侧边栏宽度（仅图标）
@@ -784,11 +798,9 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
 - (void)showDownloadPage {
     // ★ [HOST-BUG-B] 下载页本就是标签 1 ⇒ 切标签(不再换主页内容)。
     if (AmeHomeSwitchToTab(self, 1, YES)) return;
-    // 兜底(老流程):在中间内容区显示下载页面，包在 NavigationController 中以便子流程 push 显示
-    DownloadViewController *downloadVC = [[DownloadViewController alloc] init];
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:downloadVC];
-    nav.navigationBar.prefersLargeTitles = NO;
-    [self setContentViewController:nav animated:YES];
+    // ★ [TERRA-SWIFT] 新下载中心:glassmorphic SwiftUI 视图,包在 UIHostingController 中
+    UIViewController *downloadHost = [TerraDownloadHost makeHost];
+    [self setContentViewController:downloadHost animated:YES];
 }
 
 - (void)showVersionManager {
@@ -798,12 +810,9 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     //   改为:切到「资源」标签(index 2 —— 其根页本即 VersionManagerViewController)并 pop 回根页,
     //   与主页快捷入口 fix2PushTab / e1NewInstanceTapped 同一范式;主页内容区完全不被替换。
     if (AmeHomeSwitchToTab(self, 2, YES)) return;
-    // 兜底:不在标签栏(老流程)保持原行为 —— 在中间内容区显示版本管理页面，包在 NavigationController
-    // 中以便子流程（模组/光影/游戏目录管理）push
-    VersionManagerViewController *vc = [[VersionManagerViewController alloc] init];
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
-    nav.navigationBar.prefersLargeTitles = NO;
-    [self setContentViewController:nav animated:YES];
+    // ★ [TERRA-SWIFT] 新实例列表:glassmorphic SwiftUI 视图,包在 UIHostingController 中
+    UIViewController *instancesHost = [TerraInstancesHost makeHost];
+    [self setContentViewController:instancesHost animated:YES];
 }
 
 - (void)showProfileEditor:(NSNotification *)notification {
@@ -835,12 +844,9 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
 - (void)showSettings {
     // ★ [HOST-BUG-B] 设置页本就是标签 3 ⇒ 切标签(不再换主页内容)。
     if (AmeHomeSwitchToTab(self, 3, YES)) return;
-    // 兜底(老流程):在中间内容区显示设置页面
-    LauncherPreferencesViewController *vc = [[LauncherPreferencesViewController alloc] init];
-    // 包装在导航控制器中，使其子页面能够正常导航
-    UINavigationController *navVC = [[UINavigationController alloc] initWithRootViewController:vc];
-    navVC.navigationBar.prefersLargeTitles = YES;
-    [self setContentViewController:navVC animated:YES];
+    // ★ [TERRA-SWIFT] 新设置页:glassmorphic SwiftUI 视图,包在 UIHostingController 中
+    UIViewController *settingsHost = [TerraSettingsHost makeHost];
+    [self setContentViewController:settingsHost animated:YES];
 }
 
 // ★ [MP-RESTORE] 联机恢复：陶瓦联机 / ZeroTier 两个入口。
