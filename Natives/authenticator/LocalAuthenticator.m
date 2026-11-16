@@ -11,7 +11,7 @@
     //   因此“同一用户名重复登录”不会再冒第二条（原先每次登录都新建文件 = 偶发重复账户的主因）。
     self.authData[@"accountId"] = [[NSUUID UUID] UUIDString];
     // 使用Minecraft Headshot API加载头像
-    self.authData[@"profilePicURL"] = [NSString stringWithFormat:@"https://api.rms.net.cn/head/%@", self.authData[@"username"]];
+    self.authData[@"profilePicURL"] = [NSString stringWithFormat:@"https://mc-heads.net/avatar/%@/120", self.authData[@"username"]];
     callback(nil, [super saveChanges]);
 }
 

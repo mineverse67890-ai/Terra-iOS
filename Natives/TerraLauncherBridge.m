@@ -165,7 +165,7 @@
     if (authName.length > 0) username = authName;
 
     NSString *selVersion = profiles[selected][@"lastVersionId"] ?: @"";
-    NSString *downloadSource = getPrefObject(@"general.download_source") ?: @"mojang";
+    NSString *downloadSource = getPrefObject(@"general.download_source") ?: @"official";
 
     return @{
         @"instances": instances,

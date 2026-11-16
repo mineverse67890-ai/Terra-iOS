@@ -43,7 +43,9 @@ NSString *const PREF_MOD_MIRROR = @"general.mod_mirror";
             @"cosmetica": @YES,
             @"debug_logging": @(!CONFIG_RELEASE),
             @"news_url": @"https://air-api.vercel.app/api/announcements.php",
-            @"download_source": @"bmclapi",
+            // ★ [TERRA-GLOBAL] official Mojang servers by default (was "bmclapi", a mainland-China mirror,
+            //   which made every fresh install mirror-first worldwide via migrateDownloadSourcePreferences)
+            @"download_source": @"official",
             // 各资源类型独立下载源（未显式设置时回退到 modrinth）
             @"download_source_mod": @"modrinth",
             @"download_source_shader": @"modrinth",
@@ -74,6 +76,8 @@ NSString *const PREF_MOD_MIRROR = @"general.mod_mirror";
             // 一次性迁移哨兵：YES 表示旧键 download_source 已迁移到上述 4 键，
             // 防止用户手动改新键后被重复迁移覆盖（见 LauncherPreferences.m migrateDownloadSourcePreferences）
             @"sourceMigrated": @NO,
+            // ★ [TERRA-GLOBAL] one-time reset of the China-mirror defaults (see LauncherPreferences.m)
+            @"terraGlobalReset": @NO,
         }.mutableCopy,
         @"video": @{ // Video & Audio
             @"renderer": @"auto",

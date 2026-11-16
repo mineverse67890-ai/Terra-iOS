@@ -137,7 +137,28 @@ int ame141_currentLaunchAllocMem(void) {
 /// 哨兵也避免了"用户手动把新键改回 official_first 后，下次启动被旧键再次覆盖"。
 ///
 /// 迁移完成后保留旧键不删（向后兼容：尚未切换到 PLMirrorCenter 的旧读取方仍可使用）。
+/// ★ [TERRA-GLOBAL] One-time reset for installs that inherited the upstream China-mirror default.
+/// Upstream defaulted general.download_source to "bmclapi", and the migration below then forced all
+/// four mirror policies to mirror_first ⇒ downloads only worked from (or via a VPN to) China.
+/// Reset once to "auto" (official servers outside China, mirrors inside China by time zone);
+/// any choice the user makes in Settings afterwards is kept (sentinel download.terraGlobalReset).
+static void terraResetChinaMirrorDefaults(void) {
+    if ([getPrefObject(@"download.terraGlobalReset") boolValue]) return;
+    NSString *legacy = getPrefObject(@"general.download_source");
+    if ([legacy isKindOfClass:[NSString class]] && [legacy isEqualToString:@"bmclapi"]) {
+        setPrefObject(@"general.download_source", @"official");
+    }
+    for (NSString *key in @[@"download.fileSource", @"download.assetSearchSource",
+                            @"download.assetDownloadSource", @"download.modLoaderSource"]) {
+        setPrefObject(key, @"auto");
+    }
+    setPrefObject(@"download.sourceMigrated", @YES);   // legacy key must not re-force mirror_first
+    setPrefObject(@"download.terraGlobalReset", @YES);
+    NSLog(@"[Preferences] [TERRA-GLOBAL] reset download sources to auto/official (was legacy=%@)", legacy);
+}
+
 void migrateDownloadSourcePreferences(void) {
+    terraResetChinaMirrorDefaults();
     if ([getPrefObject(@"download.sourceMigrated") boolValue]) return;
 
     NSString *legacy = getPrefObject(@"general.download_source");
