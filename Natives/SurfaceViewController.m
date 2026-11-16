@@ -26,6 +26,7 @@
 #import "BackgroundManager.h"
 // ★ [LAUNCH-PROGRESS] 启动阶段上报 API(遮罩订阅 AmeLaunchProgressChangedNotification)
 #import "AmeLaunchProgress.h"
+#import "TerraTroubleshootViewController.h"   // ★ [TERRA-DIAG]
 
 // 由 Natives/ctxbridges/gl_bridge.m 提供：SDL3（MC 26.3+）路径下 GL 拥有呈现层
 // 且 MC 以「点」回报窗口尺寸，需要把 CAMetalLayer 对齐 1x。GLFW 与 Vulkan 路径恒 NO。
@@ -364,6 +365,14 @@ static GameSurfaceView* pojavWindow;
 @property(nonatomic, strong) UILabel *launchStageLabel;
 @property(nonatomic, strong) NSMutableArray<UIView *> *launchStepDots;
 @property(nonatomic, strong) NSMutableArray<UILabel *> *launchStepLabels;
+
+// ★ [TERRA-LOAD] Terra-style loading screen additions
+@property(nonatomic, strong) UIView *launchButtonBar;          // Cancel + Troubleshoot (interactive, on self.view)
+@property(nonatomic, strong) UIButton *launchHelpButton;       // opens TerraTroubleshootViewController
+@property(nonatomic, strong) UILabel *launchSubtitleLabel;     // "<installation> · <version>"
+@property(nonatomic, strong) UILabel *launchElapsedLabel;      // "0:42"
+@property(nonatomic, strong) UILabel *launchSlowHintLabel;     // shown after 30 s
+@property(nonatomic, strong) NSTimer *launchElapsedTimer;
 
 // ★ [LAUNCH-PROGRESS] 方法前置声明：两者定义在文件后部，而 setupLaunchOverlay
 //   里用 @selector 引用 onLaunchProgressChanged —— 先声明避免 undeclared selector 告警。
@@ -1737,8 +1746,8 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
         CAGradientLayer *gradient = [CAGradientLayer layer];
         gradient.frame = self.launchOverlayView.bounds;
         gradient.colors = @[
-            (__bridge id)[UIColor colorWithRed:0.08 green:0.09 blue:0.13 alpha:1.0].CGColor,
-            (__bridge id)[UIColor colorWithRed:0.03 green:0.03 blue:0.05 alpha:1.0].CGColor,
+            (__bridge id)[UIColor colorWithRed:0x22/255.0 green:0x22/255.0 blue:0x22/255.0 alpha:1.0].CGColor,   // ★ [TERRA-LOAD]
+            (__bridge id)[UIColor colorWithRed:0x14/255.0 green:0x14/255.0 blue:0x14/255.0 alpha:1.0].CGColor,
         ];
         gradient.locations = @[@0.0, @1.0];
         gradient.startPoint = CGPointMake(0.5, 0.0);
@@ -1748,86 +1757,96 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
     }
 
     // ========================================================================
-    // 中央内容容器（居中显示转圈圈 + 标题）
+    // ★ [TERRA-LOAD] Terra-style loading screen
+    //   pulsing grass block · "Starting Minecraft" · installation/version · slim green
+    //   progress bar · "Step n of 8 · <stage>" + elapsed time · Cancel / Troubleshoot.
+    //   Same data source as before (AmeLaunchProgress stages); the overlay itself stays
+    //   userInteractionEnabled = NO — only the bottom button bar takes touches.
     // ========================================================================
-    UIView *centerContainer = [[UIView alloc] init];
-    centerContainer.translatesAutoresizingMaskIntoConstraints = NO;
-    centerContainer.userInteractionEnabled = NO;
-    [self.launchOverlayView addSubview:centerContainer];
+    UIColor *tGreen = [UIColor colorWithRed:0x3C/255.0 green:0x85/255.0 blue:0x27/255.0 alpha:1.0];
+    UIColor *tDim = [UIColor colorWithWhite:0.70 alpha:1.0];
 
-    // 大号旋转指示器（FCL 风格：屏幕正中央的大转圈）
-    self.launchSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
-    self.launchSpinner.translatesAutoresizingMaskIntoConstraints = NO;
-    self.launchSpinner.color = [UIColor whiteColor];
-    [self.launchSpinner startAnimating];
-    [centerContainer addSubview:self.launchSpinner];
+    UIStackView *centerStack = [[UIStackView alloc] init];
+    centerStack.translatesAutoresizingMaskIntoConstraints = NO;
+    centerStack.axis = UILayoutConstraintAxisVertical;
+    centerStack.alignment = UIStackViewAlignmentCenter;
+    centerStack.spacing = 8;
+    centerStack.userInteractionEnabled = NO;
+    [self.launchOverlayView addSubview:centerStack];
 
-    // 标题文字（转圈下方，简短提示）
+    // Grass block (4×4 pixels, same art as the launcher's boot splash) with a soft pulse
+    UIView *block = [self ameTerraGrassBlockOfSize:64];
+    [centerStack addArrangedSubview:block];
+    [centerStack setCustomSpacing:22 afterView:block];
+    CABasicAnimation *pulse = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    pulse.fromValue = @1.0; pulse.toValue = @1.06; pulse.duration = 1.0;
+    pulse.autoreverses = YES; pulse.repeatCount = HUGE_VALF;
+    pulse.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    [block.layer addAnimation:pulse forKey:@"terraPulse"];
+
     self.launchTitleLabel = [[UILabel alloc] init];
-    self.launchTitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.launchTitleLabel.text = localize(@"launch.title", @"Launching Minecraft");
-    self.launchTitleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
-    self.launchTitleLabel.textColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+    self.launchTitleLabel.text = @"Starting Minecraft";
+    self.launchTitleLabel.font = [UIFont systemFontOfSize:22 weight:UIFontWeightBold];
+    self.launchTitleLabel.textColor = UIColor.whiteColor;
     self.launchTitleLabel.textAlignment = NSTextAlignmentCenter;
-    [centerContainer addSubview:self.launchTitleLabel];
+    [centerStack addArrangedSubview:self.launchTitleLabel];
 
-    // ========================================================================
-    // ★ [LAUNCH-PROGRESS] 确定型进度条 + 当前阶段文字 + 步骤骨架
-    // ========================================================================
-    // 目的：用户明确要求「不然走到哪都不知道」—— 用确定型进度条(非转圈)+
-    //   当前阶段文案 + 每阶段一个小圆点的步骤骨架，一眼看出进度与卡点。
-    // 全部是展示型控件；遮罩 userInteractionEnabled = NO 不变，触摸照旧穿透。
-    self.launchStageLabel = [[UILabel alloc] init];
-    self.launchStageLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.launchStageLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
-    self.launchStageLabel.textColor = [UIColor colorWithWhite:0.80 alpha:1.0];
-    self.launchStageLabel.textAlignment = NSTextAlignmentCenter;
-    self.launchStageLabel.numberOfLines = 2;
-    self.launchStageLabel.text = localize(AmeLaunchStageLocalizationKey(AmeLaunchProgressCurrentStage()), nil);
-    [centerContainer addSubview:self.launchStageLabel];
+    NSString *profName = PLProfiles.current.selectedProfileName ?: @"";
+    NSString *verId = [PLProfiles.current.selectedProfile[@"lastVersionId"] description] ?: @"";
+    self.launchSubtitleLabel = [[UILabel alloc] init];
+    self.launchSubtitleLabel.text = (profName.length && verId.length && ![profName isEqualToString:verId])
+        ? [NSString stringWithFormat:@"%@ · %@", profName, verId] : (verId.length ? verId : profName);
+    self.launchSubtitleLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
+    self.launchSubtitleLabel.textColor = tDim;
+    self.launchSubtitleLabel.textAlignment = NSTextAlignmentCenter;
+    [centerStack addArrangedSubview:self.launchSubtitleLabel];
+    [centerStack setCustomSpacing:24 afterView:self.launchSubtitleLabel];
 
     self.launchProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
     self.launchProgressView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.launchProgressView.progressTintColor = [UIColor systemBlueColor];
-    self.launchProgressView.trackTintColor = [UIColor colorWithWhite:1.0 alpha:0.18];
-    self.launchProgressView.layer.cornerRadius = 3.0;
+    self.launchProgressView.progressTintColor = tGreen;
+    self.launchProgressView.trackTintColor = [UIColor colorWithWhite:1.0 alpha:0.12];
+    self.launchProgressView.layer.cornerRadius = 2.0;
     self.launchProgressView.clipsToBounds = YES;
     [self.launchProgressView setProgress:(float)AmeLaunchProgressCurrentFraction() animated:NO];
-    [centerContainer addSubview:self.launchProgressView];
+    [centerStack addArrangedSubview:self.launchProgressView];
 
-    // 步骤骨架：每个阶段一行(小圆点 + 阶段名)，已过/进行中/未过 三态。
+    // status row: [spinner] Step n of 8 · stage ............ 0:12
+    self.launchSpinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+    self.launchSpinner.color = tDim;
+    [self.launchSpinner startAnimating];
+    self.launchStageLabel = [[UILabel alloc] init];
+    self.launchStageLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+    self.launchStageLabel.textColor = [UIColor colorWithWhite:0.85 alpha:1.0];
+    self.launchStageLabel.numberOfLines = 1;
+    self.launchStageLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    [self.launchStageLabel setContentCompressionResistancePriority:UILayoutPriorityDefaultLow forAxis:UILayoutConstraintAxisHorizontal];
+    self.launchElapsedLabel = [[UILabel alloc] init];
+    self.launchElapsedLabel.font = [UIFont monospacedDigitSystemFontOfSize:13 weight:UIFontWeightMedium];
+    self.launchElapsedLabel.textColor = tDim;
+    self.launchElapsedLabel.text = @"0:00";
+    [self.launchElapsedLabel setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+    UIStackView *statusRow = [[UIStackView alloc] initWithArrangedSubviews:@[self.launchSpinner, self.launchStageLabel, self.launchElapsedLabel]];
+    statusRow.translatesAutoresizingMaskIntoConstraints = NO;
+    statusRow.axis = UILayoutConstraintAxisHorizontal;
+    statusRow.alignment = UIStackViewAlignmentCenter;
+    statusRow.spacing = 8;
+    [centerStack addArrangedSubview:statusRow];
+
+    // Old step-list arrays stay (updateLaunchProgressUI iterates them) but are empty now:
+    // "Step n of 8" in the status row replaces the 8-row checklist.
     self.launchStepDots = [NSMutableArray array];
     self.launchStepLabels = [NSMutableArray array];
-    UIStackView *stepsStack = [[UIStackView alloc] init];
-    stepsStack.translatesAutoresizingMaskIntoConstraints = NO;
-    stepsStack.axis = UILayoutConstraintAxisVertical;
-    stepsStack.alignment = UIStackViewAlignmentLeading;
-    stepsStack.spacing = 6.0;
-    [centerContainer addSubview:stepsStack];
 
-    NSInteger stageCount = AmeLaunchProgressStageCount();
-    for (NSInteger i = 0; i < stageCount; i++) {
-        UIView *dot = [[UIView alloc] init];
-        dot.translatesAutoresizingMaskIntoConstraints = NO;
-        dot.layer.cornerRadius = 4.0;
-        dot.userInteractionEnabled = NO;
-        [dot.widthAnchor constraintEqualToConstant:8.0].active = YES;
-        [dot.heightAnchor constraintEqualToConstant:8.0].active = YES;
-
-        UILabel *rowLabel = [[UILabel alloc] init];
-        rowLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        rowLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
-        rowLabel.text = localize(AmeLaunchStageLocalizationKey((AmeLaunchStage)i), nil);
-
-        UIStackView *row = [[UIStackView alloc] initWithArrangedSubviews:@[dot, rowLabel]];
-        row.axis = UILayoutConstraintAxisHorizontal;
-        row.alignment = UIStackViewAlignmentCenter;
-        row.spacing = 8.0;
-
-        [stepsStack addArrangedSubview:row];
-        [self.launchStepDots addObject:dot];
-        [self.launchStepLabels addObject:rowLabel];
-    }
+    self.launchSlowHintLabel = [[UILabel alloc] init];
+    self.launchSlowHintLabel.text = @"Taking a while? Tap Troubleshoot to check the log for problems.";
+    self.launchSlowHintLabel.font = [UIFont systemFontOfSize:12];
+    self.launchSlowHintLabel.textColor = tDim;
+    self.launchSlowHintLabel.textAlignment = NSTextAlignmentCenter;
+    self.launchSlowHintLabel.numberOfLines = 0;
+    self.launchSlowHintLabel.alpha = 0;
+    [centerStack addArrangedSubview:self.launchSlowHintLabel];
+    [centerStack setCustomSpacing:16 afterView:statusRow];
 
     // 订阅阶段广播(AmeLaunchProgress.m 统一在主队列投递)。
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -1836,60 +1855,54 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
                                                object:nil];
     [self updateLaunchProgressUI];
 
-    // ========================================================================
-    // 取消启动按钮（底部，独立添加到 self.view 不受遮罩穿透影响）
-    // ========================================================================
-    self.launchCancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    self.launchCancelButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.launchCancelButton setTitle:localize(@"launch.cancel", @"Cancel Launch") forState:UIControlStateNormal];
-    [self.launchCancelButton setTitleColor:[UIColor colorWithWhite:0.7 alpha:1.0] forState:UIControlStateNormal];
-    self.launchCancelButton.titleLabel.font = [UIFont systemFontOfSize:14];
-    self.launchCancelButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.1];
-    self.launchCancelButton.layer.cornerRadius = 8;
-    self.launchCancelButton.layer.cornerCurve = kCACornerCurveContinuous;
+    // ---- bottom button bar (interactive; lives on self.view, not the pass-through overlay)
+    self.launchCancelButton = [self ameLoadingButton:@"Cancel" symbol:@"xmark"
+                                          background:[UIColor colorWithWhite:1.0 alpha:0.10] foreground:[UIColor colorWithWhite:0.85 alpha:1.0]];
     [self.launchCancelButton addTarget:self action:@selector(cancelLaunch) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:self.launchCancelButton];
+    self.launchHelpButton = [self ameLoadingButton:@"Troubleshoot" symbol:@"stethoscope"
+                                        background:[tGreen colorWithAlphaComponent:0.22] foreground:UIColor.whiteColor];
+    self.launchHelpButton.layer.borderWidth = 1;
+    self.launchHelpButton.layer.borderColor = [tGreen colorWithAlphaComponent:0.7].CGColor;
+    [self.launchHelpButton addTarget:self action:@selector(ameShowTroubleshoot) forControlEvents:UIControlEventTouchUpInside];
+    UIStackView *buttonBar = [[UIStackView alloc] initWithArrangedSubviews:@[self.launchCancelButton, self.launchHelpButton]];
+    buttonBar.translatesAutoresizingMaskIntoConstraints = NO;
+    buttonBar.axis = UILayoutConstraintAxisHorizontal;
+    buttonBar.distribution = UIStackViewDistributionFillEqually;
+    buttonBar.spacing = 12;
+    [self.view addSubview:buttonBar];
+    self.launchButtonBar = buttonBar;
 
     // ========================================================================
     // 布局约束
     // ========================================================================
     [NSLayoutConstraint activateConstraints:@[
-        // 中央容器：水平居中，垂直居中
-        [centerContainer.centerXAnchor constraintEqualToAnchor:self.launchOverlayView.centerXAnchor],
-        [centerContainer.centerYAnchor constraintEqualToAnchor:self.launchOverlayView.centerYAnchor],
-        // ★ [LAUNCH-PROGRESS] 固定卡片宽度：给进度条/步骤骨架一个稳定的版心(容器尺寸由它撑出)
-        [centerContainer.widthAnchor constraintEqualToConstant:280],
+        [centerStack.centerXAnchor constraintEqualToAnchor:self.launchOverlayView.centerXAnchor],
+        [centerStack.centerYAnchor constraintEqualToAnchor:self.launchOverlayView.centerYAnchor constant:-24],
+        [centerStack.widthAnchor constraintEqualToConstant:320],
+        [block.widthAnchor constraintEqualToConstant:64],
+        [block.heightAnchor constraintEqualToConstant:64],
+        [self.launchProgressView.widthAnchor constraintEqualToAnchor:centerStack.widthAnchor],
+        [self.launchProgressView.heightAnchor constraintEqualToConstant:4],
+        [statusRow.widthAnchor constraintEqualToAnchor:centerStack.widthAnchor],
+        [self.launchSlowHintLabel.widthAnchor constraintEqualToAnchor:centerStack.widthAnchor],
 
-        // 旋转指示器：容器顶部居中
-        [self.launchSpinner.topAnchor constraintEqualToAnchor:centerContainer.topAnchor],
-        [self.launchSpinner.centerXAnchor constraintEqualToAnchor:centerContainer.centerXAnchor],
-
-        // 标题：转圈下方
-        [self.launchTitleLabel.topAnchor constraintEqualToAnchor:self.launchSpinner.bottomAnchor constant:16],
-        [self.launchTitleLabel.leadingAnchor constraintEqualToAnchor:centerContainer.leadingAnchor],
-        [self.launchTitleLabel.trailingAnchor constraintEqualToAnchor:centerContainer.trailingAnchor],
-
-        // ★ [LAUNCH-PROGRESS] 阶段文字 → 进度条 → 步骤骨架(自上而下串起来，撑出容器底部)
-        [self.launchStageLabel.topAnchor constraintEqualToAnchor:self.launchTitleLabel.bottomAnchor constant:6],
-        [self.launchStageLabel.leadingAnchor constraintEqualToAnchor:centerContainer.leadingAnchor],
-        [self.launchStageLabel.trailingAnchor constraintEqualToAnchor:centerContainer.trailingAnchor],
-
-        [self.launchProgressView.topAnchor constraintEqualToAnchor:self.launchStageLabel.bottomAnchor constant:14],
-        [self.launchProgressView.leadingAnchor constraintEqualToAnchor:centerContainer.leadingAnchor],
-        [self.launchProgressView.trailingAnchor constraintEqualToAnchor:centerContainer.trailingAnchor],
-        [self.launchProgressView.heightAnchor constraintEqualToConstant:6],
-
-        [stepsStack.topAnchor constraintEqualToAnchor:self.launchProgressView.bottomAnchor constant:16],
-        [stepsStack.leadingAnchor constraintEqualToAnchor:centerContainer.leadingAnchor],
-        [stepsStack.trailingAnchor constraintEqualToAnchor:centerContainer.trailingAnchor],
-        [stepsStack.bottomAnchor constraintEqualToAnchor:centerContainer.bottomAnchor],
-
-        // 取消按钮：底部安全区域上方
-        [self.launchCancelButton.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-24],
-        [self.launchCancelButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
-        [self.launchCancelButton.widthAnchor constraintEqualToConstant:120],
-        [self.launchCancelButton.heightAnchor constraintEqualToConstant:36],
+        [buttonBar.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20],
+        [buttonBar.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [buttonBar.widthAnchor constraintEqualToConstant:320],
+        [buttonBar.heightAnchor constraintEqualToConstant:42],
     ]];
+
+    // elapsed time + "taking a while" hint after 30 s
+    __weak typeof(self) weakTimerSelf = self;
+    self.launchElapsedTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer *timer) {
+        __strong typeof(weakTimerSelf) strongSelf = weakTimerSelf;
+        if (!strongSelf || strongSelf.launchOverlayDismissed) { [timer invalidate]; return; }
+        NSInteger secs = (NSInteger)([NSDate timeIntervalSinceReferenceDate] - strongSelf.launchStartTime);
+        strongSelf.launchElapsedLabel.text = [NSString stringWithFormat:@"%ld:%02ld", (long)(secs / 60), (long)(secs % 60)];
+        if (secs >= 30 && strongSelf.launchSlowHintLabel.alpha == 0) {
+            [UIView animateWithDuration:0.4 animations:^{ strongSelf.launchSlowHintLabel.alpha = 1; }];
+        }
+    }];
 
     // 注册首帧渲染通知（egl_bridge.m 中 pojavSwapBuffers 首次调用时发送）
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -1966,6 +1979,62 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
     });
 }
 
+#pragma mark - ★ [TERRA-LOAD] loading screen helpers
+
+/// Opens the diagnosis screen while the game is loading (re-checks the live log).
+- (void)ameShowTroubleshoot {
+    __weak typeof(self) weakSelf = self;
+    [TerraTroubleshootViewController presentFrom:self exitCode:NSNotFound stageProvider:^NSString *{
+        return weakSelf.launchStageLabel.text;
+    }];
+}
+
+- (UIButton *)ameLoadingButton:(NSString *)title symbol:(NSString *)symbol background:(UIColor *)bg foreground:(UIColor *)fg {
+    UIButtonConfiguration *cfg = [UIButtonConfiguration plainButtonConfiguration];
+    cfg.title = title;
+    cfg.image = [UIImage systemImageNamed:symbol withConfiguration:
+                 [UIImageSymbolConfiguration configurationWithPointSize:13 weight:UIImageSymbolWeightSemibold]];
+    cfg.imagePadding = 6;
+    cfg.baseForegroundColor = fg;
+    cfg.titleTextAttributesTransformer = ^NSDictionary<NSAttributedStringKey, id> *(NSDictionary<NSAttributedStringKey, id> *attrs) {
+        NSMutableDictionary *m = [attrs mutableCopy];
+        m[NSFontAttributeName] = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
+        return m;
+    };
+    UIButton *b = [UIButton buttonWithConfiguration:cfg primaryAction:nil];
+    b.backgroundColor = bg;
+    b.layer.cornerRadius = 10;
+    b.layer.cornerCurve = kCACornerCurveContinuous;
+    return b;
+}
+
+/// 4×4 "pixel" grass block — same art as TerraBlockIcon(.grass) in LauncherRootView.swift.
+- (UIView *)ameTerraGrassBlockOfSize:(CGFloat)size {
+    UIView *v = [[UIView alloc] init];
+    v.translatesAutoresizingMaskIntoConstraints = NO;
+    v.userInteractionEnabled = NO;
+    NSArray<UIColor *> *dirt = @[[UIColor colorWithRed:0.52 green:0.36 blue:0.24 alpha:1],
+                                 [UIColor colorWithRed:0.44 green:0.30 blue:0.20 alpha:1],
+                                 [UIColor colorWithRed:0.60 green:0.43 blue:0.29 alpha:1]];
+    NSArray<UIColor *> *grass = @[[UIColor colorWithRed:0.38 green:0.62 blue:0.24 alpha:1],
+                                  [UIColor colorWithRed:0.32 green:0.54 blue:0.20 alpha:1]];
+    const int grid[4][4] = {{0,0,0,0},{0,1,0,2},{3,2,1,2},{2,1,3,1}};
+    CGFloat cell = size / 4.0;
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            UIView *px = [[UIView alloc] initWithFrame:CGRectMake(c * cell, r * cell, cell, cell)];
+            int val = grid[r][c];
+            px.backgroundColor = val == 0 ? grass[(r + c) % 2] : dirt[val - 1];
+            [v addSubview:px];
+        }
+    }
+    v.layer.shadowColor = [UIColor colorWithRed:0x52/255.0 green:0xA5/255.0 blue:0x35/255.0 alpha:1].CGColor;
+    v.layer.shadowOpacity = 0.35;
+    v.layer.shadowRadius = 16;
+    v.layer.shadowOffset = CGSizeZero;
+    return v;
+}
+
 /// 取消启动：用户点击"取消启动"按钮时调用。
 /// 终止 JVM 启动流程，移除遮罩层，返回启动器主界面。
 - (void)cancelLaunch {
@@ -2014,7 +2083,10 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
     NSString *stageText = (key.length > 0)
         ? localize(key, nil)
         : localize(AmeLaunchStageLocalizationKey(stage), nil);
-    self.launchStageLabel.text = stageText;
+    // ★ [TERRA-LOAD] "Step n of 8 · <stage>" replaces the 8-row checklist
+    NSInteger stepTotal = AmeLaunchProgressStageCount();
+    NSInteger stepNow = MIN((NSInteger)stage + 1, stepTotal);
+    self.launchStageLabel.text = [NSString stringWithFormat:@"Step %ld of %ld · %@", (long)stepNow, (long)stepTotal, stageText];
 
     [self.launchProgressView setProgress:(float)fraction animated:YES];
 
@@ -2060,6 +2132,8 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
 
         // 隐藏取消按钮（淡出动画与遮罩层一起进行）
         [self.launchCancelButton setHidden:YES];
+        [self.launchElapsedTimer invalidate];   // ★ [TERRA-LOAD]
+        self.launchElapsedTimer = nil;
 
         // 淡出移除遮罩层（FCL 风格：简洁的淡出过渡）
         [UIView animateWithDuration:0.4
@@ -2068,6 +2142,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
                          animations:^{
             self.launchOverlayView.alpha = 0.0;
             self.launchCancelButton.alpha = 0.0;
+            self.launchButtonBar.alpha = 0.0;   // ★ [TERRA-LOAD]
         }
                          completion:^(BOOL finished) {
             [self.launchOverlayView removeFromSuperview];
@@ -2075,6 +2150,9 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
             self.launchGradientLayer = nil;
             [self.launchCancelButton removeFromSuperview];
             self.launchCancelButton = nil;
+            [self.launchButtonBar removeFromSuperview];   // ★ [TERRA-LOAD]
+            self.launchButtonBar = nil;
+            self.launchHelpButton = nil;
             [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PojavFirstFrameRendered" object:nil];
             [[NSNotificationCenter defaultCenter] removeObserver:self name:AmeLaunchProgressChangedNotification object:nil];
             NSLog(@"[SurfaceViewController] Launch overlay dismissed after %.1f seconds", elapsed);
@@ -2105,6 +2183,11 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
         self.launchGradientLayer = nil;
         [self.launchCancelButton removeFromSuperview];
         self.launchCancelButton = nil;
+        [self.launchElapsedTimer invalidate];   // ★ [TERRA-LOAD]
+        self.launchElapsedTimer = nil;
+        [self.launchButtonBar removeFromSuperview];
+        self.launchButtonBar = nil;
+        self.launchHelpButton = nil;
         NSLog(@"[SurfaceViewController] %@", reason);
     });
 }

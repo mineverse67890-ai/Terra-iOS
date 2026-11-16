@@ -523,6 +523,9 @@ add_executable(AngelAuraAmethyst
   VersionManagerViewController.m
   # ★ [TERRA] SwiftUI ↔ legacy launch pipeline bridge (thin command channel)
   TerraLauncherBridge.m
+  # ★ [TERRA-DIAG] launch/crash diagnosis (loading-screen Troubleshoot + crash screen)
+  TerraCrashAnalyzer.m
+  TerraTroubleshootViewController.m
   ProfileSettingsViewController.m
   DownloadViewController.m
   LauncherPreferences.m
