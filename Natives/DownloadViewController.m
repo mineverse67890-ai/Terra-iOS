@@ -1899,12 +1899,25 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
         versionManifestURL = @"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     }
     
+    [self loadVersionListFromURL:versionManifestURL allowOfficialFallback:YES];
+}
+
+/// ★ [TERRA-GLOBAL] Fetch the version manifest; if a mirror (e.g. bmclapi) fails, retry once with
+///   Mojang's official piston-meta so the list still loads outside mainland China.
+- (void)loadVersionListFromURL:(NSString *)versionManifestURL allowOfficialFallback:(BOOL)allowFallback {
+    static NSString *const kOfficialManifest = @"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     NSURL *url = [NSURL URLWithString:versionManifestURL];
     __weak typeof(self) weakSelf = self;
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) return;
+            NSInteger status = [response isKindOfClass:[NSHTTPURLResponse class]] ? ((NSHTTPURLResponse *)response).statusCode : 200;
+            if ((error || !data || status >= 400) && allowFallback && ![versionManifestURL isEqualToString:kOfficialManifest]) {
+                NSLog(@"[DownloadVC] [TERRA-GLOBAL] manifest failed from %@ (%@, HTTP %ld), retrying official", versionManifestURL, error.localizedDescription, (long)status);
+                [strongSelf loadVersionListFromURL:kOfficialManifest allowOfficialFallback:NO];
+                return;
+            }
             [strongSelf.loadingIndicator stopAnimating];
             
             if (data && !error) {

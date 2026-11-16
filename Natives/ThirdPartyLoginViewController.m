@@ -177,7 +177,7 @@
         self.headerIcon.image = [UIImage systemImageNamed:@"person.fill.viewfinder"]
                               ?: [UIImage systemImageNamed:@"person.crop.circle.fill"];
         self.headerIcon.tintColor = [UIColor systemPurpleColor];
-        self.headerTitle.text = @"LittleSkin";
+        self.headerTitle.text = @"Ely.by";
         self.headerSubtitle.text = localize(@"i18n_str_1036", nil);
     } else {
         self.headerIcon.image = [UIImage systemImageNamed:@"globe"];
@@ -291,7 +291,7 @@
                                       keyboardType:UIKeyboardTypeURL
                                        returnField:&field];
     self.serverField = field;
-    self.serverField.text = @"https://littleskin.cn/api/yggdrasil";
+    self.serverField.text = @"https://authserver.ely.by";   // ★ [TERRA-GLOBAL] was littleskin.cn
     self.serverField.returnKeyType = UIReturnKeyGo;
 }
 
@@ -339,7 +339,7 @@
     if (self.mode == ThirdPartyLoginModeCustom) {
         serverURL = (self.serverField.text.length > 0) ? self.serverField.text : nil;
     } else {
-        serverURL = @"https://littleskin.cn/api/yggdrasil";
+        serverURL = @"https://authserver.ely.by";   // ★ [TERRA-GLOBAL] preset is Ely.by (was LittleSkin, China)
     }
 
     // 输入校验

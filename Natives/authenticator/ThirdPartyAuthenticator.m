@@ -284,7 +284,14 @@ static NSError* createError(NSString *message, NSInteger code) {
     // Get server URL from authData or use default Ely.by server
     NSString *serverURL = self.authData[@"authserver"] ?: @"https://authserver.ely.by";
 
-    NSString *jvmArg = [NSString stringWithFormat:@"-javaagent:%@=%@", injectorPath, serverURL];
+    // ★ [TERRA-GLOBAL] Ely.by: authlib-injector's documented shortcut is "ely.by"
+    //   (authserver.ely.by itself is the login endpoint, not the authlib-injector API root).
+    NSString *injectorTarget = serverURL;
+    if ([[serverURL stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]]
+            isEqualToString:@"https://authserver.ely.by"]) {
+        injectorTarget = @"ely.by";
+    }
+    NSString *jvmArg = [NSString stringWithFormat:@"-javaagent:%@=%@", injectorPath, injectorTarget];
 
     NSMutableArray *args = [NSMutableArray arrayWithArray:@[jvmArg, @"-Dauthlibinjector.side=client"]];
 

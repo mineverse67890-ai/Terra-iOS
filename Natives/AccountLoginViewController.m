@@ -111,7 +111,7 @@
                                                        fallbackIcon:@"person.crop.circle.fill"
                                                           accentColor:[UIColor colorWithRed:0.0 green:0.45 blue:0.93 alpha:1.0]]];
     [self.cardStack addArrangedSubview:[self createLoginCardWithType:AccountLoginTypeLittleSkin
-                                                                title:@"LittleSkin"
+                                                                title:@"Ely.by"
                                                           description:localize(@"i18n_str_12", nil)
                                                            iconName:@"person.fill.viewfinder"
                                                        fallbackIcon:@"person.crop.circle.fill"
