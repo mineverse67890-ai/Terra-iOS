@@ -16,14 +16,24 @@
         gles_##func = dlsym(RTLD_DEFAULT, #func); \
     }
 
+#if defined(__arm64__) || defined(__aarch64__)
+#define ALIAS_BRANCH "b "
+#elif defined(__x86_64__)
+#define ALIAS_BRANCH "jmp "
+#else
+#error "tinygl4angle aliases are unsupported for this architecture"
+#endif
+
 #define AliasDecl(NAME, EXT) \
-    asm(".global _"# NAME "\n_" #NAME ": b _" #NAME #EXT);
+    asm(".global _"# NAME "\n_" #NAME ": " ALIAS_BRANCH "_" #NAME #EXT);
 
 #define AliasDeclPriv(NAME) \
-    asm(".global _gl"# NAME "\n_gl" #NAME ": b _GL_" #NAME);
+    asm(".global _gl"# NAME "\n_gl" #NAME ": " ALIAS_BRANCH "_GL_" #NAME);
 
 // Core OpenGL 2.0
+#if !defined(__x86_64__)
 AliasDecl(glGetTexImage, ANGLE)
+#endif
 AliasDecl(glMapBuffer, OES)
 
 // GL_KHR_debug
@@ -41,8 +51,70 @@ AliasDecl(glBindFragDataLocation, EXT)
 AliasDecl(glBindFragDataLocationIndexed, EXT)
 
 // Hidden functions
+#if !defined(__x86_64__)
 AliasDeclPriv(DrawBuffer)
 AliasDeclPriv(PolygonMode)
+#else
+/* ★ [SIM] 模拟器精简版 ANGLE(libGLESv2.framework)没有导出桌面 GL 隐藏入口
+ * GL_DrawBuffer / GL_PolygonMode,也没有 GL_ANGLE_get_tex_image 的
+ * glGetTexImageANGLE(设备版 ANGLE 两者都有)。设备构建继续走上面的汇编别名;
+ * 模拟器(x86_64)构建改用下面的 C 回退实现,保证 tinygl4angle 可链接。 */
+
+void glDrawBuffer(GLenum mode) {
+    (void)mode; /* ES 恒定只渲染到默认后缓冲,no-op 即可 */
+}
+
+void glPolygonMode(GLenum face, GLenum mode) {
+    (void)face;
+    (void)mode; /* ES 恒为 GL_FILL,no-op 即可 */
+}
+
+void glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels) {
+    static void (*angle_glGetTexImage)(GLenum, GLint, GLenum, GLenum, GLvoid *);
+    if (!angle_glGetTexImage) {
+        angle_glGetTexImage = (void (*)(GLenum, GLint, GLenum, GLenum, GLvoid *))
+            dlsym(RTLD_DEFAULT, "glGetTexImageANGLE");
+    }
+    if (angle_glGetTexImage) {
+        angle_glGetTexImage(target, level, format, type, pixels);
+        return;
+    }
+
+    /* 回退(精简 ANGLE 无 GL_ANGLE_get_tex_image):
+     * 把纹理挂到临时 FBO 上,用 glGetTexLevelParameteriv 取宽高后 glReadPixels 读回。
+     * 仅支持 GL_TEXTURE_2D 的颜色格式;深度/模板或立方体贴图直接静默返回。 */
+    static void (*pGetTexLevelParameteriv)(GLenum, GLint, GLenum, GLint *);
+    if (!pGetTexLevelParameteriv) {
+        pGetTexLevelParameteriv = (void (*)(GLenum, GLint, GLenum, GLint *))
+            dlsym(RTLD_DEFAULT, "glGetTexLevelParameteriv");
+    }
+    if (target != GL_TEXTURE_2D || !pixels || !pGetTexLevelParameteriv) {
+        return;
+    }
+
+    GLint tex = 0, prevFb = 0, width = 0, height = 0;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &tex);
+    if (!tex) {
+        return;
+    }
+    pGetTexLevelParameteriv(target, level, GL_TEXTURE_WIDTH, &width);
+    pGetTexLevelParameteriv(target, level, GL_TEXTURE_HEIGHT, &height);
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFb);
+    GLuint fb = 0;
+    glGenFramebuffers(1, &fb);
+    glBindFramebuffer(GL_FRAMEBUFFER, fb);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, level);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
+        glReadPixels(0, 0, width, height, format, type, pixels);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, prevFb);
+    glDeleteFramebuffers(1, &fb);
+}
+#endif
 
 int proxy_width, proxy_height, proxy_intformat, maxTextureSize;
 

@@ -131,12 +131,14 @@ if(MACOS)
         target_link_libraries(${CMAKE_PROJECT_NAME}
                 glslang::glslang
                 spirv-cross-c
-                "-F${CMAKE_SOURCE_DIR}/external"
                 "-framework libEGL"
                 "-framework libGLESv2"
                 "-framework Metal"
                 "-framework Foundation"
                 "-framework QuartzCore"
+        )
+        target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+                "-F${CMAKE_CURRENT_LIST_DIR}/external"
         )
 else()
         # Android

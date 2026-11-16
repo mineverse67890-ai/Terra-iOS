@@ -679,8 +679,12 @@ void *hooked_dlopen_26_ppl(const char *path, int mode) {
     mach_msg_type_number_t masksCnt = 1;
     exception_handler_t handler = excPort;
     exception_behavior_t behavior = EXCEPTION_STATE | MACH_EXCEPTION_CODES;
-    thread_state_flavor_t flavor = ARM_THREAD_STATE64;
-    arm_debug_state64_t origDebugState;
+    #if defined(__aarch64__) || defined(__arm64__)
+        thread_state_flavor_t flavor = ARM_THREAD_STATE64;
+        arm_debug_state64_t origDebugState;
+    #else
+        return;
+    #endif
     mach_port_t thread = mach_thread_self();
     thread_get_state(thread, ARM_DEBUG_STATE64, (thread_state_t)&origDebugState, &(mach_msg_type_number_t){ARM_DEBUG_STATE64_COUNT});
     thread_swap_exception_ports(thread, mask, handler, behavior, flavor, &mask, &masksCnt, &handler, &behavior, &flavor);
