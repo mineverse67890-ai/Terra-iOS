@@ -21,6 +21,7 @@
 #import "ModsManagerViewController.h"
 #import "LauncherPreferencesViewController.h"
 #import "ProfileSettingsViewController.h"
+#import "utils.h"
 
 @interface TerraLauncherService ()
 @property(nonatomic, strong) LauncherRightPanelViewController *panel;
@@ -84,6 +85,26 @@
                                                       userInfo:nil];
 }
 
+
+#pragma mark - JIT status
+
+- (NSDictionary *)jitStatus {
+    BOOL enabled = isJITEnabled(NO);
+    // Jailbreak native JIT sets neither CS_DEBUGGED nor dynamic-codesigning: check real capability
+    if (!enabled && AMEJailbreakNativeJITPathApplies() && AMEJailbreakNativeJITReady()) {
+        enabled = YES;
+    }
+    // TXM devices: JIT can be enabled while the brk-servicing debugger has detached;
+    // it reattaches on launch (recoverable), so report it separately from "not enabled".
+    if (enabled && DeviceHasJITFlags(JIT_FLAG_FORCE_MIRRORED | JIT_FLAG_HAS_TXM) &&
+        !JIT26IsLikelyDebuggerKeepAttached()) {
+        return @{@"state": @"pending", @"text": localize(@"i18n_str_jit26_pending", nil)};
+    }
+    if (enabled) {
+        return @{@"state": @"enabled", @"text": localize(@"i18n_str_421", nil)};
+    }
+    return @{@"state": @"disabled", @"text": localize(@"i18n_str_422", nil)};
+}
 
 #pragma mark - Snapshot
 

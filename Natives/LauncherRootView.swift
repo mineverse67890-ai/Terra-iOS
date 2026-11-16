@@ -407,6 +407,8 @@ struct TerraBootSplash: View {
 struct TerraPlayDashboard: View {
     @EnvironmentObject private var model: TerraLauncherModel
     @ObservedObject private var feed = TerraNewsFeed.shared
+    /// JIT is often turned on (StikDebug / SideStore) while the app is open ⇒ poll it
+    private let jitTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
     private let barHeight: CGFloat = 84
 
@@ -425,6 +427,8 @@ struct TerraPlayDashboard: View {
                 }
             }
         }
+        .onAppear { model.refreshJIT() }
+        .onReceive(jitTimer) { _ in model.refreshJIT() }
     }
 
     // MARK: Play bar (version selector · PLAY · username)
@@ -452,6 +456,13 @@ struct TerraPlayDashboard: View {
             Button("PLAY") { model.launch(model.selected) }
                 .buttonStyle(TerraPlayButtonStyle(width: min(380, max(200, width * 0.3))))
                 .offset(y: -24)
+
+            // JIT status, just above PLAY on the banner's bottom edge (tap to re-check).
+            // Above rather than below so it never collides with the installation picker
+            // on narrow (iPhone landscape) widths.
+            TerraJITStatus(state: model.jitState, label: model.jitLabel)
+                .onTapGesture { model.refreshJIT() }
+                .offset(y: -68)
         }
         .frame(height: barHeight)
         .zIndex(1)
@@ -466,6 +477,37 @@ struct TerraPlayDashboard: View {
         .padding(.vertical, 26)
         .frame(maxWidth: .infinity)
         .background(MCT.charcoal)
+    }
+}
+
+/// Small "● JIT: Enabled" capsule shown just above the PLAY button.
+struct TerraJITStatus: View {
+    let state: TerraLauncherModel.JITState
+    let label: String
+
+    private var color: Color {
+        switch state {
+        case .enabled: return MCT.greenBright
+        case .pending: return Color(red: 0.95, green: 0.75, blue: 0.2)
+        case .disabled: return MCT.danger
+        case .unknown: return MCT.dim
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle().fill(color).frame(width: 7, height: 7)
+            Text(label.isEmpty ? "JIT: Checking…" : label)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(color)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 3)
+        .background(Capsule().fill(Color.black.opacity(0.6)))
+        .overlay(Capsule().strokeBorder(color.opacity(0.35), lineWidth: 1))
+        .accessibilityElement(children: .combine)
+        .accessibilityHint("Tap to check again")
     }
 }
 

@@ -153,6 +153,9 @@ struct TerraIconFirstLabel: LabelStyle {
     /// 挂到根 VC:装载不可见 LauncherRightPanelViewController(启动全链路)并开始监听通知
     @objc(attachToRoot:)
     func attach(toRoot root: UIViewController)
+    /// {"state": "enabled"|"pending"|"disabled", "text": localized label}
+    @objc(jitStatus)
+    func jitStatus() -> [AnyHashable: Any]
 }
 
 enum TerraBridge {
@@ -216,7 +219,12 @@ final class TerraLauncherModel: ObservableObject {
     @Published var username: String = "Player"
     @Published var version: String = "—"
     @Published var jitText: String = ""
-    @Published var downloadSource: String = "mojang"
+    @Published var downloadSource: String = "official"
+    /// JIT state shown under the PLAY button
+    @Published var jitState: JITState = .unknown
+    @Published var jitLabel: String = ""
+
+    enum JITState: String { case enabled, pending, disabled, unknown }
 
     /// 选中的实例(找不到则取列表第一个)
     var selected: TerraInstance? {
@@ -294,4 +302,14 @@ final class TerraLauncherModel: ObservableObject {
     func openAccount() { TerraBridge.invoke("openAccount") }
     func openFullSettings() { TerraBridge.invoke("openSettings") }
     func requestState() { TerraBridge.invoke("stateRequest") }
+
+    /// Re-check JIT (cheap: csops + flag checks). JIT is often enabled by StikDebug /
+    /// SideStore while the app is open, so the Play screen polls this.
+    func refreshJIT() {
+        guard let status = TerraBridge.service?.jitStatus() else { return }
+        let state = JITState(rawValue: status["state"] as? String ?? "") ?? .unknown
+        let text = status["text"] as? String ?? ""
+        if state != jitState { jitState = state }
+        if text != jitLabel { jitLabel = text }
+    }
 }

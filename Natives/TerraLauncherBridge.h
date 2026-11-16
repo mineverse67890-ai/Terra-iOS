@@ -24,6 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// Attach to the window root VC: adds the invisible right-panel controller,
 /// registers notification observers and starts fetching the version manifest.
 - (void)attachToRoot:(UIViewController *)root;
+/// Cheap JIT check for the Play screen: @{@"state": enabled|pending|disabled, @"text": localized label}.
+/// Same rules as LauncherRightPanelViewController -updateJITStatus.
+- (NSDictionary *)jitStatus;
 
 /// One-shot snapshot for the SwiftUI layer.
 - (NSDictionary *)snapshot;
