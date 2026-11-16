@@ -15,7 +15,16 @@
 
 extern UIWindow *mainWindow;
 
+// ★ [TERRA] SwiftUI official-launcher root (LauncherRootView.swift, compiled by swiftc).
+//   App minimum is iOS 16, so this is always the launcher root (legacy AmeRootTabController
+//   remains only as a fallback).
+//   Opt-out for debugging: NSUserDefaults bool "TerraLegacyLauncherUI" = YES.
+@interface TerraLauncherRootHost : NSObject
++ (nullable UIViewController *)makeHost;
+@end
+
 @interface SceneDelegate ()
+@property(nonatomic) BOOL ameUsesTerraRoot;
 @end
 
 @implementation SceneDelegate
@@ -89,7 +98,10 @@ extern UIWindow *mainWindow;
     // 立即应用背景（移除原来的 0.1s 延迟）：
     // 延迟会在启动时露出窗口底色形成"黑条"或"黑闪"。BackgroundManager 在其 init
     // 中已 loadSavedBackground/loadUISettings，单例首次访问即完成初始化，无需延迟。
-    [[BackgroundManager sharedManager] applyBackgroundToWindow:self.window];
+    // ★ [TERRA] SwiftUI root is fully opaque ⇒ no global wallpaper/video behind it.
+    if (!self.ameUsesTerraRoot) {
+        [[BackgroundManager sharedManager] applyBackgroundToWindow:self.window];
+    }
 
     [self showTranslationNoticeIfNeeded];
 
@@ -176,6 +188,20 @@ extern UIWindow *mainWindow;
 //   重新取词 —— 等价于"重启一次界面"，但不动进程、不动运行中的游戏
 //   （SurfaceViewController 不在这棵树里，且切语言只可能发生在启动器设置页）。
 - (void)ameInstallLauncherRootUIWithSettingsLanguagePage:(BOOL)pushLanguagePage {
+    // ★ [TERRA] iOS 16+: one full-screen SwiftUI root (single NavigationStack) — no legacy
+    //   tab bar, floating pills or hidden home controllers underneath. The ObjC launch
+    //   pipeline is attached invisibly by TerraLauncherService (TerraLauncherBridge.m).
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"TerraLegacyLauncherUI"]) {
+        UIViewController *terraRoot = [TerraLauncherRootHost makeHost];
+        if (terraRoot) {
+            self.ameUsesTerraRoot = YES;
+            self.window.rootViewController = terraRoot;
+            [[BackgroundManager sharedManager] applyBackgroundToWindow:nil];
+            return;
+        }
+    }
+    self.ameUsesTerraRoot = NO;
+
     UIViewController *home = [self ameMakeLauncherHomeViewController];
     AmeRootTabController *tabs = [AmeRootTabController tabControllerWithHomeViewController:home];
     self.window.rootViewController = tabs;

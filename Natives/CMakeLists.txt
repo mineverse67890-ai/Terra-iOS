@@ -407,11 +407,16 @@ target_link_libraries(audio_capture
 # ============================================================================
 
 set(AME_TABBAR_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/AmeTabBar.swift")
+# ★ [TERRA] New SwiftUI UI set (official-launcher redesign). These files
+#   reference each other (TerraTheme.swift holds the shared model/bridge), so
+#   they MUST be compiled as ONE swiftc unit (see TERRA_SWIFT single command).
 set(TERRA_SWIFT_SRCS
-  "${CMAKE_CURRENT_LIST_DIR}/TerraDashboardView.swift"
-  "${CMAKE_CURRENT_LIST_DIR}/TerraInstancesView.swift"
-  "${CMAKE_CURRENT_LIST_DIR}/TerraDownloadView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraTheme.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/LauncherRootView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/InstancesView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/DownloadCenterView.swift"
   "${CMAKE_CURRENT_LIST_DIR}/TerraSettingsView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraNewsFeed.swift"
 )
 
 # 架构:C 侧统一走 CMAKE_OSX_ARCHITECTURES(Makefile 传 arm64);缺省退回宿主架构
@@ -463,41 +468,31 @@ else()
   set(AME_TABBAR_NEEDS_BUILD TRUE)
 endif()
 
-# ★ [TERRA-SWIFT] Terra-iOS SwiftUI 视图:为每个 .swift 生成对应的 .o
-set(TERRA_SWIFT_OBJS "")
-foreach(_swift_src IN LISTS TERRA_SWIFT_SRCS)
-  get_filename_component(_swift_name "${_swift_src}" NAME_WE)
-  set(_swift_obj "${CMAKE_CURRENT_BINARY_DIR}/${_swift_name}.o")
-  list(APPEND TERRA_SWIFT_OBJS "${_swift_obj}")
+# ★ [TERRA-SWIFT] Terra-iOS SwiftUI views: compile ALL TERRA_SWIFT_SRCS as ONE
+#   swiftc unit (single .o). The files share types via TerraTheme.swift, so
+#   per-file compilation would fail with "cannot find type in scope".
+set(TERRA_SWIFT_OBJ "${CMAKE_CURRENT_BINARY_DIR}/TerraSwift.o")
+list(APPEND TERRA_SWIFT_OBJS "${TERRA_SWIFT_OBJ}")
 
-  if(NOT EXISTS "${_swift_obj}")
-    set(_needs_build TRUE)
-  else()
-    set(_needs_build FALSE)
-  endif()
+if(NOT AME_SWIFTC)
+  message(FATAL_ERROR "★ [TERRA-SWIFT] swiftc not found. The Terra SwiftUI views must be compiled with Swift;"
+                      "install Xcode / Command Line Tools, or make sure `xcrun -f swiftc` works.")
+endif()
 
-  if(_needs_build AND NOT AME_SWIFTC)
-    message(FATAL_ERROR "★ [TERRA-SWIFT] 找不到 swiftc。${_swift_name}.swift 必须用 Swift 编译;"
-                        "请安装 Xcode / Command Line Tools,或确认 `xcrun -f swiftc` 可用。")
-  endif()
+add_custom_command(
+  OUTPUT  "${TERRA_SWIFT_OBJ}"
+  COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object -wmo -module-name TerraUI
+          -target "${AME_SWIFT_TRIPLE}"
+          -sdk "${CMAKE_OSX_SYSROOT}"
+          ${AME_SWIFT_OPT_FLAGS}
+          -o "${TERRA_SWIFT_OBJ}"
+          ${TERRA_SWIFT_SRCS}
+  DEPENDS ${TERRA_SWIFT_SRCS}
+  COMMENT "★ [TERRA-SWIFT] swiftc ${AME_SWIFT_TRIPLE} -sdk ${CMAKE_OSX_SYSROOT} -> TerraSwift.o (single unit)"
+  VERBATIM)
+add_custom_target(TerraSwiftUnit DEPENDS "${TERRA_SWIFT_OBJ}")
 
-  if(_needs_build)
-    add_custom_command(
-      OUTPUT  "${_swift_obj}"
-      COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object
-              -target "${AME_SWIFT_TRIPLE}"
-              -sdk "${CMAKE_OSX_SYSROOT}"
-              ${AME_SWIFT_OPT_FLAGS}
-              -o "${_swift_obj}"
-              "${_swift_src}"
-      DEPENDS "${_swift_src}"
-      COMMENT "★ [TERRA-SWIFT] swiftc ${AME_SWIFT_TRIPLE} -sdk ${CMAKE_OSX_SYSROOT} -> ${_swift_name}.o"
-      VERBATIM)
-    add_custom_target(TerraSwift_${_swift_name} DEPENDS "${_swift_obj}")
-  endif()
-
-  set_source_files_properties("${_swift_obj}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
-endforeach()
+set_source_files_properties("${TERRA_SWIFT_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 
 # Swift 现在是底栏的唯一实现(LauncherMenuViewController.m 直接引用 AmeTabBarHost),
 # 编不出来就会在链接期报 undefined symbol ⇒ 这里直接给出可读的失败原因。
@@ -631,6 +626,8 @@ add_executable(AngelAuraAmethyst
   LauncherCardLayoutViewController.m
   LauncherRightPanelViewController.m
   VersionManagerViewController.m
+  # ★ [TERRA] SwiftUI ↔ legacy launch pipeline bridge (thin command channel)
+  TerraLauncherBridge.m
   ProfileSettingsViewController.m
   DownloadViewController.m
   LauncherPreferences.m
@@ -802,13 +799,8 @@ if(AME_TABBAR_NEEDS_BUILD)
   add_dependencies(AngelAuraAmethyst AmeTabBarSwift)
 endif()
 
-# ★ [TERRA-SWIFT] 保证 Terra SwiftUI 视图 .o 先于链接生成
-foreach(_swift_src IN LISTS TERRA_SWIFT_SRCS)
-  get_filename_component(_swift_name "${_swift_src}" NAME_WE)
-  if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${_swift_name}.o")
-    add_dependencies(AngelAuraAmethyst TerraSwift_${_swift_name})
-  endif()
-endforeach()
+# ★ [TERRA-SWIFT] 保证 Terra SwiftUI 视图 .o 先于链接生成(单一 swiftc 单元)
+add_dependencies(AngelAuraAmethyst TerraSwiftUnit)
 
 # Add ModLoaderIcons PNG files into the app bundle Resources/ModLoaderIcons so they are available at runtime.
 # This will copy all *.png under Natives/ModLoaderIcons into the bundle at Resources/ModLoaderIcons/<name>.png
