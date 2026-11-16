@@ -2662,14 +2662,17 @@ static NSString * localizeProfileTitle(NSString *title) {
                                                             preferredStyle:UIAlertControllerStyleActionSheet];
 
     // 从 java.java_homes 偏好动态获取已安装的 Java 版本列表
-    NSMutableDictionary *javaHomes = [getPrefObject(@"java.java_homes") mutableCopy];
+    NSMutableDictionary *javaHomes = [ameJavaHomesIncludingBundled() mutableCopy];   // ★ [TERRA-JAVA]
     if (!javaHomes) {
         javaHomes = [NSMutableDictionary dictionary];
     }
     NSMutableArray *versions = [[javaHomes allKeys] mutableCopy];
     // "0" 表示自动选择，单独处理
     [versions removeObject:@"0"];
-    [versions sortUsingSelector:@selector(compare:)];
+    // ★ [TERRA-JAVA] numeric order (8, 17, 21, 25), not string order (17, 21, 25, 8)
+    [versions sortUsingComparator:^NSComparisonResult(NSString *a, NSString *b) {
+        return [@(a.integerValue) compare:@(b.integerValue)];
+    }];
     // 自动选项放最前
     [versions insertObject:@"0" atIndex:0];
 

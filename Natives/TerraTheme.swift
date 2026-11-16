@@ -271,6 +271,12 @@ final class TerraLauncherModel: ObservableObject {
         TerraBridge.invoke("openMods", ["name": instance.name, "modsPath": instance.modsPath])
     }
 
+    /// Per-installation settings (Java version, renderer, memory, JVM arguments…)
+    func openSettings(_ instance: TerraInstance?) {
+        guard let instance else { return }
+        TerraBridge.invoke("openInstanceSettings", ["name": instance.name])
+    }
+
     func deleteInstance(_ instance: TerraInstance) {
         TerraBridge.invoke("deleteInstance", ["name": instance.name])
     }

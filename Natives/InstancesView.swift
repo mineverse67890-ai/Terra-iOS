@@ -4,7 +4,7 @@
 //  Each card maps to an isolated instance directory:
 //      Documents/instances/<name>/minecraft/
 //  Shows: Minecraft version · loader badge (Fabric/Vanilla) · folder size.
-//  Actions: Launch (green) · Open Mods · Delete (red, with confirmation).
+//  Actions: Launch (green) · Open Mods · Settings (Java version etc.) · Delete (red, confirmed).
 //  Data source: TerraBridge (ObjC TerraLauncherService) snapshot.
 //  ===========================================================================
 import SwiftUI
@@ -187,6 +187,24 @@ struct TerraInstanceRow: View {
                         )
                 }
                 .buttonStyle(.plain)
+
+                Button {
+                    model.openSettings(instance)
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(MCT.text)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 9)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(MCT.elevated)
+                                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .strokeBorder(MCT.border, lineWidth: 1))
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Installation settings")
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")

@@ -341,12 +341,29 @@ static NSString *ameNormalizeJREHome(NSString *dir) {
     return nil;
 }
 
+NSDictionary *ameJavaHomesIncludingBundled(void) {
+    NSMutableDictionary *homes = [getPrefObject(@"java.java_homes") mutableCopy] ?: [NSMutableDictionary dictionary];
+    NSString *bundled = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"java_runtimes"];
+    for (NSString *dir in [NSFileManager.defaultManager contentsOfDirectoryAtPath:bundled error:nil] ?: @[]) {
+        // java-<major>-openjdk
+        if (![dir hasPrefix:@"java-"] || ![dir hasSuffix:@"-openjdk"]) continue;
+        NSString *major = [[dir stringByReplacingOccurrencesOfString:@"java-" withString:@""]
+                                stringByReplacingOccurrencesOfString:@"-openjdk" withString:@""];
+        if (major.integerValue <= 0 || homes[major]) continue;
+        homes[major] = @"internal";
+        NSLog(@"[TERRA-JAVA] bundled Java %@ was missing from java.java_homes, using it", major);
+    }
+    return homes;
+}
+
 NSString* getSelectedJavaHome(NSString* defaultJRETag, int minVersion) {
-    NSDictionary *pref = getPrefObject(@"java.java_homes");
+    NSDictionary *pref = ameJavaHomesIncludingBundled();
     NSDictionary<NSString *, NSString *> *selected = pref[@"0"];
     NSString *selectedVer = selected[defaultJRETag];
     if (minVersion > selectedVer.intValue) {
-        NSArray *sortedVersions = [pref.allKeys valueForKeyPath:@"self.integerValue"];
+        NSMutableArray *runtimeKeys = [pref.allKeys mutableCopy];
+        [runtimeKeys removeObject:@"0"];   // "0" holds the per-tag defaults, not a runtime
+        NSArray *sortedVersions = [runtimeKeys valueForKeyPath:@"self.integerValue"];
         sortedVersions = [sortedVersions sortedArrayUsingSelector:@selector(compare:)];
         BOOL found = NO;
         for (NSNumber *version in sortedVersions) {

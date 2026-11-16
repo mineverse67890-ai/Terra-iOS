@@ -20,6 +20,7 @@
 #import "AccountListViewController.h"
 #import "ModsManagerViewController.h"
 #import "LauncherPreferencesViewController.h"
+#import "ProfileSettingsViewController.h"
 
 @interface TerraLauncherService ()
 @property(nonatomic, strong) LauncherRightPanelViewController *panel;
@@ -210,6 +211,13 @@
         [self terraDeleteInstanceNamed:name];
     } else if ([cmd isEqualToString:@"openMods"]) {
         [self terraPresentModsManagerForProfile:name];
+    } else if ([cmd isEqualToString:@"openInstanceSettings"]) {
+        // Per-installation settings: Java version, renderer, memory, JVM args, version isolation…
+        if (name.length > 0) {
+            ProfileSettingsViewController *vc = [[ProfileSettingsViewController alloc] init];
+            vc.profileName = name;
+            [self terraPresentLegacyVC:vc title:name];
+        }
     } else if ([cmd isEqualToString:@"openSettings"]) {
         [self terraPresentLegacyVC:[[LauncherPreferencesViewController alloc] init] title:nil];
     } else if ([cmd isEqualToString:@"openAccount"]) {
@@ -293,8 +301,23 @@
         }
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
         nav.modalPresentationStyle = UIModalPresentationFullScreen;
-        nav.navigationBarHidden = (title == nil);
-        if (title) nav.navigationBar.topItem.title = title;
+        // Always show the bar: several legacy screens (Full Preferences, profile settings) have no
+        // close button of their own, so a hidden bar left the user stuck with no way back.
+        nav.navigationBarHidden = NO;
+        if (title) vc.navigationItem.title = title;
+        // Done button unless the screen already provides its own left item (screens that set
+        // one later in viewDidLoad simply replace this).
+        if (!vc.navigationItem.leftBarButtonItem) {
+            __weak UINavigationController *weakNav = nav;
+            vc.navigationItem.leftBarButtonItem =
+                [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                                       primaryAction:[UIAction actionWithHandler:^(__kindof UIAction *action) {
+                    [weakNav dismissViewControllerAnimated:YES completion:^{
+                        // settings/mods may have changed the instance (version, loader, size)
+                        [self terraPostInstancesChanged];
+                    }];
+                }]];
+        }
         [presenter presentViewController:nav animated:YES completion:nil];
     });
 }

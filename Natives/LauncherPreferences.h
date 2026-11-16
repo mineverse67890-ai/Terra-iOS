@@ -55,6 +55,10 @@ CGRect getSafeArea(CGRect screenBounds);
 void setSafeArea(CGSize screenSize, CGRect safeArea);
 
 NSString* getSelectedJavaHome(NSString* defaultJRETag, int minVersion);
+/// ★ [TERRA-JAVA] java.java_homes plus every runtime bundled in the app (java_runtimes/java-N-openjdk).
+/// Older installs never get new bundled runtimes (e.g. Java 25) merged into their saved java_homes,
+/// so launch-time selection and the Java pickers use this instead of the raw preference.
+NSDictionary *ameJavaHomesIncludingBundled(void);
 
 NSArray* getRendererKeys(BOOL containsDefault);
 NSArray* getRendererNames(BOOL containsDefault);

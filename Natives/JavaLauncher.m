@@ -1454,8 +1454,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
         // 不再对 preferredJavaVersion 做任何钳制，直接采纳 Profile 指定的 Java 版本。
         // caciocavallo 三路切换会根据实际 Java 版本选择对应 jar（三个独立文件夹）：
         // - Java 8     → libs_caciocavallo（1.10-SNAPSHOT）
-        // - Java 17/21 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译）
-        // - Java 25    → libs_caciocavallo25（1.18-SNAPSHOT 含 Java 24 class，catsruledogs iOS）
+        // - Java 17/21/25 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译）
+        //   (caciocavallo25 was removed; see the "Add Caciocavallo bootclasspath" note below)
         int preferredJavaVersion = [PLProfiles resolveKeyForCurrentProfile:@"javaVersion"].intValue;
         if (preferredJavaVersion > 0) {
             if (minVersion > preferredJavaVersion) {
@@ -1726,8 +1726,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
     // caciocavallo 三路切换（参照 FCL/ZalithLauncher2 二元思路，扩展为三路以兼容 Java 25）：
     // 三个独立的平级文件夹，按实际 Java 版本选择：
     // - Java 8     → libs_caciocavallo（1.10-SNAPSHOT，包名 net.java.openjdk.cacio，bootclasspath/p）
-    // - Java 17/21 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译，包名 com.github.caciocavallosilano.cacio，bootclasspath/a）
-    // - Java 25    → libs_caciocavallo25（1.18-SNAPSHOT 含 Java 24 class，包名 com.github.caciocavallosilano.cacio，bootclasspath/a）
+    // - Java 17/21/25 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译，包名 com.github.caciocavallosilano.cacio，bootclasspath/a）
+    //   (caciocavallo25 was removed; Java 25 uses the Java 17 build -- see "Add Caciocavallo bootclasspath")
     //   来自 catsruledogs/Amethyst-iOS-25。其 CTCGraphicsEnvironment 是 Java 24 class（class version 68），
     //   含 Java 25 兼容修复，纯 Java 17 编译版本会在 get_method_id 阶段 SIGSEGV。
     //   class version 68 仅 Java 24+ 可加载，故 Java 17/21 不能共用，需用 caciocavallo17 目录的纯 Java 17 jar。
