@@ -103,7 +103,7 @@ extern UIWindow *mainWindow;
         [[BackgroundManager sharedManager] applyBackgroundToWindow:self.window];
     }
 
-    [self showTranslationNoticeIfNeeded];
+    // ★ [TERRA] machine-translation notice removed (Terra is English-first).
 
     // 启动时自动检查启动器更新（参照 ZL2 LauncherUpgradeViewModel.checkOnAppStart）。
     // 仅当确实存在新版本时才弹窗；请求失败、已是最新、处于限频窗口内一律静默。
@@ -115,9 +115,8 @@ extern UIWindow *mainWindow;
     // ★ [VI-FLOW] B：版本隔离向导 —— 每次进启动器都会再弹，直到用户主动选「以后不再提示」
     //   （哨兵 internal.version_isolation_wizard_off 只在用户点该按钮时写；弹出时【不】写哨兵）。
     //   延后一拍 + 可跳过 ⇒ 绝不阻碍启动；用户随时可从实例设置页的「版本隔离向导」入口重新打开。
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self amePresentVersionIsolationWizardIfNeeded];
-    });
+    // ★ [TERRA] version-isolation wizard no longer pops up on launch; it is still available
+    //   from the installation's settings (amePresentVersionIsolationWizard is kept).
 
     // ★ [MP-RESTORE] 联机恢复 —— lazy init：启动路径上**不**创建 TerracottaManager /
     //   不触发 terracotta_ios_start / 不起 ZeroTier 节点（避免把当年"启动崩溃"风险带回）。

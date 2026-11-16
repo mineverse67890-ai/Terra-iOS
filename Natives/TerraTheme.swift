@@ -156,6 +156,17 @@ struct TerraIconFirstLabel: LabelStyle {
     /// {"state": "enabled"|"pending"|"disabled", "text": localized label}
     @objc(jitStatus)
     func jitStatus() -> [AnyHashable: Any]
+    /// getPrefObject / setPrefObject for dotted keys ("video.renderer", "java.allocated_memory", …)
+    @objc(prefValue:)
+    func prefValue(_ key: String) -> Any?
+    @objc(setPrefValue:forKey:)
+    func setPrefValue(_ value: Any?, forKey key: String)
+    /// [{"key", "name"}] of bundled renderers
+    @objc(rendererOptions)
+    func rendererOptions() -> [[AnyHashable: Any]]
+    /// {"version", "build", "device", "system", "memoryMB"}
+    @objc(appInfo)
+    func appInfo() -> [AnyHashable: Any]
 }
 
 enum TerraBridge {

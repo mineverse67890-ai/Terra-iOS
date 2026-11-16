@@ -6,7 +6,7 @@
 //    · entries[]: title / text / date / newsType[] / newsPageImage / readMoreLink
 //    · newsType contains "Java" for Java Edition news
 //  Images are loaded at runtime from Mojang's server — nothing is bundled.
-//  Hero banner: a random Java news artwork (772×350) on every app launch,
+//  Hero banner: a random official update key-art banner (772×350) on every app launch,
 //  never the same one twice in a row (last pick kept in UserDefaults).
 //  ===========================================================================
 import SwiftUI
@@ -86,9 +86,26 @@ final class TerraNewsFeed: ObservableObject {
         }
     }
 
-    /// Random Java artwork, different from the one shown on the previous launch
+    /// Official Minecraft update key art (game drops / major updates), e.g. "The Herdcraft Update",
+    /// "Chaos Cubed", "The Copper Age drop". The feed is mostly Realms promos, so those, events,
+    /// spin-off games and store promos are excluded.
+    static func isUpdateKeyArt(_ e: MojangNewsEntry) -> Bool {
+        let types = Set(e.newsType ?? [])
+        if !types.isDisjoint(with: ["Dungeons", "DungeonsII", "Legends"]) { return false }
+        let image = (e.newsPageImage ?? e.playPageImage)?.url.lowercased() ?? ""
+        let title = e.title.lowercased()
+        let text = title + " " + image
+        let excluded = ["realms", "live", "dungeons", "legends", "recap", "pre-order", "preorder",
+                        "wishlist", "challenge", "marketplace", "sale", "merch"]
+        if excluded.contains(where: text.contains) { return false }
+        let keyArt = ["update", "drop", "keyart", "heroasset"]
+        return keyArt.contains(where: text.contains) || title.hasPrefix("play ")
+    }
+
+    /// Random official update banner, different from the one shown on the previous launch.
     private func pickHero() {
-        let candidates = javaEntries.compactMap(\.imageURL)
+        var candidates = entries.filter(Self.isUpdateKeyArt).compactMap(\.imageURL)
+        if candidates.isEmpty { candidates = javaEntries.compactMap(\.imageURL) }   // fallback
         guard !candidates.isEmpty else { return }
         let last = UserDefaults.standard.string(forKey: lastHeroKey)
         let pool = candidates.count > 1 ? candidates.filter { $0.absoluteString != last } : candidates

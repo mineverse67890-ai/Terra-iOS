@@ -86,6 +86,54 @@
 }
 
 
+#pragma mark - New-screen lookup
+
+/// Instantiates a new Terra screen by class name (so the bridge compiles before/without it)
+/// and passes the installation name via -setProfileName: when supported.
+- (nullable UIViewController *)terraNewScreen:(NSString *)className profile:(nullable NSString *)profile {
+    Class cls = NSClassFromString(className);
+    if (!cls || ![cls isSubclassOfClass:UIViewController.class]) return nil;
+    UIViewController *vc = [[cls alloc] init];
+    if (profile.length && [vc respondsToSelector:NSSelectorFromString(@"setProfileName:")]) {
+        [vc setValue:profile forKey:@"profileName"];
+    }
+    return vc;
+}
+
+#pragma mark - Settings access
+
+- (id)prefValue:(NSString *)key {
+    return key.length ? getPrefObject(key) : nil;
+}
+
+- (void)setPrefValue:(id)value forKey:(NSString *)key {
+    if (key.length == 0) return;
+    setPrefObject(key, value);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"TerraPreferencesChanged" object:key];
+    });
+}
+
+- (NSArray<NSDictionary *> *)rendererOptions {
+    NSArray *keys = getRendererKeys(YES), *names = getRendererNames(YES);
+    NSMutableArray *out = [NSMutableArray array];
+    for (NSUInteger i = 0; i < MIN(keys.count, names.count); i++) {
+        [out addObject:@{@"key": keys[i], @"name": names[i]}];
+    }
+    return out;
+}
+
+- (NSDictionary *)appInfo {
+    NSDictionary *info = NSBundle.mainBundle.infoDictionary;
+    return @{
+        @"version": info[@"CFBundleShortVersionString"] ?: @"",
+        @"build": info[@"CFBundleVersion"] ?: @"",
+        @"device": UIDevice.currentDevice.model ?: @"",
+        @"system": [NSString stringWithFormat:@"%@ %@", UIDevice.currentDevice.systemName, UIDevice.currentDevice.systemVersion],
+        @"memoryMB": @(NSProcessInfo.processInfo.physicalMemory / (1024 * 1024)),
+    };
+}
+
 #pragma mark - JIT status
 
 - (NSDictionary *)jitStatus {
@@ -231,13 +279,34 @@
     } else if ([cmd isEqualToString:@"deleteInstance"]) {
         [self terraDeleteInstanceNamed:name];
     } else if ([cmd isEqualToString:@"openMods"]) {
-        [self terraPresentModsManagerForProfile:name];
+        // New sidebar Mods manager (TerraModsManagerViewController) when present, else legacy.
+        UIViewController *vc = [self terraNewScreen:@"TerraModsManagerViewController" profile:name];
+        if (vc) [self terraPresentLegacyVC:vc title:nil];
+        else [self terraPresentModsManagerForProfile:name];
     } else if ([cmd isEqualToString:@"openInstanceSettings"]) {
-        // Per-installation settings: Java version, renderer, memory, JVM args, version isolation…
+        // Per-installation settings: new screen when present, else legacy ProfileSettings.
         if (name.length > 0) {
-            ProfileSettingsViewController *vc = [[ProfileSettingsViewController alloc] init];
-            vc.profileName = name;
+            UIViewController *vc = [self terraNewScreen:@"TerraInstanceSettingsViewController" profile:name];
+            if (!vc) {
+                ProfileSettingsViewController *legacy = [[ProfileSettingsViewController alloc] init];
+                legacy.profileName = name;
+                vc = legacy;
+            }
             [self terraPresentLegacyVC:vc title:name];
+        }
+    } else if ([cmd isEqualToString:@"openLegacyClass"]) {
+        // Any screen by class name (used by the new Settings for advanced pages).
+        // payload: className (required), profileName (optional, set via KVC if supported), title (optional)
+        Class cls = NSClassFromString(payload[@"className"] ?: @"");
+        if (cls && [cls isSubclassOfClass:UIViewController.class]) {
+            UIViewController *vc = [[cls alloc] init];
+            NSString *profile = payload[@"profileName"];
+            if (profile.length && [vc respondsToSelector:NSSelectorFromString(@"setProfileName:")]) {
+                [vc setValue:profile forKey:@"profileName"];
+            }
+            [self terraPresentLegacyVC:vc title:payload[@"title"]];
+        } else {
+            NSLog(@"[TERRA] openLegacyClass: unknown class %@", payload[@"className"]);
         }
     } else if ([cmd isEqualToString:@"openSettings"]) {
         [self terraPresentLegacyVC:[[LauncherPreferencesViewController alloc] init] title:nil];

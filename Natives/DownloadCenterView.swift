@@ -31,7 +31,7 @@ struct ModrinthHit: Identifiable, Decodable {
     var downloadsText: String {
         if downloads >= 1_000_000 { return String(format: "%.1fM", Double(downloads) / 1_000_000) }
         if downloads >= 1_000 { return String(format: "%.1fK", Double(downloads) / 1_000) }
-        return "(downloads)"
+        return "\(downloads)"
     }
 }
 
@@ -50,7 +50,7 @@ struct ModrinthVersion: Decodable {
 enum ModrinthClient {
     static func search(query: String, gameVersion: String?) async throws -> [ModrinthHit] {
         var facets: [[String]] = [["project_type:mod"], ["categories:fabric"]]
-        if let gameVersion, !gameVersion.isEmpty { facets.append(["versions:(gameVersion)"]) }
+        if let gameVersion, !gameVersion.isEmpty { facets.append(["versions:\(gameVersion)"]) }
         var comps = URLComponents(string: "https://api.modrinth.com/v2/search")!
         comps.queryItems = [
             .init(name: "limit", value: "25"),
@@ -64,7 +64,7 @@ enum ModrinthClient {
 
     /// Latest file of a project compatible with (fabric, gameVersion)
     static func latestCompatibleFile(projectId: String, gameVersion: String?) async throws -> ModrinthVersionFile? {
-        var comps = URLComponents(string: "https://api.modrinth.com/v2/project/(projectId)/version")!
+        var comps = URLComponents(string: "https://api.modrinth.com/v2/project/\(projectId)/version")!
         comps.queryItems = [
             .init(name: "loaders", value: toJson(["fabric"])),
             .init(name: "game_versions", value: toJson(gameVersion.map { [$0] } ?? [])),
@@ -333,10 +333,11 @@ struct TerraVersionsPane: View {
             : "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
         do {
             let (data, _) = try await URLSession.shared.data(from: URL(string: base)!)
-            let decoded = try JSONDecoder().decode([String: [MinecraftManifestVersion]].self, from: data)
-            versions = decoded["versions"] ?? []
+            // The manifest also has a "latest" object, so it can't be decoded as [String: [Version]].
+            struct Manifest: Decodable { let versions: [MinecraftManifestVersion] }
+            versions = try JSONDecoder().decode(Manifest.self, from: data).versions
         } catch {
-            errorText = "Failed to load version manifest: (error.localizedDescription)"
+            errorText = "Failed to load version manifest: \(error.localizedDescription)"
         }
         loading = false
     }
@@ -510,7 +511,7 @@ struct TerraModsPane: View {
                         .font(.system(size: 11.5))
                         .foregroundStyle(MCT.dim)
                         .lineLimit(2)
-                    Text("by (hit.author) · ⬇ (hit.downloadsText)")
+                    Text("by \(hit.author) · ⬇ \(hit.downloadsText)")
                         .font(.system(size: 10.5, weight: .medium))
                         .foregroundStyle(MCT.dim.opacity(0.75))
                 }
@@ -546,7 +547,7 @@ struct TerraModsPane: View {
     private func phaseView(_ state: ModDownloadEntry) -> some View {
         switch state.phase {
         case .waiting, .downloading:
-            Text("(Int(state.progress * 100))%")
+            Text("\(Int(state.progress * 100))%")
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(MCT.greenBright)
         case .done:

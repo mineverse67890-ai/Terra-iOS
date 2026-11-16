@@ -28,6 +28,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// Same rules as LauncherRightPanelViewController -updateJITStatus.
 - (NSDictionary *)jitStatus;
 
+#pragma mark Settings access (new SwiftUI Settings screen)
+/// Preference value for a dotted key, e.g. @"video.renderer", @"java.allocated_memory" (getPrefObject).
+- (nullable id)prefValue:(NSString *)key;
+/// Writes a preference (setPrefObject) and posts TerraPreferencesChanged.
+- (void)setPrefValue:(nullable id)value forKey:(NSString *)key;
+/// Renderer choices: @[ @{@"key": …, @"name": …}, … ] (only renderers actually bundled).
+- (NSArray<NSDictionary *> *)rendererOptions;
+/// @{@"version", @"build", @"device", @"system", @"memoryMB"} for the About section.
+- (NSDictionary *)appInfo;
+
 /// One-shot snapshot for the SwiftUI layer.
 - (NSDictionary *)snapshot;
 

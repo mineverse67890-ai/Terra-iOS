@@ -526,6 +526,8 @@ add_executable(AngelAuraAmethyst
   # ★ [TERRA-DIAG] launch/crash diagnosis (loading-screen Troubleshoot + crash screen)
   TerraCrashAnalyzer.m
   TerraTroubleshootViewController.m
+  # ★ [TERRA-STYLE] shared Minecraft-launcher look for redesigned UIKit screens
+  TerraStyle.m
   ProfileSettingsViewController.m
   DownloadViewController.m
   LauncherPreferences.m
