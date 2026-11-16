@@ -316,7 +316,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
 - (nullable NSString *)ameLocal_materializeExternalURL:(NSURL *)fileURL reason:(NSString * _Nullable * _Nullable)reason {
     NSString *srcPath = fileURL.path;
     if (srcPath.length == 0) {
-        if (reason) *reason = @"选择器未返回可用的本地路径";
+        if (reason) *reason = @"The file picker did not return a usable local path";
         return nil;
     }
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -324,7 +324,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
                             stringByAppendingPathComponent:@"modpack_import"]
                            stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
     if (![fm createDirectoryAtPath:inboxRoot withIntermediateDirectories:YES attributes:nil error:NULL]) {
-        if (reason) *reason = @"无法创建沙盒导入目录";
+        if (reason) *reason = @"Unable to create the import folder in the app sandbox";
         return nil;
     }
     NSString *name = srcPath.lastPathComponent.length > 0 ? srcPath.lastPathComponent : @"modpack.zip";
@@ -346,7 +346,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
             NSError *copyErr = nil;
             copied = [[NSFileManager defaultManager] copyItemAtURL:readingURL toURL:destURL error:&copyErr];
             if (!copied) {
-                failureNote = copyErr.localizedDescription ?: @"协调读拷贝失败";
+                failureNote = copyErr.localizedDescription ?: @"Coordinated read copy failed";
             }
         }];
         if (!copied && err) {
@@ -354,8 +354,8 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
             failureNote = err.localizedDescription ?: failureNote;
         }
     } @catch (NSException *e) {
-        failureNote = e.reason ?: @"协调读抛异常";
-        NSLog(@"[MODPACK-LOCAL] NSFileCoordinator 异常: %@", failureNote);
+        failureNote = e.reason ?: @"Coordinated read threw an exception";
+        NSLog(@"[MODPACK-LOCAL] NSFileCoordinator exception: %@", failureNote);
     }
 
     // (2) 回退：直接拷贝（app 沙盒内文件、或协调器不可用时；部分 provider 也允许直读）。
@@ -363,11 +363,11 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
         NSError *copyErr = nil;
         copied = [fm copyItemAtPath:srcPath toPath:destPath error:&copyErr];
         if (!copied) {
-            NSString *detail = copyErr.localizedDescription ?: failureNote ?: @"未知拷贝错误";
+            NSString *detail = copyErr.localizedDescription ?: failureNote ?: @"Unknown copy error";
             if (coordinatorError && copyErr.code == NSFileNoSuchFileError) {
-                detail = @"文件尚未从 iCloud/供应商下载（占位文件不可读）";
+                detail = @"File has not been downloaded from iCloud/the provider yet (placeholder is unreadable)";
             }
-            NSLog(@"[MODPACK-LOCAL] 外部文件实体化失败: %@ (%@)", srcPath, detail);
+            NSLog(@"[MODPACK-LOCAL] Failed to materialize external file: %@ (%@)", srcPath, detail);
             if (reason) *reason = detail;
             return nil;
         }
@@ -378,11 +378,11 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
     unsigned long long size = attrs ? [attrs fileSize] : 0;
     if (size == 0) {
         [fm removeItemAtPath:destPath error:NULL];
-        NSLog(@"[MODPACK-LOCAL] 外部文件副本为 0 字节（源文件未下载完成或已损坏）: %@", srcPath);
-        if (reason) *reason = @"文件副本为 0 字节（源文件未下载完成或已损坏）";
+        NSLog(@"[MODPACK-LOCAL] External file copy is 0 bytes (source not fully downloaded or corrupted): %@", srcPath);
+        if (reason) *reason = @"File copy is 0 bytes (source not fully downloaded or corrupted)";
         return nil;
     }
-    NSLog(@"[MODPACK-LOCAL] 外部文件已实体化: %@ -> %@ (%.2f MB)", srcPath, destPath, (double)size / 1048576.0);
+    NSLog(@"[MODPACK-LOCAL] External file materialized: %@ -> %@ (%.2f MB)", srcPath, destPath, (double)size / 1048576.0);
     return destPath;
 }
 
@@ -425,7 +425,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
     NSString *only = topLevels.anyObject;
     if (only.length == 0) return nil;
     NSString *prefix = [only stringByAppendingString:@"/"];
-    NSLog(@"[MODPACK-LOCAL] 检测到包装根目录前缀: %@（内容位于单层子目录内）", prefix);
+    NSLog(@"[MODPACK-LOCAL] Detected wrapper root prefix: %@ (contents are inside a single subfolder)", prefix);
     return prefix;
 }
 
@@ -459,7 +459,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
             if (tops.count >= 12) *stop = YES;
         }
     } error:nil];
-    if (tops.count == 0) return @"(压缩包内没有任何条目)";
+    if (tops.count == 0) return @"(archive contains no entries)";
     return [tops componentsJoinedByString:@", "];
 }
 
@@ -490,10 +490,10 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
         if (localCopy.length > 0) {
             filePath = localCopy;
         } else {
-            NSLog(@"[MODPACK-LOCAL] 外部文件实体化失败（沿用原路径判存在）: %@", materializeReason ?: @"unknown");
+            NSLog(@"[MODPACK-LOCAL] Failed to materialize external file (falling back to original path): %@", materializeReason ?: @"unknown");
         }
     } else if (incomingPath.length > 0) {
-        NSLog(@"[MODPACK-LOCAL] 路径已在 app 沙盒内，无需拷贝");
+        NSLog(@"[MODPACK-LOCAL] Path is already inside the app sandbox; no copy needed");
     }
 
     if (filePath.length == 0 || ![fm fileExistsAtPath:filePath]) {
@@ -501,18 +501,18 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
             // ★ [MODPACK-LOCAL] 给出具体原因，而不是笼统的「文件不存在」
             NSString *detail = @"";
             if (incomingPath.length == 0) {
-                detail = @"选择器未返回可用路径";
+                detail = @"The file picker did not return a usable path";
             } else if (isExternal) {
-                detail = @"外部文件不可读（可能未下载完成、已失去访问授权，或提供方未协调）";
+                detail = @"External file is unreadable (it may not be fully downloaded, access may have been revoked, or the provider did not coordinate)";
             } else {
-                detail = @"app 沙盒内文件缺失";
+                detail = @"File is missing from the app sandbox";
             }
-            NSString *msg = [NSString stringWithFormat:@"%@（%@）", localize(@"i18n_str_526", nil), detail];
+            NSString *msg = [NSString stringWithFormat:@"%@ (%@)", localize(@"i18n_str_526", nil), detail];
             *error = [NSError errorWithDomain:@"ModpackImportError"
                                          code:1001
                                      userInfo:@{NSLocalizedDescriptionKey: msg}];
         }
-        NSLog(@"[MODPACK-LOCAL] 文件不存在/不可读: filePath=%@ incoming=%@", filePath, incomingPath);
+        NSLog(@"[MODPACK-LOCAL] File missing/unreadable: filePath=%@ incoming=%@", filePath, incomingPath);
         return nil;
     }
 
@@ -521,37 +521,37 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
     if (archiveError || !archive) {
         if (error) {
             // ★ [MODPACK-LOCAL] 区分「真损坏 / 非 zip」与「格式不符」：这里明确是打不开
-            NSString *detail = archiveError.localizedDescription ?: @"不是有效的 zip 压缩包（文件损坏或未下载完整）";
-            NSString *msg = [NSString stringWithFormat:@"%@（%@）", localize(@"i18n_str_527", nil), detail];
+            NSString *detail = archiveError.localizedDescription ?: @"Not a valid zip archive (file is corrupted or incompletely downloaded)";
+            NSString *msg = [NSString stringWithFormat:@"%@ (%@)", localize(@"i18n_str_527", nil), detail];
             *error = [NSError errorWithDomain:@"ModpackImportError"
                                          code:1002
                                      userInfo:@{NSLocalizedDescriptionKey: msg}];
         }
-        NSLog(@"[MODPACK-LOCAL] 压缩包打开失败: %@ (%@)", filePath, archiveError.localizedDescription ?: @"-");
+        NSLog(@"[MODPACK-LOCAL] Failed to open archive: %@ (%@)", filePath, archiveError.localizedDescription ?: @"-");
         return nil;
     }
 
     // ★ [MODPACK-LOCAL] 探测「包装根目录」（内容位于单层子目录，如 MyPack/manifest.json）。
     // 后续标志文件查找与解压都按剥离前缀后的路径进行。
     self.ameLocalRootPrefix = [self ameLocal_detectWrapperRootPrefix:archive];
-    NSLog(@"[MODPACK-LOCAL] 包装根目录前缀=%@", self.ameLocalRootPrefix ?: @"(无)");
+    NSLog(@"[MODPACK-LOCAL] Wrapper root prefix=%@", self.ameLocalRootPrefix ?: @"(none)");
 
     // ★ [MODPACK-LOCAL] 空压缩包（0 条目录项）单独判为损坏，避免把「损坏」误报成「格式不符」。
     NSArray<NSString *> *allNames = [archive listFilenames:nil];
     if (allNames.count == 0) {
         if (error) {
-            NSString *msg = [NSString stringWithFormat:@"%@（压缩包内没有任何文件，可能下载不完整或已损坏）", localize(@"i18n_str_527", nil)];
+            NSString *msg = [NSString stringWithFormat:@"%@ (the archive contains no files; it may be incompletely downloaded or corrupted)", localize(@"i18n_str_527", nil)];
             *error = [NSError errorWithDomain:@"ModpackImportError"
                                          code:1002
                                      userInfo:@{NSLocalizedDescriptionKey: msg}];
         }
-        NSLog(@"[MODPACK-LOCAL] 空压缩包: %@", filePath);
+        NSLog(@"[MODPACK-LOCAL] Empty archive: %@", filePath);
         return nil;
     }
 
     NSData *indexData = [self ameLocal_dataFromArchive:archive name:@"modrinth.index.json"];
     if (indexData) {
-        NSLog(@"[MODPACK-LOCAL] 探测到格式=modrinth (prefix=%@)", self.ameLocalRootPrefix ?: @"-");
+        NSLog(@"[MODPACK-LOCAL] Detected format=modrinth (prefix=%@)", self.ameLocalRootPrefix ?: @"-");
         return [self parseModrinthModpack:archive indexData:indexData filePath:filePath error:error];
     }
 
@@ -560,7 +560,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
     // 必须在 manifest.json (CurseForge) 之前检测，因为某些 MMC 整合包可能也含有 manifest.json
     NSData *mmcPackData = [self ameLocal_dataFromArchive:archive name:@"mmc-pack.json"];
     if (mmcPackData) {
-        NSLog(@"[MODPACK-LOCAL] 探测到格式=mmc (prefix=%@)", self.ameLocalRootPrefix ?: @"-");
+        NSLog(@"[MODPACK-LOCAL] Detected format=mmc (prefix=%@)", self.ameLocalRootPrefix ?: @"-");
         return [self parseMMCPack:archive mmcPackData:mmcPackData filePath:filePath error:error];
     }
 
@@ -569,7 +569,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
     //   2) manifest.json 含 addons 数组（区别于 CurseForge 的 minecraft 对象结构）
     NSData *mcbbsPackmetaData = [self ameLocal_dataFromArchive:archive name:@"mcbbs.packmeta"];
     if (mcbbsPackmetaData) {
-        NSLog(@"[MODPACK-LOCAL] 探测到格式=mcbbs (mcbbs.packmeta, prefix=%@)", self.ameLocalRootPrefix ?: @"-");
+        NSLog(@"[MODPACK-LOCAL] Detected format=mcbbs (mcbbs.packmeta, prefix=%@)", self.ameLocalRootPrefix ?: @"-");
         return [self parseMCBBSPack:archive manifestData:mcbbsPackmetaData filePath:filePath error:error];
     }
 
@@ -579,10 +579,10 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
         NSDictionary *manifestProbe = [NSJSONSerialization JSONObjectWithData:manifestData options:0 error:nil];
         if ([manifestProbe isKindOfClass:[NSDictionary class]] &&
             [manifestProbe[@"addons"] isKindOfClass:[NSArray class]]) {
-            NSLog(@"[MODPACK-LOCAL] 探测到格式=mcbbs (manifest.json with addons, prefix=%@)", self.ameLocalRootPrefix ?: @"-");
+            NSLog(@"[MODPACK-LOCAL] Detected format=mcbbs (manifest.json with addons, prefix=%@)", self.ameLocalRootPrefix ?: @"-");
             return [self parseMCBBSPack:archive manifestData:manifestData filePath:filePath error:error];
         }
-        NSLog(@"[MODPACK-LOCAL] 探测到格式=curseforge (manifest.json, prefix=%@)", self.ameLocalRootPrefix ?: @"-");
+        NSLog(@"[MODPACK-LOCAL] Detected format=curseforge (manifest.json, prefix=%@)", self.ameLocalRootPrefix ?: @"-");
         return [self parseManifestModpack:archive manifestData:manifestData filePath:filePath error:error];
     }
 
@@ -593,7 +593,7 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
     //   - 也兼容 .minecraft/ 前缀的 zip（HMCL 导出格式之一）
     // 此格式无 mod 下载清单，所有文件直接从 zip 解压，loader 需用户后续手动安装。
     if ([self isPlainZipModpack:archive]) {
-        NSLog(@"[MODPACK-LOCAL] 探测到格式=plainzip (prefix=%@)", self.ameLocalRootPrefix ?: @"-");
+        NSLog(@"[MODPACK-LOCAL] Detected format=plainzip (prefix=%@)", self.ameLocalRootPrefix ?: @"-");
         return [self parsePlainZipModpack:archive filePath:filePath error:error];
     }
 
@@ -601,12 +601,12 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
         // ★ [MODPACK-LOCAL] 「格式错误」必须给出具体线索：列出实际顶层内容，便于一眼判断是
         // 真损坏 / 真不是整合包，还是某个未被识别的结构（而非笼统一句「格式错误」）。
         NSString *topLevel = [self ameLocal_topLevelSummaryForArchive:archive];
-        NSString *msg = [NSString stringWithFormat:@"%@（实际顶层内容: %@）", localize(@"i18n_str_528", nil), topLevel];
+        NSString *msg = [NSString stringWithFormat:@"%@ (actual top-level contents: %@)", localize(@"i18n_str_528", nil), topLevel];
         *error = [NSError errorWithDomain:@"ModpackImportError"
                                      code:1003
                                  userInfo:@{NSLocalizedDescriptionKey: msg}];
     }
-    NSLog(@"[MODPACK-LOCAL] 格式未识别: %@ (顶层内容: %@)", filePath, [self ameLocal_topLevelSummaryForArchive:archive]);
+    NSLog(@"[MODPACK-LOCAL] Unrecognized format: %@ (top-level contents: %@)", filePath, [self ameLocal_topLevelSummaryForArchive:archive]);
     return nil;
 }
 
@@ -1102,18 +1102,18 @@ static NSString *ameSafeZipDestination(NSString *fileName, NSString *baseDir) {
             // 用户完全无法判断是授权丢失、副本被清理还是外部文件未实体化）。
             NSString *detail;
             if (filePath.length == 0) {
-                detail = @"解析结果未携带文件路径";
+                detail = @"Parse result did not include a file path";
             } else if (![filePath hasPrefix:NSHomeDirectory()]) {
-                detail = @"外部路径已不可访问（security-scoped 授权已失效，且未成功落盘沙盒副本）";
+                detail = @"External path is no longer accessible (security-scoped access expired and no sandbox copy was saved)";
             } else {
-                detail = @"沙盒内副本缺失（可能被系统清理，请重新选择整合包文件）";
+                detail = @"Sandbox copy is missing (it may have been cleaned up by the system; please select the modpack file again)";
             }
-            NSString *msg = [NSString stringWithFormat:@"%@（%@）", localize(@"i18n_str_534", nil), detail];
+            NSString *msg = [NSString stringWithFormat:@"%@ (%@)", localize(@"i18n_str_534", nil), detail];
             *error = [NSError errorWithDomain:@"ModpackImportError"
                                          code:2001
                                      userInfo:@{NSLocalizedDescriptionKey: msg}];
         }
-        NSLog(@"[MODPACK-LOCAL] 导入期文件缺失: %@", filePath);
+        NSLog(@"[MODPACK-LOCAL] File missing during import: %@", filePath);
         return NO;
     }
 

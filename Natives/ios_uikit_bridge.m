@@ -81,10 +81,10 @@ static void AmeGameLandscapeApplyMask(UIInterfaceOrientationMask mask) {
                     NSLog(@"★ [GAME-LANDSCAPE] geometry request (mask=%lu) error: %@", (unsigned long)mask, error);
                 }];
             } else {
-                NSLog(@"★ [GAME-LANDSCAPE] legacy path: UIWindowSceneGeometryPreferencesIOS 缺失 ⇒ 跳过强转(mask=%lu)", (unsigned long)mask);
+                NSLog(@"★ [GAME-LANDSCAPE] legacy path: UIWindowSceneGeometryPreferencesIOS missing ⇒ skipping forced rotation (mask=%lu)", (unsigned long)mask);
             }
         } else {
-            NSLog(@"★ [GAME-LANDSCAPE] legacy path: 场景不支持 requestGeometryUpdateWithPreferences: ⇒ 仅靠 mask 收窄 + 重评估(mask=%lu)", (unsigned long)mask);
+            NSLog(@"★ [GAME-LANDSCAPE] legacy path: scene does not support requestGeometryUpdateWithPreferences: ⇒ relying on mask narrowing + re-evaluation only (mask=%lu)", (unsigned long)mask);
         }
         // 通知 UIKit 重新查询各窗口根 VC 链的 supportedInterfaceOrientations（改了 mask 的标准配套动作）。
         for (UIScene *s in UIApplication.sharedApplication.connectedScenes) {
@@ -121,7 +121,7 @@ void AmeGameLandscapeLockEnter(void) {
         BOOL was = gAmeGameLandscapeLocked;
         gAmeGameLandscapeLocked = YES;                    // 先落状态再发请求：mask 查询与请求同拍生效
         AmeGameLandscapeApplyMask(UIInterfaceOrientationMaskLandscape);
-        NSLog(@"★ [GAME-LANDSCAPE] ENTER (wasLocked=%d) ⇒ 支持方向=仅横屏(已请求转到横屏)", was);
+        NSLog(@"★ [GAME-LANDSCAPE] ENTER (wasLocked=%d) ⇒ supported orientations = landscape only (rotation to landscape requested)", was);
     };
     if ([NSThread isMainThread]) apply();
     else dispatch_async(dispatch_get_main_queue(), apply);
@@ -132,7 +132,7 @@ void AmeGameLandscapeLockExit(void) {
         BOOL was = gAmeGameLandscapeLocked;
         gAmeGameLandscapeLocked = NO;
         AmeGameLandscapeApplyMask(UIInterfaceOrientationMaskAllButUpsideDown);   // 与 SceneDelegate 初始放开值逐字一致
-        NSLog(@"★ [GAME-LANDSCAPE] EXIT (wasLocked=%d) ⇒ 恢复启动器方向(竖屏+横屏)", was);
+        NSLog(@"★ [GAME-LANDSCAPE] EXIT (wasLocked=%d) ⇒ restoring launcher orientations (portrait + landscape)", was);
     };
     if ([NSThread isMainThread]) apply();
     else dispatch_async(dispatch_get_main_queue(), apply);

@@ -86,7 +86,7 @@
         self.hasPendingCompact = YES;
         return;
     }
-    NSLog(@"[SWIFT-BAR][MENU] layout=%@ 菜单=SwiftUI TabView items=%lu",
+    NSLog(@"[SWIFT-BAR][MENU] layout=%@ menu=SwiftUI TabView items=%lu",
           compact ? @"PORTRAIT" : @"LANDSCAPE",
           (unsigned long)self.menuItems.count);
 }
@@ -130,10 +130,10 @@
     //   icon = SF Symbol;tab = 标签栏短名;
     //   portrait / landscape 仅保留给 onMenuItemSelected 回调用。
     self.menuItems = @[
-        @{@"icon": @"house.fill",             @"tab": @"实例", @"portrait": @"实例", @"landscape": @"实例",     @"index": @0},
-        @{@"icon": @"arrow.down.circle.fill", @"tab": @"下载", @"portrait": @"下载", @"landscape": @"下载中心", @"index": @1},
-        @{@"icon": @"square.stack.3d.up.fill",@"tab": @"资源", @"portrait": @"资源", @"landscape": @"资源",     @"index": @2},
-        @{@"icon": @"gearshape.fill",         @"tab": @"设置", @"portrait": @"设置", @"landscape": @"设置",     @"index": @3}
+        @{@"icon": @"house.fill",             @"tab": @"Instances", @"portrait": @"Instances", @"landscape": @"Instances", @"index": @0},
+        @{@"icon": @"arrow.down.circle.fill", @"tab": @"Downloads", @"portrait": @"Downloads", @"landscape": @"Download Center", @"index": @1},
+        @{@"icon": @"square.stack.3d.up.fill",@"tab": @"Resources", @"portrait": @"Resources", @"landscape": @"Resources", @"index": @2},
+        @{@"icon": @"gearshape.fill",         @"tab": @"Settings", @"portrait": @"Settings", @"landscape": @"Settings", @"index": @3}
     ];
 
     self.selectedIndex = 0;
@@ -156,7 +156,7 @@
     NSNumber *n = note.userInfo[@"index"];
     if (![n isKindOfClass:[NSNumber class]]) return;
     NSInteger idx = n.integerValue;
-    NSLog(@"[ROOTTAB] MenuVC 收到 index=%ld ⇒ handleMenuSelection:", (long)idx);
+    NSLog(@"[ROOTTAB] MenuVC received index=%ld => handleMenuSelection:", (long)idx);
     // ★ [ROOTTAB-FIX] 主页(idx=0)也必须走一遍:用户报「从主页跳出后无法通过底栏切回主页」。
     [self handleMenuSelection:idx];
 }
@@ -190,7 +190,7 @@
     // ★ [SWIFT-BAR] tag = 初始选中下标(0 = 实例,与 menuItems 顺序一致)
     UIViewController *bar = [AmeTabBarHost makeHostWithTag:0];
     if (!bar) {
-        NSLog(@"[SWIFT-BAR] AmeTabBarHost 返回 nil,底部标签栏缺失");
+        NSLog(@"[SWIFT-BAR] AmeTabBarHost returned nil, bottom tab bar missing");
         return;
     }
     bar.view.translatesAutoresizingMaskIntoConstraints = NO;
@@ -214,7 +214,7 @@
                                                  name:@"AmeTabSelected"
                                                object:nil];
 
-    NSLog(@"[SWIFT-BAR] 已安装 SwiftUI TabView 宿主 items=%lu titles=%@",
+    NSLog(@"[SWIFT-BAR] installed SwiftUI TabView host items=%lu titles=%@",
           (unsigned long)self.menuItems.count, [self.menuItems valueForKey:@"tab"]);
 }
 
@@ -230,7 +230,7 @@
     self.selectedIndex = index;
 
     NSString *title = [self sysTabBarTitleForItem:self.menuItems[index]];
-    NSLog(@"[SWIFT-BAR] 选中 %ld (%@)", (long)index, title);
+    NSLog(@"[SWIFT-BAR] selected %ld (%@)", (long)index, title);
 
     if (self.onMenuItemSelected) {
         self.onMenuItemSelected(index, title ?: @"");

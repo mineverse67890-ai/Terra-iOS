@@ -1236,7 +1236,7 @@ static void ame_noteDroppedMinimized(void) {
     unsigned long dn = atomic_fetch_add(&s_minDropCount, 1) + 1;
     if (dn <= 10 || dn % 50 == 0) {
         NSDebugLog(@"[SDLHook] Task56 drop SDL_EVENT_WINDOW_MINIMIZED #%lu "
-                   @"(iconified 源头掐断：宿主 CAMetalLayer 仍可呈现)", dn);
+                   @"(iconified cut off at the source: host CAMetalLayer can still present)", dn);
     }
 }
 

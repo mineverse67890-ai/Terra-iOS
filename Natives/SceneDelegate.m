@@ -50,14 +50,14 @@ extern UIWindow *mainWindow;
                     NSLog(@"[SceneDelegate] Failed to update geometry: %@", error);
                 }];
             } else {
-                NSLog(@"★ [GAME-LANDSCAPE] legacy path: UIWindowSceneGeometryPreferencesIOS 缺失 ⇒ 跳过初始 geometry 请求");
+                NSLog(@"★ [GAME-LANDSCAPE] legacy path: UIWindowSceneGeometryPreferencesIOS missing => skipping initial geometry request");
             }
         } else {
-            NSLog(@"★ [GAME-LANDSCAPE] legacy path: 场景不支持 requestGeometryUpdateWithPreferences: ⇒ 跳过初始 geometry 请求");
+            NSLog(@"★ [GAME-LANDSCAPE] legacy path: scene does not support requestGeometryUpdateWithPreferences: => skipping initial geometry request");
         }
     } else if ([UIViewController respondsToSelector:NSSelectorFromString(@"attemptRotationToDeviceOrientation")]) {
         [UIViewController attemptRotationToDeviceOrientation];
-        NSLog(@"★ [GAME-LANDSCAPE] legacy path: iOS<16 ⇒ 初始方向走 attemptRotationToDeviceOrientation");
+        NSLog(@"★ [GAME-LANDSCAPE] legacy path: iOS<16 => initial orientation via attemptRotationToDeviceOrientation");
     }
     
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
@@ -222,9 +222,9 @@ extern UIWindow *mainWindow;
     // 语言已切换的确认提示（用新语言显示），明确告诉用户"已经真的换了"。
     dispatch_async(dispatch_get_main_queue(), ^{
         UIAlertController *alert = [UIAlertController
-            alertControllerWithTitle:localize(@"preference.lang.switched.title", @"语言已切换")
+            alertControllerWithTitle:localize(@"preference.lang.switched.title", @"Language Changed")
                              message:localize(@"preference.lang.switched.message",
-                                 @"界面已按所选语言重新加载。")
+                                 @"The interface has been reloaded in the selected language.")
                       preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:localize(@"OK", nil)
                                                   style:UIAlertActionStyleDefault
@@ -295,7 +295,7 @@ extern UIWindow *mainWindow;
     UIViewController *presenter = self.window.rootViewController;
     while (presenter.presentedViewController) presenter = presenter.presentedViewController;
     if (!presenter) {
-        NSLog(@"★ [VI-FLOW] 向导：无可用 presenter，本次跳过");
+        NSLog(@"★ [VI-FLOW] wizard: no presenter available, skipping this time");
         return;
     }
 
@@ -303,7 +303,7 @@ extern UIWindow *mainWindow;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.modalPresentationStyle = UIModalPresentationFormSheet;
     [presenter presentViewController:nav animated:YES completion:nil];
-    NSLog(@"★ [VI-FLOW] 向导已弹出（只写设置、不搬文件；可跳过；可选「以后不再提示」）");
+    NSLog(@"★ [VI-FLOW] wizard presented (writes settings only, does not move files; skippable; optional \"Don't show again\")");
 }
 
 - (void)applyUITheme:(NSNotification *)notification {

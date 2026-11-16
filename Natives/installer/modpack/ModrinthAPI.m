@@ -19,11 +19,11 @@ static const NSInteger kMRAMListAllSourcesFailedCode = 9001;
 /// ★ [MODSRC-LIST] 把各候选的失败原因汇总成一条可辨识的错误（含 HTTP 状态码 / 源主机），
 ///   供 UI 显示 —— 取代旧实现「请求失败静默转成空数组 ⇒ 用户只看到『暂无』」。
 static NSError *MRAMListRequestError(NSArray<NSString *> *failures) {
-    NSString *detail = failures.count ? [failures componentsJoinedByString:@" | "] : @"无可用源";
+    NSString *detail = failures.count ? [failures componentsJoinedByString:@" | "] : @"no sources available";
     return [NSError errorWithDomain:@"ModrinthAPIError"
                                code:kMRAMListAllSourcesFailedCode
                            userInfo:@{NSLocalizedDescriptionKey:
-                                          [NSString stringWithFormat:@"Modrinth 列表请求失败: %@", detail]}];
+                                          [NSString stringWithFormat:@"Modrinth list request failed: %@", detail]}];
 }
 
 @interface ModrinthAPI ()
@@ -470,7 +470,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
     NSString *base = candidates[index];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", base, pathQuery]];
     if (!url) {
-        [failures addObject:[NSString stringWithFormat:@"%@ (URL 无效)", base]];
+        [failures addObject:[NSString stringWithFormat:@"%@ (invalid URL)", base]];
         [self mramFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject
                                index:index + 1 failures:failures completion:completion];
         return;
@@ -489,7 +489,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
         NSString *reason = nil;
 
         if (error) {
-            reason = [NSString stringWithFormat:@"%@ HTTP=%ld 网络错误(%@)", base, (long)status, error.localizedDescription ?: @"?"];
+            reason = [NSString stringWithFormat:@"%@ HTTP=%ld network error (%@)", base, (long)status, error.localizedDescription ?: @"?"];
         } else if (status != 0 && (status < 200 || status >= 300)) {
             // ★ [MODSRC-LIST] 旧实现不检查 HTTP 状态；镜像 5xx 的 JSON 错误体（无 hits）
             //   会被静默转成空数组 ⇒ 用户只看到「暂无」。现在按失败处理并切下一个源。
@@ -506,7 +506,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
                 }
                 mapped = out;
             } else {
-                reason = [NSString stringWithFormat:@"%@ HTTP=%ld 响应缺少 %@ 数组", base, (long)status, arrayKey];
+                reason = [NSString stringWithFormat:@"%@ HTTP=%ld response missing %@ array", base, (long)status, arrayKey];
             }
         }
 
@@ -515,7 +515,7 @@ static NSString *ameLocalizedSearchKeyword(NSString *query) {
             if (completion) completion(mapped, nil);
             return;
         }
-        [failures addObject:reason ?: [NSString stringWithFormat:@"%@ 未知错误", base]];
+        [failures addObject:reason ?: [NSString stringWithFormat:@"%@ unknown error", base]];
         [self mramFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject
                                index:index + 1 failures:failures completion:completion];
     }];

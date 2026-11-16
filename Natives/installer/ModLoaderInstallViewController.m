@@ -810,7 +810,7 @@ static NSArray<NSString *> *PALParseForgeMetaXML(NSData *data, NSString *gameVer
         _errorLabel.text = localize(@"i18n_str_1208", nil);
     }
     [_tableView reloadData];
-    NSLog(@"[PCL-ALIGN] ModLoaderInstallViewController NeoForge unavailable: mc=%@ → 提示 neoforge.no_version_for_mc（该版本暂无 NeoForge 适配）", gameVersion ?: @"");
+    NSLog(@"[PCL-ALIGN] ModLoaderInstallViewController NeoForge unavailable: mc=%@ → showing neoforge.no_version_for_mc (no NeoForge build for this version yet)", gameVersion ?: @"");
 }
 
 #pragma mark OptiFine (BMCLAPI 列表)

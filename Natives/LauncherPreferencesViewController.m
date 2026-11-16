@@ -272,8 +272,8 @@
             // 显示为「日本語（部分翻译）」——与语言选单同一事实源、同一标注。
             NSString *name = AmeLauncherDisplayNameAnnotatedForLanguageCode(AmeLauncherEffectiveLanguageCode());
             if (override.length == 0) {
-                return [NSString stringWithFormat:@"%@（%@）", name,
-                        localize(@"preference.lang.follow_system", @"跟随系统")];
+                return [NSString stringWithFormat:@"%@ (%@)", name,
+                        localize(@"preference.lang.follow_system", @"Follow System")];
             }
             return name;
         }
@@ -1675,7 +1675,7 @@
         alertControllerWithTitle:title
                          message:message
                   preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"OK", @"好的")
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"OK", @"OK")
                                               style:UIAlertActionStyleDefault
                                             handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
@@ -1699,12 +1699,12 @@
         alertControllerWithTitle:title
                          message:message
                   preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"check_update.download", @"前往下载")
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"check_update.download", @"Go to Download")
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction *action) {
         [UpdateChecker openReleasePage];
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"Cancel", @"取消")
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"Cancel", @"Cancel")
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
@@ -1714,15 +1714,15 @@
 
 - (void)showMemoryLimitHelp {
     UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:localize(@"mem_help.title", @"关于内存限制")
+        alertControllerWithTitle:localize(@"mem_help.title", @"About Memory Limits")
                          message:localize(@"mem_help.message",
-                             @"iOS 18 / iOS 26 单实例内存上限约为 1440MB，玩大型整合包时可能因内存不足崩溃。\n\n"
-                              "解决方法：\n"
-                              "使用 GetMoreRam (LiveContainer 插件) 解除内存限制。\n"
-                              "GetMoreRam 仓库：github.com/hugeBlack/GetMoreRam\n\n"
-                              "安装后重启启动器即可生效。\n\n"
-                              "如果不使用 LiveContainer，可尝试降低内存分配（设置 > Java > 内存分配），"
-                              "但部分整合包在内存限制下可能无法正常运行。")
+                             @"On iOS 18 / iOS 26 the per-app memory limit is about 1440MB, so large modpacks may crash due to insufficient memory.\n\n"
+                              "Solution:\n"
+                              "Use GetMoreRam (a LiveContainer plugin) to lift the memory limit.\n"
+                              "GetMoreRam repository: github.com/hugeBlack/GetMoreRam\n\n"
+                              "Restart the launcher after installing for it to take effect.\n\n"
+                              "If you don't use LiveContainer, try lowering the memory allocation (Settings > Java > Memory Allocation), "
+                              "but some modpacks may not run properly under the memory limit.")
                   preferredStyle:UIAlertControllerStyleAlert];
 
     [alert addAction:[UIAlertAction actionWithTitle:@"GetMoreRam"

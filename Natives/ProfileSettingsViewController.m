@@ -84,26 +84,26 @@ static NSString * localizeProfileTitle(NSString *title) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         map = @{
-            @"渲染器": @"preference.title.renderer",
-            @"图形 API": @"i18n_str_2057",
-            @"Java版本": @"i18n_str_2036",
-            @"内存分配": @"i18n_str_2037",
-            @"JVM 启动参数": @"preference.title.java_args",
-            @"清除JVM参数": @"i18n_str_2038",
-            @"名称": @"preference.profile.title.name",
-            @"游戏版本": @"i18n_str_2031",
-            @"游戏目录": @"preference.title.game_directory",
+            @"Renderer": @"preference.title.renderer",
+            @"Graphics API": @"i18n_str_2057",
+            @"Java Version": @"i18n_str_2036",
+            @"Memory Allocation": @"i18n_str_2037",
+            @"JVM Arguments": @"preference.title.java_args",
+            @"Clear JVM Arguments": @"i18n_str_2038",
+            @"Name": @"preference.profile.title.name",
+            @"Game Version": @"i18n_str_2031",
+            @"Game Directory": @"preference.title.game_directory",
             // ★ [VI-SWITCH-UI] 版本隔离（本页才是实例设置的真实页面；LauncherProfileEditorViewController 已被本类取代且无实例化点）
-            @"版本隔离": @"preference.profile.title.version_isolation",
+            @"Version Isolation": @"preference.profile.title.version_isolation",
             // ★ [VI-MIGRATE-AUTO] 版本数据自动识别迁移入口
-            @"版本自动迁移": @"preference.migrate.auto.title",
+            @"Auto Version Migration": @"preference.migrate.auto.title",
             // ★ [VI-FLOW] 手动重新打开版本隔离向导（哨兵落了也能再看）
-            @"版本隔离向导": @"preference.vi.wizard.reopen",
-            @"模组管理": @"i18n_str_2039",
-            @"光影管理": @"i18n_str_2016",
-            @"资源包管理": @"i18n_str_2040",
-            @"数据包管理": @"i18n_str_2041",
-            @"世界管理": @"i18n_str_2042",
+            @"Version Isolation Wizard": @"preference.vi.wizard.reopen",
+            @"Mod Manager": @"i18n_str_2039",
+            @"Shader Manager": @"i18n_str_2016",
+            @"Resource Pack Manager": @"i18n_str_2040",
+            @"Data Pack Manager": @"i18n_str_2041",
+            @"World Manager": @"i18n_str_2042",
             @"Fabric API": @"Fabric API",
             @"OptiFine": @"OptiFine",
         };
@@ -550,9 +550,9 @@ static NSString * localizeProfileTitle(NSString *title) {
     //   5: 服务器          - 服务器地址
     // 逻辑键（"渲染器"/"内存分配"…）保持原中文字面量不变 —— didSelect / cellForRow 的
     // isEqualToString: 比较依赖它们；本改动只动「呈现与交互组织」。
-    NSMutableArray *runtimeRows = [NSMutableArray arrayWithArray:@[@"内存分配", @"渲染器"]];
+    NSMutableArray *runtimeRows = [NSMutableArray arrayWithArray:@[@"Memory Allocation", @"Renderer"]];
     if ([self isCurrentProfileModernVersion]) {
-        [runtimeRows addObject:@"图形 API"];
+        [runtimeRows addObject:@"Graphics API"];
     }
 
     // ★ [VI-SWITCH-UI] 版本信息组补「版本隔离」开关行 —— 这是用户实际能打开的实例设置页，
@@ -560,10 +560,10 @@ static NSString * localizeProfileTitle(NSString *title) {
     // ★ [VI-POLISH] A：该行升级为「自动 / 隔离 / 共享」三态选择；紧随其后补一行只读的「隔离判定」
     //   说明（当前判定为什么是这个结果 —— 哪个目录存在），行本身不可点、不写任何键。
     self.sections = @[
-        @[@"名称", @"游戏版本", @"游戏目录", @"版本隔离", @"隔离判定", @"版本自动迁移", @"版本隔离向导"],
+        @[@"Name", @"Game Version", @"Game Directory", @"Version Isolation", @"Isolation Status", @"Auto Version Migration", @"Version Isolation Wizard"],
         [runtimeRows copy],
-        @[@"Java版本", @"JVM 启动参数", @"清除JVM参数"],
-        @[@"模组管理", @"光影管理", @"资源包管理", @"数据包管理", @"世界管理"],
+        @[@"Java Version", @"JVM Arguments", @"Clear JVM Arguments"],
+        @[@"Mod Manager", @"Shader Manager", @"Resource Pack Manager", @"Data Pack Manager", @"World Manager"],
         @[@"Fabric API", @"OptiFine"],
         @[localize(@"i18n_str_730", nil)]
     ];
@@ -735,7 +735,7 @@ static NSString * localizeProfileTitle(NSString *title) {
     NSInteger gs = [self globalSectionForTableView:tableView localSection:indexPath.section];
     if (gs == 0 && gs < (NSInteger)self.sections.count) {
         NSArray *rows = self.sections[gs];
-        if (indexPath.row < (NSInteger)rows.count && [rows[indexPath.row] isEqualToString:@"隔离判定"]) {
+        if (indexPath.row < (NSInteger)rows.count && [rows[indexPath.row] isEqualToString:@"Isolation Status"]) {
             // 宽度按最窄可用宽保守估算（扣实时安全区 + insetGrouped 分组留白）：
             // 宁可多留一点白，也不让末行被裁。
             CGFloat avail = tableView.bounds.size.width
@@ -904,7 +904,7 @@ static NSString * localizeProfileTitle(NSString *title) {
     if (explainSection == 0 && explainSection < (NSInteger)self.sections.count) {
         NSArray *explainRows = self.sections[explainSection];
         if (indexPath.row < (NSInteger)explainRows.count &&
-            [explainRows[indexPath.row] isEqualToString:@"隔离判定"]) {
+            [explainRows[indexPath.row] isEqualToString:@"Isolation Status"]) {
             return [self ameVersionIsolationExplainCellForTableView:tableView];
         }
     }
@@ -937,21 +937,21 @@ static NSString * localizeProfileTitle(NSString *title) {
     // 行与行因此不再挤在一个格子里（呈现与交互组织变化，写入路径不变）。
     switch (globalSection) {
         case 0: // ★ 版本信息
-            if ([title isEqualToString:@"名称"]) {
+            if ([title isEqualToString:@"Name"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"tag"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = self.profile[@"name"] ?: self.originalName;
-            } else if ([title isEqualToString:@"游戏版本"]) {
+            } else if ([title isEqualToString:@"Game Version"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"archivebox"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 // 版本选择器(弹出式 inputView)仍是承载控件；点整行 ⇒ becomeFirstResponder 弹起
                 cell.accessoryView = [self buildVersionTextField];
                 cell.detailTextLabel.text = nil;
-            } else if ([title isEqualToString:@"游戏目录"]) {
+            } else if ([title isEqualToString:@"Game Directory"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"folder"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = self.profile[@"gameDir"] ?: @".";
-            } else if ([title isEqualToString:@"版本隔离"]) {
+            } else if ([title isEqualToString:@"Version Isolation"]) {
                 // ★ [VI-POLISH] A：由 UISwitch 升级为「自动 / 隔离 / 共享」三态选择（对齐 Zalith 的
                 //   全局 + 实例三态；我们 profile 的 versionIsolation 本就是这三态，这里只是显式化）。
                 //   自动 = 不落键（走 嗅探 → 全局默认，★ 默认值未改：默认仍是关）；隔离 = "1"；共享 = "0"。
@@ -971,13 +971,13 @@ static NSString * localizeProfileTitle(NSString *title) {
                 seg.frame = CGRectMake(0, 0, MAX(186.0, segFit.width), 32.0);
                 cell.accessoryView = seg;
                 cell.detailTextLabel.text = nil;
-            } else if ([title isEqualToString:@"版本自动迁移"]) {
+            } else if ([title isEqualToString:@"Auto Version Migration"]) {
                 // ★ [VI-MIGRATE-AUTO] 点整行打开「选文件夹 → 自动识别 → 分组确认」页。
                 // 复用既有「图标+标题+detail+chevron」行范式；不在此行做任何扫描/搬运。
                 cell.imageView.image = [UIImage systemImageNamed:@"arrow.triangle.branch"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = localize(@"preference.migrate.auto.subtitle", nil);
-            } else if ([title isEqualToString:@"版本隔离向导"]) {
+            } else if ([title isEqualToString:@"Version Isolation Wizard"]) {
                 // ★ [VI-FLOW]（用户修正 1）：手动重新打开版本隔离向导的入口 —— 即使用户已选过
                 //   「以后不再提示」，也能随时再看（本入口不经过哨兵）。复用同一「行范式」。
                 cell.imageView.image = [UIImage systemImageNamed:@"wand.and.stars"];
@@ -987,15 +987,15 @@ static NSString * localizeProfileTitle(NSString *title) {
             break;
 
         case 1: // ★ 内存与性能
-            if ([title isEqualToString:@"内存分配"]) {
+            if ([title isEqualToString:@"Memory Allocation"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"memorychip"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = [NSString stringWithFormat:@"%ld MB / %ld MB", (long)self.allocatedMemory, (long)self.maxMemory];
-            } else if ([title isEqualToString:@"渲染器"]) {
+            } else if ([title isEqualToString:@"Renderer"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"cpu"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = [self rendererDisplayName:self.selectedRenderer];
-            } else if ([title isEqualToString:@"图形 API"]) {
+            } else if ([title isEqualToString:@"Graphics API"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"rectangle.dashed"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = [self graphicsApiDisplayName:self.selectedGraphicsApi];
@@ -1003,15 +1003,15 @@ static NSString * localizeProfileTitle(NSString *title) {
             break;
 
         case 2: // ★ Java 与启动参数
-            if ([title isEqualToString:@"Java版本"]) {
+            if ([title isEqualToString:@"Java Version"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"j.square"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = [self.selectedJavaVersion isEqualToString:@"0"] ? localize(@"preference.auto", nil) : [NSString stringWithFormat:@"Java %@", self.selectedJavaVersion];
-            } else if ([title isEqualToString:@"JVM 启动参数"]) {
+            } else if ([title isEqualToString:@"JVM Arguments"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"slider.vertical.3"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 cell.detailTextLabel.text = self.javaArgs.length > 0 ? self.javaArgs : @"(default)";
-            } else if ([title isEqualToString:@"清除JVM参数"]) {
+            } else if ([title isEqualToString:@"Clear JVM Arguments"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"trash"];
                 cell.imageView.tintColor = [UIColor systemRedColor];
                 cell.textLabel.textColor = [UIColor systemRedColor];
@@ -1020,19 +1020,19 @@ static NSString * localizeProfileTitle(NSString *title) {
             break;
 
         case 3: // ★ 资源管理
-            if ([title isEqualToString:@"模组管理"]) {
+            if ([title isEqualToString:@"Mod Manager"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"puzzlepiece.fill"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            } else if ([title isEqualToString:@"光影管理"]) {
+            } else if ([title isEqualToString:@"Shader Manager"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"paintbrush.fill"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            } else if ([title isEqualToString:@"资源包管理"]) {
+            } else if ([title isEqualToString:@"Resource Pack Manager"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"rectangle.stack.fill"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            } else if ([title isEqualToString:@"数据包管理"]) {
+            } else if ([title isEqualToString:@"Data Pack Manager"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"shippingbox.fill"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            } else if ([title isEqualToString:@"世界管理"]) {
+            } else if ([title isEqualToString:@"World Manager"]) {
                 cell.imageView.image = [UIImage systemImageNamed:@"globe.asia.australia.fill"];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
@@ -1389,53 +1389,53 @@ static NSString * localizeProfileTitle(NSString *title) {
     // ★ [INST-SETTINGS] 点整行分发；「需要输入/选择」的项一律弹出式（与组内其它项一致）。
     switch (globalSection) {
         case 0: // ★ 版本信息
-            if ([title isEqualToString:@"名称"]) {
+            if ([title isEqualToString:@"Name"]) {
                 [self ameEditProfileName];                     // 弹出式文本输入
-            } else if ([title isEqualToString:@"游戏版本"]) {
+            } else if ([title isEqualToString:@"Game Version"]) {
                 if (self.versionTextField) [self.versionTextField becomeFirstResponder];  // 弹出式 picker
-            } else if ([title isEqualToString:@"游戏目录"]) {
+            } else if ([title isEqualToString:@"Game Directory"]) {
                 [self editGameDir];                            // 既有弹出式文本输入
-            } else if ([title isEqualToString:@"版本隔离"]) {
+            } else if ([title isEqualToString:@"Version Isolation"]) {
                 [self ameCycleVersionIsolation];                // ★ [VI-POLISH] A：点整行在三态间循环
-            } else if ([title isEqualToString:@"隔离判定"]) {
+            } else if ([title isEqualToString:@"Isolation Status"]) {
                 // ★ [VI-POLISH] A：只读说明行，点它不产生任何动作（无写入、无弹窗）。
-            } else if ([title isEqualToString:@"版本自动迁移"]) {
+            } else if ([title isEqualToString:@"Auto Version Migration"]) {
                 [self ameOpenAutoMigrate];                      // ★ [VI-MIGRATE-AUTO]
-            } else if ([title isEqualToString:@"版本隔离向导"]) {
+            } else if ([title isEqualToString:@"Version Isolation Wizard"]) {
                 [self ameOpenVersionIsolationWizard];           // ★ [VI-FLOW] 手动重开向导
             }
             break;
 
         case 1: // ★ 内存与性能
-            if ([title isEqualToString:@"内存分配"]) {
+            if ([title isEqualToString:@"Memory Allocation"]) {
                 [self showMemoryAllocator];                    // 弹出式选择
-            } else if ([title isEqualToString:@"渲染器"]) {
+            } else if ([title isEqualToString:@"Renderer"]) {
                 [self showRendererSelector];                   // 弹出式选择
-            } else if ([title isEqualToString:@"图形 API"]) {
+            } else if ([title isEqualToString:@"Graphics API"]) {
                 [self showGraphicsApiSelector];                // 弹出式选择
             }
             break;
 
         case 2: // ★ Java 与启动参数
-            if ([title isEqualToString:@"Java版本"]) {
+            if ([title isEqualToString:@"Java Version"]) {
                 [self showJavaVersionSelector];                // 弹出式选择
-            } else if ([title isEqualToString:@"JVM 启动参数"]) {
+            } else if ([title isEqualToString:@"JVM Arguments"]) {
                 [self ameEditJavaArgs];                        // 弹出式文本输入
-            } else if ([title isEqualToString:@"清除JVM参数"]) {
+            } else if ([title isEqualToString:@"Clear JVM Arguments"]) {
                 [self clearJavaArgs];                          // 弹出式确认
             }
             break;
 
         case 3: // ★ 资源管理
-            if ([title isEqualToString:@"模组管理"]) {
+            if ([title isEqualToString:@"Mod Manager"]) {
                 [self openModsManager];
-            } else if ([title isEqualToString:@"光影管理"]) {
+            } else if ([title isEqualToString:@"Shader Manager"]) {
                 [self openShadersManager];
-            } else if ([title isEqualToString:@"资源包管理"]) {
+            } else if ([title isEqualToString:@"Resource Pack Manager"]) {
                 [self openResourcePacksManager];
-            } else if ([title isEqualToString:@"数据包管理"]) {
+            } else if ([title isEqualToString:@"Data Pack Manager"]) {
                 [self openDataPacksManager];
-            } else if ([title isEqualToString:@"世界管理"]) {
+            } else if ([title isEqualToString:@"World Manager"]) {
                 [self openWorldsManager];
             }
             break;
@@ -1692,13 +1692,13 @@ static NSString * localizeProfileTitle(NSString *title) {
     [a addAction:[UIAlertAction actionWithTitle:localize(@"preference.vi.flow.migrate.later", nil)
                                          style:UIAlertActionStyleCancel
                                        handler:^(UIAlertAction *x){
-        NSLog(@"★ [VI-UI-FIX] 版本隔离：用户选择「暂不」迁移（设置已保存，未搬任何文件）");
+        NSLog(@"★ [VI-UI-FIX] Version isolation: user chose \"Not now\" for migration (setting saved, no files moved)");
     }]];
     // ★ [VI-UI-FIX]「去迁移」：消息体已由 ameOpenAutoMigrate 延到下一轮 runloop 呈现，
     //   保证本 alert 收尾后再 present 迁移页（两个动作都必须有效，不能有一个点了没反应）。
     [a addAction:[UIAlertAction actionWithTitle:localize(@"preference.vi.flow.migrate.go", nil)
                                          style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){
-        NSLog(@"★ [VI-UI-FIX] 版本隔离：用户选择「去迁移」⇒ 打开自动识别迁移页");
+        NSLog(@"★ [VI-UI-FIX] Version isolation: user chose \"Migrate\" => opening auto-detect migration page");
         [ws ameOpenAutoMigrate];
     }]];
     // ★ [VI-UI-FIX] 由最顶层可呈现 VC 弹出，避免 self 已挂模态时被静默丢弃。

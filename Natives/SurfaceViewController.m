@@ -1100,7 +1100,7 @@ static UIView *findSDL_uikitview(UIView *root);
     UIHoverGestureRecognizer *hoverGesture = [[NSClassFromString(@"UIHoverGestureRecognizer") alloc] initWithTarget:self action:@selector(surfaceOnHover:)];
     [self.touchView addGestureRecognizer:hoverGesture];
     // ★ [BT-MOUSE-DIAG] 确认 hover 手势确实挂上（不挂 = 间接指针通道根本没建）。
-    NSLog(@"[BT-MOUSE][raw] hover 手势挂载: gesture=%@ host=%@ userInteraction=%d phone=%d",
+    NSLog(@"[BT-MOUSE][raw] hover gesture attached: gesture=%@ host=%@ userInteraction=%d phone=%d",
           NSStringFromClass([hoverGesture class]), NSStringFromClass([self.touchView class]),
           self.touchView.userInteractionEnabled, btRawIsPhysicalPhone());
 
@@ -1309,7 +1309,7 @@ static UIView *findSDL_uikitview(UIView *root);
         }
     } else if ([UIViewController respondsToSelector:NSSelectorFromString(@"attemptRotationToDeviceOrientation")]) {
         [UIViewController attemptRotationToDeviceOrientation];
-        NSLog(@"★ [GAME-LANDSCAPE] legacy path: iOS<16 ⇒ attemptRotationToDeviceOrientation 重评估方向(本 VC 恒 landscape)");
+        NSLog(@"★ [GAME-LANDSCAPE] legacy path: iOS<16 ⇒ attemptRotationToDeviceOrientation re-evaluates orientation (this VC is always landscape)");
     }
 
     // LAN 端口检测器已改为手动输入模式（LanPortDetector.h 说明），
@@ -1588,7 +1588,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
             NSLog(@"[SurfaceViewController] Error: metadata is nil");
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self dismissLaunchOverlayOnError];
-                showDialog(localize(@"Error", nil), @"游戏资源加载失败，请重新选择版本");  // ★ [ACCT-AUDIT]
+                showDialog(localize(@"Error", nil), @"Failed to load game resources. Please select the version again.");  // ★ [ACCT-AUDIT]
             });
             return;
         }
@@ -1609,7 +1609,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self dismissLaunchOverlayOnError];
                 showDialog(localize(@"Error", nil),
-                    [NSString stringWithFormat:@"LTW 渲染器不支持 MC %@：\n\n26.x 的云渲染管线需要纹理缓冲（samplerBuffer），而 LTW 在 iOS 上的 ES 3.0 后端无法提供，启动后必崩在标题界面。\n\n请到 设置 → 视频设置 → 渲染器 切换到 Zink 或 MobileGlues 后重试。LTW 仍可用于 1.21.x 及更早版本。", ame87_versionId]);
+                    [NSString stringWithFormat:@"The LTW renderer does not support MC %@.\n\nThe 26.x cloud rendering pipeline requires texture buffers (samplerBuffer), which LTW's ES 3.0 backend on iOS cannot provide, so the game would crash at the title screen.\n\nGo to Settings → Video Settings → Renderer, switch to Zink or MobileGlues, and try again. LTW still works for 1.21.x and earlier.", ame87_versionId]);
             });
             return;
         }
@@ -1629,7 +1629,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
             NSLog(@"[SurfaceViewController] Error: no authenticator available");
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self dismissLaunchOverlayOnError];
-                showDialog(localize(@"Error", nil), @"请先登录账户");  // ★ [ACCT-AUDIT]
+                showDialog(localize(@"Error", nil), @"Please sign in to an account first.");  // ★ [ACCT-AUDIT]
             });
             return;
         }
@@ -1765,7 +1765,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
     // 标题文字（转圈下方，简短提示）
     self.launchTitleLabel = [[UILabel alloc] init];
     self.launchTitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.launchTitleLabel.text = localize(@"launch.title", @"正在启动 Minecraft");
+    self.launchTitleLabel.text = localize(@"launch.title", @"Launching Minecraft");
     self.launchTitleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
     self.launchTitleLabel.textColor = [UIColor colorWithWhite:0.9 alpha:1.0];
     self.launchTitleLabel.textAlignment = NSTextAlignmentCenter;
@@ -1841,7 +1841,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
     // ========================================================================
     self.launchCancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.launchCancelButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.launchCancelButton setTitle:localize(@"launch.cancel", @"取消启动") forState:UIControlStateNormal];
+    [self.launchCancelButton setTitle:localize(@"launch.cancel", @"Cancel Launch") forState:UIControlStateNormal];
     [self.launchCancelButton setTitleColor:[UIColor colorWithWhite:0.7 alpha:1.0] forState:UIControlStateNormal];
     self.launchCancelButton.titleLabel.font = [UIFont systemFontOfSize:14];
     self.launchCancelButton.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.1];
@@ -1931,22 +1931,22 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
         // 现场里的零 [SDLHook]/sdlWin=0x0 一律不得再当作故障证据。
         const char *ameWindowPath =
             (ameSdlConsulted > 0)          ? "SDL3(MC 26.3+, lwjgl-sdl)"
-          : (ameDlsymCalls > 0)            ? "GLFW/非SDL(MC <=26.2 走 GLFW；或 Metal 直渲)"
-          :                                  "UNKNOWN(dlsym 钩子从未被调用——先看 self-test 行)";
+          : (ameDlsymCalls > 0)            ? "GLFW/non-SDL(MC <=26.2 uses GLFW; or Metal direct rendering)"
+          :                                  "UNKNOWN(dlsym hook never called -- check the self-test line first)";
         const char *ameHookState =
-            (ameDlsymCalls == 0)           ? "NOT-CONSULTED(钩子从未被调用，见启动期 self-test)"
-          : (ameSdlConsulted > 0 && ameSdlTakenOver == 0) ? "CONSULTED-BUT-NOT-TAKEN-OVER(真·未生效)"
+            (ameDlsymCalls == 0)           ? "NOT-CONSULTED(hook never called, see startup self-test)"
+          : (ameSdlConsulted > 0 && ameSdlTakenOver == 0) ? "CONSULTED-BUT-NOT-TAKEN-OVER(genuinely not in effect)"
           : (ameSdlConsulted > 0)          ? "SDL3-HOOK-ACTIVE"
-          :                                  "LIVE-但本场未查 SDL(正常)";
+          :                                  "LIVE-but no SDL lookups this session(normal)";
         const char *ameVerdict =
-            (ameSwapOK > 0)                ? "FRAMES PRESENTED(swapOK>0)——45s 缺的是首帧通知，不是渲染"
-          : (ameSwapFail > 0)              ? "PRESENT FAILING(swapFail>0)——交换在跑但一直失败"
-          :                                  "NEVER PRESENTED(swapOK=0 swapFail=0)——启动未达交换阶段";
+            (ameSwapOK > 0)                ? "FRAMES PRESENTED(swapOK>0) -- the 45s timeout is a missing first-frame notification, not a rendering failure"
+          : (ameSwapFail > 0)              ? "PRESENT FAILING(swapFail>0) -- swaps are running but keep failing"
+          :                                  "NEVER PRESENTED(swapOK=0 swapFail=0) -- launch never reached the swap stage";
 
         NSLog(@"[SurfaceViewController] Launch overlay timeout after 45s [SDL-FIRSTFRAME] evidence: "
-              @"%s | 窗口链=%s | dlsym钩子=%s | "
-              @"present swapOK=%lu swapFail=%lu（gl 桥计数口径；Vulkan/Metal 直渲恒 0）| "
-              @"hooked_dlsym 调用=%lu（其中 SDL* 名字=%lu）| SDL3 兼容层 consulted=%lu takenOver=%lu",
+              @"%s | window chain=%s | dlsym hook=%s | "
+              @"present swapOK=%lu swapFail=%lu (GL bridge counters; always 0 for Vulkan/Metal direct rendering) | "
+              @"hooked_dlsym calls=%lu (SDL* names=%lu) | SDL3 compat layer consulted=%lu takenOver=%lu",
               ameVerdict, ameWindowPath, ameHookState,
               ameSwapOK, ameSwapFail, ameDlsymCalls, ameSdlNames, ameSdlConsulted, ameSdlTakenOver);
 
@@ -1969,10 +1969,10 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
 /// 取消启动：用户点击"取消启动"按钮时调用。
 /// 终止 JVM 启动流程，移除遮罩层，返回启动器主界面。
 - (void)cancelLaunch {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:localize(@"launch.cancel_confirm_title", @"确认取消启动？")
-                                                                   message:localize(@"launch.cancel_confirm_message", @"取消启动将终止当前的游戏加载流程并返回启动器。")
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:localize(@"launch.cancel_confirm_title", @"Cancel launch?")
+                                                                   message:localize(@"launch.cancel_confirm_message", @"Cancelling will stop the current game loading process and return to the launcher.")
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"launch.cancel_confirm_yes", @"确认取消")
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"launch.cancel_confirm_yes", @"Cancel Launch")
                                               style:UIAlertActionStyleDestructive
                                             handler:^(UIAlertAction *action) {
         NSLog(@"[SurfaceViewController] User cancelled launch");
@@ -1981,7 +1981,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
         // 返回启动器
         [[SurfaceViewController currentInstance].logOutputView dismissAndReturnToLauncher];
     }]];
-    [alert addAction:[UIAlertAction actionWithTitle:localize(@"launch.cancel_confirm_no", @"继续等待")
+    [alert addAction:[UIAlertAction actionWithTitle:localize(@"launch.cancel_confirm_no", @"Keep Waiting")
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];
@@ -2326,7 +2326,7 @@ static BOOL ame87_mcVersionRequiresTextureBuffer(NSString *mcVersionId) {
         BOOL inOverlay = (self.gameMenuOverlay && (v == self.gameMenuOverlay || [v isDescendantOfView:self.gameMenuOverlay]));
         BOOL inControls = (self.ctrlView && (v == self.ctrlView || [v isDescendantOfView:self.ctrlView]));
         if (inOverlay || inControls) {
-            NSLog(@"[KB-SPACE] 拒绝键盘焦点落入游戏内启动器控件: %@", NSStringFromClass([v class]));
+            NSLog(@"[KB-SPACE] rejected keyboard focus landing on in-game launcher control: %@", NSStringFromClass([v class]));
             return NO;
         }
     }
@@ -2384,9 +2384,9 @@ static btRawAXFunc btRawAXGet(void) {
           phone ? @"iPhone" : @"iPad/other", reason, (unsigned long)GCMouse.mice.count,
           axKnown ? (axOn ? @"on" : @"off") : @"unknown");
     if (phone && GCMouse.mice.count == 0 && (!axKnown || !axOn)) {
-        NSLog(@"[BT-MOUSE] iPhone 未开启辅助触控“指针设备” ⇒ 系统不会派发指针事件；"
-              @"请到 设置→辅助功能→触控→辅助触控 打开(并在其内把蓝牙鼠标连接为“指针设备”)，"
-              @"或在 iPad 上使用。");
+        NSLog(@"[BT-MOUSE] AssistiveTouch \"Pointer Devices\" is not enabled on this iPhone => the system will not deliver pointer events; "
+              @"enable it in Settings > Accessibility > Touch > AssistiveTouch (and connect the Bluetooth mouse as a \"Pointer Device\" there), "
+              @"or use an iPad.");
     }
 }
 
@@ -2670,7 +2670,7 @@ static btRawAXFunc btRawAXGet(void) {
     if ([self btPointerShouldHandle]) {
         if (!self.btPointerHoverLogged) {
             self.btPointerHoverLogged = YES;
-            NSLog(@"[BT-MOUSE] hover 指针接管: state=%ld GCMouse=%lu grabbing=%d", 
+            NSLog(@"[BT-MOUSE] hover pointer takeover: state=%ld GCMouse=%lu grabbing=%d", 
                   (long)sender.state, (unsigned long)GCMouse.mice.count, isGrabbing);
         }
         switch (sender.state) {
@@ -3395,7 +3395,7 @@ CALayer *Amethyst_SDL3RenderLayer(void) {
             }
             if (!self.btPointerTouchLogged) {
                 self.btPointerTouchLogged = YES;
-                NSLog(@"[BT-MOUSE] 检测到间接指针 touches: buttonMask=0x%lx GCMouse=%lu grabbing=%d enable=%d handle=%d",
+                NSLog(@"[BT-MOUSE] detected indirect pointer touches: buttonMask=0x%lx GCMouse=%lu grabbing=%d enable=%d handle=%d",
                       (unsigned long)event.buttonMask, (unsigned long)GCMouse.mice.count,
                       isGrabbing, getPrefBool(@"control.bt_pointer_enable"), [self btPointerShouldHandle]);
             }

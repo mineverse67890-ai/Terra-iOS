@@ -408,6 +408,11 @@ void AmeLauncherPrimeLanguage(void);
 NSString *AmeLauncherPreferredLanguageOverride(void);
 /// 写入/清除语言覆盖。code 为 nil 或空串时清除（回到跟随系统）。
 void AmeLauncherSetPreferredLanguageOverride(NSString *code);
+/// ★ [TERRA-EN] YES only after the user explicitly picked "Follow System".
+/// Fresh installs (no choice made) default to English regardless of device language.
+BOOL AmeLauncherFollowsSystemLanguage(void);
+/// ★ [TERRA-EN] Best match of the device's preferred languages among supported codes (nil if none).
+NSString *AmeLauncherSystemLanguageCode(void);
 /// 语言代码 → 人读显示名（用系统当前语言本地化）；取不到时回退返回 code 本身。
 NSString *AmeLauncherDisplayNameForLanguageCode(NSString *code);
 /// ★ [I18N] 语言选单要列出的语言（= AmeLauncherSupportedLanguageCodes，按显示名排序）。

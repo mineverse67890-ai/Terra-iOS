@@ -54,10 +54,10 @@ struct AmeTabItem: Identifiable {
 /// 4 项,与 LauncherMenuViewController.m 的 menuItems 顺序严格一致:
 ///   0 实例 · 1 下载 · 2 资源 · 3 设置
 let AmeTabItems: [AmeTabItem] = [
-    AmeTabItem(id: 0, title: "实例", symbol: "house.fill"),
-    AmeTabItem(id: 1, title: "下载", symbol: "arrow.down.circle.fill"),
-    AmeTabItem(id: 2, title: "资源", symbol: "square.stack.3d.up.fill"),
-    AmeTabItem(id: 3, title: "设置", symbol: "gearshape.fill"),
+    AmeTabItem(id: 0, title: "Instances", symbol: "house.fill"),
+    AmeTabItem(id: 1, title: "Downloads", symbol: "arrow.down.circle.fill"),
+    AmeTabItem(id: 2, title: "Resources", symbol: "square.stack.3d.up.fill"),
+    AmeTabItem(id: 3, title: "Settings", symbol: "gearshape.fill"),
 ]
 
 // MARK: - 状态

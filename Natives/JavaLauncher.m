@@ -708,9 +708,9 @@ void init_loadMobileGluesConfig() {
     id enableAngle = getPrefObject(@"mobileglues.enable_angle");
     BOOL angleOn = [enableAngle respondsToSelector:@selector(boolValue)] && [enableAngle boolValue];
     config[@"enableANGLE"] = angleOn ? @3 : @0;
-    NSLog(@"[JavaLauncher] Task158: mg backend -> MobileGlues mode 0 (直选) -- enableANGLE=%@, "
-          @"customGLVersion=%@ (Air 对齐：mode 0 不强制，保持 GL 4.0 默认；"
-          @"enableANGLE 在 iOS 上被 MG settings.cpp Apple 分支硬编码忽略)",
+    NSLog(@"[JavaLauncher] Task158: mg backend -> MobileGlues mode 0 (direct) -- enableANGLE=%@, "
+          @"customGLVersion=%@ (aligned with Air: mode 0 does not force it, keeps GL 4.0 default; "
+          @"enableANGLE is hard-coded to be ignored on iOS by the Apple branch of MG settings.cpp)",
           config[@"enableANGLE"], config[@"customGLVersion"]);
 
     id enableNoError = getPrefObject(@"mobileglues.enable_no_error");
@@ -772,7 +772,7 @@ void init_loadMobileGluesConfig() {
                 break;
         }
         config[@"multidrawOrder"] = mdOrder;
-        NSLog(@"[JavaLauncher]   mobileglues.multidraw_mode = %@ -> multidrawOrder = %@ (旧键 multidrawMode 已被 MG 2.0.16+ 弃用，不再写入)",
+        NSLog(@"[JavaLauncher]   mobileglues.multidraw_mode = %@ -> multidrawOrder = %@ (legacy key multidrawMode deprecated since MG 2.0.16+, no longer written)",
               multidrawMode, mdOrder);
     }
 
@@ -1687,8 +1687,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
             getenv("POJAV_HOME"), getPrefObject(@"general.game_directory"),
             viGameDirSub]
             .stringByStandardizingPath;
-        NSLog(@"[VER-ISOLATE-PCL] gameDir=%@ (版本隔离=%@, 约束版本 id=%@)",
-              gameDir, [viGameDirSub isEqualToString:@"."] ? @"关" : @"开", viConcreteId ?: @"(nil)");
+        NSLog(@"[VER-ISOLATE-PCL] gameDir=%@ (version isolation=%@, constrained version id=%@)",
+              gameDir, [viGameDirSub isEqualToString:@"."] ? @"Off" : @"On", viConcreteId ?: @"(nil)");
 
         // ★ [MODS-PRELOAD-FIX] 原先这里会把 bundle 的 mods_preload/MetalUniversal-*.jar
         //   拷进实例 mods/。该机制已下线:26.x 的 Metal 后端全程走 `-javaagent:metallum_agent.jar`
@@ -1705,7 +1705,7 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
                     if ([f hasPrefix:@"MetalUniversal-"] && [f hasSuffix:@".jar"]) {
                         NSString *p = [modsDir stringByAppendingPathComponent:f];
                         if ([pfm removeItemAtPath:p error:nil]) {
-                            NSLog(@"[MODS-PRELOAD-FIX] 清理旧版预置 mod(已改走 agent 注入): %@", f);
+                            NSLog(@"[MODS-PRELOAD-FIX] removing legacy preinstalled mod (now injected via agent): %@", f);
                         }
                     }
                 }
@@ -2977,7 +2977,6 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
                 //   但我们独立自检（brk #0x69 -> 可写 JIT 区）未过 ⇒ 明确告知。
                 NSLog(@"[JIT-FLOW] [Headless] stikdebug reported complete but self-check failed (brk #0x69 not serviced) -- NOT proceeding");
                 showDialog(localize(@"Error", nil),
-                    @"StikDebug / JIT 工具可能已提示完成，但本机 JIT 自检未通过（未能申请到可写 JIT 区），安装器无法运行。请重试、重启 App，或改用 TrollStore 直启及其它 JIT 开启方式。\n"
                     @"Your JIT tool may report \"complete\" but the launcher's own self-check failed (no writable JIT region obtainable). Retry, restart the app, or use TrollStore / another enabler.");
                 return -1;
             }
@@ -3015,7 +3014,6 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
         if (result == NULL) {
             NSLog(@"[JavaLauncher] launchHeadlessJVM: JIT26 debugger not servicing brk, cannot run processors");
             showDialog(localize(@"Error", nil),
-                @"JIT 调试器未响应，安装器无法运行。请先用带 UniversalJIT26 脚本的方式启用 JIT 后重试。\n"
                 @"JIT debugger is not responding. Enable JIT with the UniversalJIT26 script and try again.");
             return -1;
         }

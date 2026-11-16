@@ -367,8 +367,8 @@ void ame_write_fatal_trace(const char *reason) {
         if (g_ame_lastDlopenSet) {
             len += (size_t)snprintf(report + len, sizeof(report) - len,
                 "★ attribution: last dlopen/System.load target = %s\n"
-                "  (dlopen-time crash 的元凶通常就是这个镜像；home/tmp 下的就是"
-                "被解包出来的副本)\n", g_ame_lastDlopenPath);
+                "  (a dlopen-time crash is usually caused by this image; ones under home/tmp are"
+                " unpacked copies)\n", g_ame_lastDlopenPath);
         } else {
             len += (size_t)snprintf(report + len, sizeof(report) - len,
                 "★ attribution: no dlopen recorded before this abort\n");
@@ -381,7 +381,7 @@ void ame_write_fatal_trace(const char *reason) {
         if (len + 1024 < sizeof(report)) {
             len += (size_t)snprintf(report + len, sizeof(report) - len,
                 "-- all-thread PC snapshot (pc → image+offset, [JIT-REGION] = "
-                "落在 JIT26 已 PrepareRegion 的匿名区) --\n");
+                "inside an anonymous region already PrepareRegion'd by JIT26) --\n");
             len += ame_snapshot_all_threads(report + len, sizeof(report) - len);
         }
     }

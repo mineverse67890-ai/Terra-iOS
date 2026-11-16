@@ -311,11 +311,11 @@ static NSString *ameNormalizeJREHome(NSString *dir) {
         BOOL isDir = NO;
         if ([NSFileManager.defaultManager fileExistsAtPath:cand isDirectory:&isDir] && isDir &&
             ameJREHomeLooksValid(cand)) {
-            NSLog(@"★ [JRE-NEST] 归一化 JRE 层级: %@ -> %@", dir, cand);
+            NSLog(@"★ [JRE-NEST] normalized JRE directory layout: %@ -> %@", dir, cand);
             return cand;
         }
     }
-    NSLog(@"★ [JRE-NEST] ERROR: %@ 缺 release / lib/server/libjvm.dylib，实际布局:", dir);
+    NSLog(@"★ [JRE-NEST] ERROR: %@ is missing release / lib/server/libjvm.dylib, actual layout:", dir);
     for (NSString *s in subs) NSLog(@"★ [JRE-NEST]     %@", s);
     return nil;
 }

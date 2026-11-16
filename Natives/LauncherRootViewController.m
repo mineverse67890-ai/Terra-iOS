@@ -608,7 +608,7 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     self.amePortraitTopBarTop.constant      = 0;   // 贴屏幕最底(容器 0 高 ⇒ 不可见)
     self.amePortraitTopBarLeading.constant  = 0;
     self.amePortraitTopBarTrailing.constant = 0;
-    NSLog(@"[NORIGHT][ROOT] safeArea l=%.0f t=%.0f r=%.0f b=%.0f panel=%.0fx%.0f (右栏已下线:0×0+hidden,内容区四边贴屏)",
+    NSLog(@"[NORIGHT][ROOT] safeArea l=%.0f t=%.0f r=%.0f b=%.0f panel=%.0fx%.0f (right panel removed: 0x0+hidden, content fills screen edges)",
           self.view.safeAreaInsets.left, self.view.safeAreaInsets.top,
           self.view.safeAreaInsets.right, self.view.safeAreaInsets.bottom,
           self.rightPanelContainer.bounds.size.width, self.rightPanelContainer.bounds.size.height);
@@ -851,10 +851,10 @@ static const CGFloat kPortraitCardCorner      = 16.0;   // 竖屏底部卡圆角
     // 陶瓦联机界面（与 HMCL/FCL/ZL2 互通）；libterracotta 未链接时提示
     if (![TerracottaBridge isAvailable]) {
         UIAlertController *alert = [UIAlertController
-            alertControllerWithTitle:@"联机功能不可用"
-                              message:@"libterracotta 库未链接，请按 README 中「陶瓦联机集成」章节下载 xcframework 后重新构建。"
+            alertControllerWithTitle:@"Multiplayer Unavailable"
+                              message:@"The libterracotta library is not linked. Download the xcframework as described in the \"Terracotta Multiplayer Integration\" section of the README, then rebuild."
                        preferredStyle:UIAlertControllerStyleAlert];
-        [alert addAction:[UIAlertAction actionWithTitle:@"好" style:UIAlertActionStyleDefault handler:nil]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:alert animated:YES completion:nil];
         return;
     }

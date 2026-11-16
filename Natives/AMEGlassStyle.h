@@ -96,7 +96,7 @@ static inline BOOL AMEGlassStyleSystemSupportsLiquid(void) {
     dispatch_once(&sOnce, ^{
         // ★ 双重守门①:系统版本 < 26 ⇒ 一律不支持(此时系统根本不给新外观,拿了类也没用)
         if (!AMEGlassStyleSystemVersionIs26OrLater()) {
-            NSLog(@"[glass] 界面风格探测:系统 < iOS 26 ⇒ 仅原生风格可用");
+            NSLog(@"[glass] UI style probe: system < iOS 26 => only native style available");
             sSupports = NO;
             return;
         }
@@ -106,8 +106,8 @@ static inline BOOL AMEGlassStyleSystemSupportsLiquid(void) {
             id eff = ((id (*)(id, SEL, NSInteger))objc_msgSend)(cls, @selector(effectWithStyle:), 0); // Regular == 0
             sSupports = (eff != nil && [eff isKindOfClass:[UIVisualEffect class]]);
         }
-        NSLog(@"[glass] 界面风格探测:系统 ≥ iOS 26 · UIGlassEffect %@ ⇒ 液态玻璃%@",
-              (cls != Nil) ? @"存在" : @"不存在", sSupports ? @"可用" : @"不可用(回退原生)");
+        NSLog(@"[glass] UI style probe: system >= iOS 26 · UIGlassEffect %@ => Liquid Glass %@",
+              (cls != Nil) ? @"present" : @"absent", sSupports ? @"available" : @"unavailable (falling back to native)");
     });
     return sSupports;
 }
@@ -166,14 +166,14 @@ static inline BOOL AMEGlassStyleUsesSystemMaterial(void) {
 static inline void AMEGlassStyleSetHandDrawnOverlayEnabled(BOOL on) {
     [[NSUserDefaults standardUserDefaults] setBool:on forKey:AMEGlassStyleHandDrawnPrefKey];
     [[NSNotificationCenter defaultCenter] postNotificationName:AMEGlassStyleChangedNotification object:nil];
-    NSLog(@"[glass] 自绘玻璃质感开关 = %@(群主口径:默认关;iOS≥26 只走系统 UIGlassEffect)", on ? @"开(叠加在系统玻璃之上)" : @"关");
+    NSLog(@"[glass] hand-drawn glass overlay = %@ (default off; iOS>=26 uses system UIGlassEffect only)", on ? @"On (layered over system glass)" : @"Off");
 }
 
 /// 写入配置并广播(设置页 action 调用;实际持久化由通用偏好存储负责,这里再兜一次)
 static inline void AMEGlassStyleSetConfigured(AMEGlassStyle s) {
     [[NSUserDefaults standardUserDefaults] setObject:AMEGlassStyleStringFromEnum(s) forKey:AMEGlassStylePrefKey];
     [[NSNotificationCenter defaultCenter] postNotificationName:AMEGlassStyleChangedNotification object:nil];
-    NSLog(@"[glass] 界面风格设置为 %@(系统支持液态玻璃=%d ⇒ 实际生效=%@)",
+    NSLog(@"[glass] UI style set to %@ (system supports Liquid Glass=%d => effective=%@)",
           AMEGlassStyleStringFromEnum(s),
           (int)AMEGlassStyleSystemSupportsLiquid(),
           AMEGlassStyleStringFromEnum(AMEGlassStyleResolved()));
@@ -183,11 +183,11 @@ static inline void AMEGlassStyleSetConfigured(AMEGlassStyle s) {
 static inline void AMEGlassStyleLogResolvedOnce(void) {
     static dispatch_once_t sOnce;
     dispatch_once(&sOnce, ^{
-        NSLog(@"[glass] 风格判定: 配置=%@ · 系统支持液态玻璃=%@ · 实际生效=%@ · 自绘玻璃=%@ (SDK=%s)",
+        NSLog(@"[glass] style resolution: configured=%@ · system supports Liquid Glass=%@ · effective=%@ · hand-drawn glass=%@ (SDK=%s)",
               AMEGlassStyleStringFromEnum(AMEGlassStyleConfigured()),
-              AMEGlassStyleSystemSupportsLiquid() ? @"是" : @"否",
+              AMEGlassStyleSystemSupportsLiquid() ? @"Yes" : @"No",
               AMEGlassStyleStringFromEnum(AMEGlassStyleResolved()),
-              AMEGlassStyleAllowsHandDrawnGlass() ? @"开(可选)" : @"关(纯系统)",
+              AMEGlassStyleAllowsHandDrawnGlass() ? @"On (optional)" : @"Off (system only)",
               __VERSION__);
     });
 }
