@@ -528,6 +528,14 @@ add_executable(AngelAuraAmethyst
   TerraTroubleshootViewController.m
   # ★ [TERRA-STYLE] shared Minecraft-launcher look for redesigned UIKit screens
   TerraStyle.m
+  # ★ [TERRA-UI] redesigned Mods manager + per-installation settings
+  TerraModsManagerViewController.m
+  TerraInstanceSettingsViewController.m
+  # ★ [TERRA-UI] Modrinth/CurseForge browser, version+loader installer, Potato/Competitive presets
+  TerraBrowseAPI.m
+  TerraBrowseViewController.m
+  TerraVersionInstaller.m
+  TerraPotatoOptimizer.m
   ProfileSettingsViewController.m
   DownloadViewController.m
   LauncherPreferences.m

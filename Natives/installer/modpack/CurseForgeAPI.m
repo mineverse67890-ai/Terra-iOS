@@ -93,10 +93,11 @@ static const NSInteger kCFAListAllSourcesFailedCode = 9002;
 static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
     if (![loader isKindOfClass:[NSString class]] || loader.length == 0) return 0;
     NSString *l = loader.lowercaseString;
-    if ([l containsString:@"fabric"])   return 1;
-    if ([l containsString:@"quilt"])    return 3;
-    if ([l containsString:@"neoforge"]) return 5;
-    if ([l containsString:@"forge"])    return 4;
+    // Official CurseForge ModLoaderType: 1 Forge, 4 Fabric, 5 Quilt, 6 NeoForge
+    if ([l containsString:@"fabric"])   return 4;
+    if ([l containsString:@"quilt"])    return 5;
+    if ([l containsString:@"neoforge"]) return 6;
+    if ([l containsString:@"forge"])    return 1;
     return 0;
 }
 
