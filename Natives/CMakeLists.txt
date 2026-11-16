@@ -19,7 +19,7 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.in ${CMAKE_CURRENT_LIST_DIR}/c
 #
 #   注:iOS 的 target triple 里【不能】带 SDK 版本(clang 会报
 #   "version 'ios26.2' in target triple ... is invalid"),SDK 由 -isysroot 指向的
-#   SDK 决定。因此这里只写 minOS(ios14.0),并显式给出 -miphoneos-version-min=14.0,
+#   SDK 决定。因此这里只写 minOS(ios16.0),并显式给出 -miphoneos-version-min=16.0,
 #   让 clang 把 SDK 版本如实记录为 -isysroot 所指 SDK(CI 里已锁 Xcode 26.3 / iPhoneOS26.2)。
 if(CMAKE_OSX_SYSROOT)
   get_filename_component(AME_SDK_NAME "${CMAKE_OSX_SYSROOT}" NAME)      # iPhoneOS26.2.sdk
@@ -36,7 +36,7 @@ message(STATUS "★ AME_SDK_VERSION = ${AME_SDK_VERSION} (from ${CMAKE_OSX_SYSRO
 if(CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target x86_64-apple-ios17.0-simulator -miphoneos-version-min=17.0 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target arm64-apple-ios14.0 -miphoneos-version-min=14.0 -mcpu=apple-a8 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target arm64-apple-ios16.0 -miphoneos-version-min=16.0 -mcpu=apple-a8 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
 endif()
 set(CMAKE_C_FLAGS_DEBUG "-funwind-tables -g")
 
@@ -395,9 +395,9 @@ target_link_libraries(audio_capture
 #  add_custom_command 调 swiftc 产出 AmeTabBar.o,再把该 .o 当外部对象加进
 #  add_executable(AngelAuraAmethyst ...) 的源列表(只追加,不动既有 OBJC 顺序)。
 #
-#  target triple 按平台自动判定(设备 / 模拟器),与 C 侧 minOS 一致(ios14.0):
-#    设备:   arm64-apple-ios14.0             (SDK = .../iPhoneOS*.sdk)
-#    模拟器: <arch>-apple-ios14.0-simulator  (SDK = .../iPhoneSimulator*.sdk)
+#  target triple 按平台自动判定(设备 / 模拟器),与 C 侧 minOS 一致(ios16.0):
+#    设备:   arm64-apple-ios16.0             (SDK = .../iPhoneOS*.sdk)
+#    模拟器: <arch>-apple-ios16.0-simulator  (SDK = .../iPhoneSimulator*.sdk)
 #
 #  链接:Swift 运行时在 SDK 的 usr/lib/swift(SDK 里有 libswiftCore.tbd 等),
 #  设备 iOS 12.2+ 的系统里也自带 /usr/lib/swift ⇒
@@ -421,7 +421,7 @@ if(NOT AME_SWIFT_ARCH)
 endif()
 
 # 设备 / 模拟器:看 -isysroot 指向的 SDK 路径里有没有 Simulator
-set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios14.0")
+set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios16.0")
 if("${CMAKE_OSX_SYSROOT}" MATCHES "[Ss]imulator")
   set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios17.0-simulator")
 endif()

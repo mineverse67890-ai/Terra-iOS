@@ -107,8 +107,8 @@ endif
 # ============================================================================
 # ★ [SWIFT-BAR] SwiftUI 底部标签栏(Natives/AmeTabBar.swift)编译变量
 # ----------------------------------------------------------------------------
-#  与 C 侧同样按平台判定 target:设备 arm64-apple-ios14.0,
-#  模拟器 <arch>-apple-ios14.0-simulator(看 SDKPATH 指向 iPhoneSimulator 与否)。
+#  与 C 侧同样按平台判定 target:设备 arm64-apple-ios16.0,
+#  模拟器 <arch>-apple-ios16.0-simulator(看 SDKPATH 指向 iPhoneSimulator 与否)。
 #  swiftc 产出 $(WORKINGDIR)/AmeTabBar.o,路径再经 -DAME_TABBAR_OBJ=... 交给 CMake;
 #  CMakeLists.txt 里留着同一条 swiftc 规则,直接跑 cmake 时兜底。
 # ============================================================================
@@ -116,7 +116,7 @@ SWIFTC        ?= $(shell xcrun -f swiftc 2>/dev/null || command -v swiftc 2>/dev
 SWIFT_SRC     ?= $(SOURCEDIR)/Natives/AmeTabBar.swift
 SWIFT_OBJ     ?= $(WORKINGDIR)/AmeTabBar.o
 SWIFT_ARCH    ?= arm64
-SWIFT_MIN_IOS ?= 14.0
+SWIFT_MIN_IOS ?= 16.0
 ifeq ($(findstring Simulator,$(SDKPATH)),Simulator)
 SWIFT_TARGET  ?= $(SWIFT_ARCH)-apple-ios$(SWIFT_MIN_IOS)-simulator
 else
@@ -490,7 +490,7 @@ native: dep_mg swift
 		-DCMAKE_SYSTEM_PROCESSOR=$(CMAKE_PROCESSOR) \
 		-DCMAKE_OSX_SYSROOT="$(SDKPATH)" \
 		-DCMAKE_OSX_ARCHITECTURES=$(NATIVE_ARCH) \
-		-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
+		-DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
 		-DCMAKE_C_FLAGS="-arch $(NATIVE_ARCH)" \
 		-DAME_ANGLE_FRAMEWORK_DIR="$(ANGLE_FRAMEWORK_DIR)" \
 		-DAME_TABBAR_OBJ="$(SWIFT_OBJ)" \
