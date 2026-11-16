@@ -234,6 +234,8 @@ final class TerraLauncherModel: ObservableObject {
     /// JIT state shown under the PLAY button
     @Published var jitState: JITState = .unknown
     @Published var jitLabel: String = ""
+    /// Set when PLAY is pressed on an installation with no Minecraft version
+    @Published var missingVersionInstance: String? = nil
 
     enum JITState: String { case enabled, pending, disabled, unknown }
 
@@ -282,6 +284,13 @@ final class TerraLauncherModel: ObservableObject {
     /// 启动指定实例(先选中对应 profile,再走原右栏启动全链路)
     func launch(_ instance: TerraInstance?) {
         guard let instance else { return }
+        // No Minecraft version yet → explain and offer the Download Center instead of the
+        // legacy "Unable to fetch version information" tip.
+        let v = instance.version.trimmingCharacters(in: .whitespaces)
+        if v.isEmpty || v == "—" || v == "-" {
+            missingVersionInstance = instance.name
+            return
+        }
         TerraBridge.invoke("launch", ["name": instance.name])
     }
 

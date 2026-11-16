@@ -91,6 +91,18 @@ struct TerraRootView: View {
             }
         }
         .environmentObject(model)
+        .alert("Pick a Minecraft version first",
+               isPresented: Binding(get: { model.missingVersionInstance != nil },
+                                    set: { if !$0 { model.missingVersionInstance = nil } })) {
+            Button("Open Download Center") {
+                section = .java
+                tab = .download
+                model.missingVersionInstance = nil
+            }
+            Button("Cancel", role: .cancel) { model.missingVersionInstance = nil }
+        } message: {
+            Text("\"\(model.missingVersionInstance ?? "This installation")\" doesn't have a Minecraft version installed yet. Install one from the Download Center, then press Play.")
+        }
     }
 
     /// Content: one NavigationStack (no legacy root controllers underneath)
