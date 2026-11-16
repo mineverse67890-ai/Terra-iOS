@@ -13,8 +13,6 @@ VERSION     := 6.0.0
 BRANCH      := $(shell git branch --show-current)
 COMMIT      := $(shell git log --oneline | sed '2,10000000d' | cut -b 1-7)
 PLATFORM    ?= 2
-# For simulator builds, override with a directory containing simulator-built ANGLE frameworks.
-ANGLE_FRAMEWORK_DIR ?= $(SOURCEDIR)/Natives/resources/Frameworks
 
 # Release vs Debug
 RELEASE ?= 0
@@ -70,11 +68,7 @@ ifeq ($(DETECTPLAT),Darwin)
 OSVER       := $(shell sw_vers -productVersion | cut -b 1-2)
 ifeq ($(shell sw_vers -productName),macOS)
 IOS         := 0
-ifeq ($(PLATFORM),7)
-SDKPATH     ?= $(shell xcrun --sdk iphonesimulator --show-sdk-path)
-else
 SDKPATH     ?= $(shell xcrun --sdk iphoneos --show-sdk-path)
-endif
 BOOTJDK     ?= $(shell /usr/libexec/java_home -v 1.8)/bin
 $(warning Building on macOS.)
 else
@@ -159,32 +153,6 @@ $(warning Set PLATFORM to 12, which is equal to visionOS Simulator.)
 else
 $(error PLATFORM is not valid.)
 endif
-
-# Select SDK and architecture based on platform (simulator vs device)
-ifeq ($(findstring simulator,$(PLATFORM_NAME)),simulator)
-  ifeq ($(PLATFORM_NAME),iossimulator)
-    SDKPATH ?= $(shell xcrun --sdk iphonesimulator --show-sdk-path)
-  else ifeq ($(PLATFORM_NAME),tvossimulator)
-    SDKPATH ?= $(shell xcrun --sdk appletvsimulator --show-sdk-path)
-  else ifeq ($(PLATFORM_NAME),xrsimulator)
-    SDKPATH ?= $(shell xcrun --sdk xrsimulator --show-sdk-path)
-  endif
-  SIMULATOR := 1
-  NATIVE_ARCH := x86_64
-  CMAKE_PROCESSOR := x86_64
-else
-  ifeq ($(PLATFORM_NAME),ios)
-    SDKPATH ?= $(shell xcrun --sdk iphoneos --show-sdk-path)
-  else ifeq ($(PLATFORM_NAME),tvos)
-    SDKPATH ?= $(shell xcrun --sdk appletvos --show-sdk-path)
-  else ifeq ($(PLATFORM_NAME),xros)
-    SDKPATH ?= $(shell xcrun --sdk xros --show-sdk-path)
-  endif
-  SIMULATOR :=
-  NATIVE_ARCH := arm64
-  CMAKE_PROCESSOR := aarch64
-endif
-SWIFT_ARCH ?= $(NATIVE_ARCH)
 
 POJAV_BUNDLE_DIR      ?= $(OUTPUTDIR)/AngelAuraAmethyst.app
 POJAV_JRE8_DIR        ?= $(SOURCEDIR)/depends/java-8-openjdk
@@ -487,12 +455,11 @@ native: dep_mg swift
 		-DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) \
 		-DCMAKE_CROSSCOMPILING=true \
 		-DCMAKE_SYSTEM_NAME=Darwin \
-		-DCMAKE_SYSTEM_PROCESSOR=$(CMAKE_PROCESSOR) \
+		-DCMAKE_SYSTEM_PROCESSOR=aarch64 \
 		-DCMAKE_OSX_SYSROOT="$(SDKPATH)" \
-		-DCMAKE_OSX_ARCHITECTURES=$(NATIVE_ARCH) \
+		-DCMAKE_OSX_ARCHITECTURES=arm64 \
 		-DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
-		-DCMAKE_C_FLAGS="-arch $(NATIVE_ARCH)" \
-		-DAME_ANGLE_FRAMEWORK_DIR="$(ANGLE_FRAMEWORK_DIR)" \
+		-DCMAKE_C_FLAGS="-arch arm64" \
 		-DAME_TABBAR_OBJ="$(SWIFT_OBJ)" \
 		-DCONFIG_BRANCH="$(BRANCH)" \
 		-DCONFIG_COMMIT="$(COMMIT)" \
@@ -641,11 +608,11 @@ dep_mg:
 		-DMACOS="1" \
 		-DCMAKE_CROSSCOMPILING=true \
 		-DCMAKE_SYSTEM_NAME=Darwin \
-		-DCMAKE_SYSTEM_PROCESSOR=$(CMAKE_PROCESSOR) \
+		-DCMAKE_SYSTEM_PROCESSOR=aarch64 \
 		-DCMAKE_OSX_SYSROOT="$(SDKPATH)" \
-		-DCMAKE_OSX_ARCHITECTURES=$(NATIVE_ARCH) \
+		-DCMAKE_OSX_ARCHITECTURES=arm64 \
 		-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
-		-DCMAKE_C_FLAGS="-arch $(NATIVE_ARCH)" \
+		-DCMAKE_C_FLAGS="-arch arm64" \
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		$(SOURCEDIR)/Natives/external/MobileGlues/MobileGlues-cpp/
 
@@ -892,12 +859,8 @@ dep_angle_freeze:
 	# mismatch (ANGLE version drift guard); full root-cause chain in script
 	# header comments (scripts/patch_angle_surface_freeze.py).
 	# 补丁改写源文件后签名哈希失效 —— 打包时 ldid -S 全 app 递归重签覆盖。
-	if [ -n "$(findstring simulator,$(PLATFORM_NAME))" ]; then \
-		echo '[dep_angle_freeze] skipped for simulator builds'; \
-	else \
-		python3 $(SOURCEDIR)/scripts/patch_angle_surface_freeze.py \
-			"$(ANGLE_FRAMEWORK_DIR)/libGLESv2.framework/libGLESv2" || exit 1; \
-	fi
+	python3 $(SOURCEDIR)/scripts/patch_angle_surface_freeze.py \
+		$(SOURCEDIR)/Natives/resources/Frameworks/libGLESv2.framework/libGLESv2 || exit 1
 	echo '[Amethyst v$(VERSION)] dep_angle_freeze - end'
 
 dep_sdl3_guard:
@@ -1147,10 +1110,6 @@ payload: native dep_mg dep_shader_shims dep_openal_shim dep_angle_freeze dep_sdl
 	$(call METHOD_DIRCHECK,$(WORKINGDIR)/AngelAuraAmethyst.app/libs_caciocavallo17)
 	cp -R $(SOURCEDIR)/Natives/resources/en.lproj/LaunchScreen.storyboardc $(WORKINGDIR)/AngelAuraAmethyst.app/Base.lproj/ || exit 1
 	cp -R $(SOURCEDIR)/Natives/resources/* $(WORKINGDIR)/AngelAuraAmethyst.app/ || exit 1
-	if [ "$(ANGLE_FRAMEWORK_DIR)" != "$(SOURCEDIR)/Natives/resources/Frameworks" ]; then \
-		cp -R "$(ANGLE_FRAMEWORK_DIR)/libEGL.framework/." "$(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/libEGL.framework/" || exit 1; \
-		cp -R "$(ANGLE_FRAMEWORK_DIR)/libGLESv2.framework/." "$(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/libGLESv2.framework/" || exit 1; \
-	fi
 	cp $(WORKINGDIR)/*.dylib $(WORKINGDIR)/AngelAuraAmethyst.app/Frameworks/ || exit 1
 	# spirv-cross 软链接（防御性兜底）：若 MobileGlues 构建产出 libspirv-cross-c-shared.0.dylib，
 	# 创建 libspirv-cross.dylib 软链接，兼容按 macOS 默认名加载的 native 代码。

@@ -33,11 +33,7 @@ if(NOT AME_SDK_VERSION)
 endif()
 message(STATUS "★ AME_SDK_VERSION = ${AME_SDK_VERSION} (from ${CMAKE_OSX_SYSROOT})")
 
-if(CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target x86_64-apple-ios17.0-simulator -miphoneos-version-min=17.0 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
-else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target arm64-apple-ios16.0 -miphoneos-version-min=16.0 -mcpu=apple-a8 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
-endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target arm64-apple-ios16.0 -miphoneos-version-min=16.0 -mcpu=apple-a8 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
 set(CMAKE_C_FLAGS_DEBUG "-funwind-tables -g")
 
 if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "Linux|^GNU$|Android")
@@ -79,19 +75,6 @@ else()
   message(FATAL_ERROR "ZeroTier framework not found at ${ZT_FRAMEWORK_LIB}. Please run: git submodule update --init --recursive")
 endif()
 
-# ★ [SIM] 模拟器构建(Intel x86_64):仓库里的 zt.framework 只有 arm64 切片,
-#    直接 -framework zt 会在主程序链接时报 "building for iOS Simulator, but
-#    linking in ... arm64" / undefined zts_* 符号。改为编译 zt_sim_stub.c
-#    (zts_* C API 的 no-op 桩)进主程序,联机功能在模拟器上返回不可用。
-#    设备构建不受影响(仍链接真 framework)。
-if(CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
-  set(AME_ZT_SIM_STUB ON)
-  set(ZT_FRAMEWORK_LINK "")
-  message(STATUS "★ [SIM] Simulator build: zt.framework is arm64-only, using zt_sim_stub.c instead of -framework zt")
-else()
-  set(AME_ZT_SIM_STUB OFF)
-endif()
-
 # ============================================================================
 # libterracotta.xcframework 集成（陶瓦联机）—— ★ [MP-RESTORE] 恢复联机
 # ============================================================================
@@ -99,15 +82,7 @@ set(TERRACOTTA_LIB_DIR "${CMAKE_CURRENT_LIST_DIR}/terracotta")
 set(TERRACOTTA_XCFW "${TERRACOTTA_LIB_DIR}/libterracotta.xcframework")
 set(TERRACOTTA_LIB "")
 set(TERRACOTTA_AVAILABLE OFF)
-# ★ [SIM] 模拟器构建优先取 xcframework 的 ios-arm64_x86_64-simulator 切片
-#    (libterracotta-sim-fat.a 是 x86_64+arm64 双架构 fat 库);
-#    设备构建保持原有 ios-arm64 选择逻辑。
-if(CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator" AND EXISTS "${TERRACOTTA_XCFW}/ios-arm64_x86_64-simulator/libterracotta-sim-fat.a")
-  set(_TC_LIB_PATH "${TERRACOTTA_XCFW}/ios-arm64_x86_64-simulator/libterracotta-sim-fat.a")
-  set(TERRACOTTA_LIB "-Wl,-force_load,${_TC_LIB_PATH}")
-  set(TERRACOTTA_AVAILABLE ON)
-  message(STATUS "Found Terracotta simulator slice (fat x86_64+arm64) at ${_TC_LIB_PATH}")
-elseif(EXISTS "${TERRACOTTA_XCFW}/ios-arm64/libterracotta.a")
+if(EXISTS "${TERRACOTTA_XCFW}/ios-arm64/libterracotta.a")
   set(_TC_LIB_PATH "${TERRACOTTA_XCFW}/ios-arm64/libterracotta.a")
   set(TERRACOTTA_LIB "-Wl,-force_load,${_TC_LIB_PATH}")
   set(TERRACOTTA_AVAILABLE ON)
@@ -158,14 +133,7 @@ set(TOUCHCONTROLLER_XCFW "${TOUCHCONTROLLER_LIB_DIR}/TouchController.xcframework
 set(TOUCHCONTROLLER_LIB "")
 
 # Level 1: 预编译 XCFramework（最高优先级）
-# ★ [SIM] 模拟器构建优先取 xcframework 的 ios-arm64_x86_64-simulator 切片,
-#    否则设备 arm64 静态库在 x86_64 链接时报架构不符。
-if(CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator" AND EXISTS "${TOUCHCONTROLLER_XCFW}/ios-arm64_x86_64-simulator/libproxy_server_ios_simulator.a")
-  set(_TC_LIB_PATH "${TOUCHCONTROLLER_XCFW}/ios-arm64_x86_64-simulator/libproxy_server_ios_simulator.a")
-  message(STATUS "Found TouchController simulator slice (Level 1: prebuilt xcframework) at ${_TC_LIB_PATH}")
-  # 强制加载整个静态库，确保 dlsym 能找到所有 touchcontroller_ios_* 符号
-  set(TOUCHCONTROLLER_LIB "-Wl,-force_load,${_TC_LIB_PATH}")
-elseif(EXISTS "${TOUCHCONTROLLER_XCFW}/ios-arm64/libproxy_server_ios.a")
+if(EXISTS "${TOUCHCONTROLLER_XCFW}/ios-arm64/libproxy_server_ios.a")
   set(_TC_LIB_PATH "${TOUCHCONTROLLER_XCFW}/ios-arm64/libproxy_server_ios.a")
   message(STATUS "Found TouchController XCFramework (Level 1: prebuilt xcframework) at ${_TC_LIB_PATH}")
   # 强制加载整个静态库，确保 dlsym 能找到所有 touchcontroller_ios_* 符号
@@ -196,80 +164,7 @@ else()
   set(TOUCHCONTROLLER_LIB "")
 endif()
 
-set(AME_ANGLE_FRAMEWORK_DIR
-  "${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks"
-  CACHE PATH "Directory containing the libEGL and libGLESv2 ANGLE frameworks"
-)
-
-if(CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
-  set(_ame_angle_required_archs "${CMAKE_OSX_ARCHITECTURES}")
-  if(NOT _ame_angle_required_archs)
-    set(_ame_angle_required_archs "${CMAKE_SYSTEM_PROCESSOR}")
-  endif()
-  if(NOT _ame_angle_required_archs)
-    message(FATAL_ERROR "Cannot validate ANGLE simulator frameworks without a target architecture")
-  endif()
-
-  find_program(AME_LIPO_EXECUTABLE lipo)
-  if(NOT AME_LIPO_EXECUTABLE)
-    message(FATAL_ERROR "lipo is required to validate ANGLE simulator framework architectures")
-  endif()
-  find_program(AME_VTOOL_EXECUTABLE vtool)
-  if(NOT AME_VTOOL_EXECUTABLE)
-    message(FATAL_ERROR "vtool is required to validate ANGLE simulator framework platforms")
-  endif()
-
-  foreach(_ame_framework libEGL libGLESv2)
-    set(_ame_framework_binary
-      "${AME_ANGLE_FRAMEWORK_DIR}/${_ame_framework}.framework/${_ame_framework}"
-    )
-    if(NOT EXISTS "${_ame_framework_binary}")
-      message(FATAL_ERROR
-        "Missing ${_ame_framework}.framework binary in '${AME_ANGLE_FRAMEWORK_DIR}'. "
-        "Set ANGLE_FRAMEWORK_DIR to a directory containing simulator-compatible ANGLE frameworks."
-      )
-    endif()
-    execute_process(
-      COMMAND "${AME_LIPO_EXECUTABLE}" -archs "${_ame_framework_binary}"
-      RESULT_VARIABLE _ame_lipo_result
-      OUTPUT_VARIABLE _ame_lipo_archs_output
-      ERROR_QUIET
-    )
-    if(NOT _ame_lipo_result EQUAL 0)
-      message(FATAL_ERROR
-        "Could not read architectures from ${_ame_framework_binary}. "
-        "Set ANGLE_FRAMEWORK_DIR to a directory containing simulator-compatible ANGLE frameworks."
-      )
-    endif()
-    separate_arguments(_ame_lipo_archs UNIX_COMMAND "${_ame_lipo_archs_output}")
-    foreach(_ame_required_arch ${_ame_angle_required_archs})
-      list(FIND _ame_lipo_archs "${_ame_required_arch}" _ame_arch_index)
-      if(_ame_arch_index EQUAL -1)
-        message(FATAL_ERROR
-          "${_ame_framework_binary} does not contain all required simulator architecture(s): "
-          "${_ame_angle_required_archs} (detected: ${_ame_lipo_archs}). Set ANGLE_FRAMEWORK_DIR to a directory containing "
-          "libEGL and libGLESv2 built for the iOS Simulator."
-        )
-      endif()
-    endforeach()
-    execute_process(
-      COMMAND "${AME_VTOOL_EXECUTABLE}" -show-build "${_ame_framework_binary}"
-      RESULT_VARIABLE _ame_vtool_result
-      OUTPUT_VARIABLE _ame_build_info
-      ERROR_QUIET
-    )
-    if(NOT _ame_vtool_result EQUAL 0 OR NOT _ame_build_info MATCHES "platform IOSSIMULATOR")
-      message(FATAL_ERROR
-        "${_ame_framework_binary} is not built for the iOS Simulator. "
-        "Set ANGLE_FRAMEWORK_DIR to a directory containing simulator-built libEGL and libGLESv2."
-      )
-    endif()
-  endforeach()
-endif()
-
-set(CMAKE_FRAMEWORK_PATH
-  "${AME_ANGLE_FRAMEWORK_DIR};${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks"
-)
+set(CMAKE_FRAMEWORK_PATH "${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks")
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rpath @executable_path/Frameworks -rpath @loader_path/Frameworks")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -rpath @executable_path/Frameworks -rpath @loader_path/Frameworks")
@@ -281,7 +176,7 @@ add_library(tinygl4angle SHARED
 )
 target_link_libraries(tinygl4angle
   "${GLOBAL_LDFLAGS}"
-  "-F${AME_ANGLE_FRAMEWORK_DIR}"
+  "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
   "-framework libEGL"
   "-framework libGLESv2"
 )
@@ -335,7 +230,7 @@ target_include_directories(ltw PRIVATE ${LTW_INCLUDES})
 target_link_libraries(ltw
   "${GLOBAL_LDFLAGS}"
   glsl_optimizer
-  "-F${AME_ANGLE_FRAMEWORK_DIR}"
+  "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
   "-framework libEGL"
   "-framework libGLESv2"
 )
@@ -428,7 +323,7 @@ endif()
 # 设备 / 模拟器:看 -isysroot 指向的 SDK 路径里有没有 Simulator
 set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios16.0")
 if("${CMAKE_OSX_SYSROOT}" MATCHES "[Ss]imulator")
-  set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios17.0-simulator")
+  set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios16.0-simulator")
 endif()
 
 # Swift 运行时目录(SDK 内)
@@ -825,17 +720,11 @@ if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "Linux|^GNU$|Android")
   target_sources(AngelAuraAmethyst PUBLIC non_darwin_utils.m)
 endif()
 
-# ★ [SIM] ZeroTier 桩(仅模拟器构建编译,见上文 ZT 说明;设备构建不编译此文件)
-if(AME_ZT_SIM_STUB)
-  target_sources(AngelAuraAmethyst PRIVATE "${CMAKE_CURRENT_LIST_DIR}/zt_sim_stub.c")
-endif()
-
 target_link_libraries(AngelAuraAmethyst
   PUBLIC AFNetworking
   lzma
   "-F'${CMAKE_CURRENT_LIST_DIR}/build'"
   "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
-  "-F${AME_ANGLE_FRAMEWORK_DIR}"
   # ★ [MP-RESTORE] ZeroTier 链接
   "${ZT_FRAMEWORK_SEARCH_PATH}"
   "${ZT_FRAMEWORK_LINK}"
@@ -986,7 +875,7 @@ if(AME_RENDERER_GAP_VGPU)
   )
   target_link_libraries(vgpu
     "${GLOBAL_LDFLAGS}"
-    "-F${AME_ANGLE_FRAMEWORK_DIR}"
+    "-F'${CMAKE_CURRENT_LIST_DIR}/resources/Frameworks'"
     "-framework libEGL"
     "-framework libGLESv2"
   )

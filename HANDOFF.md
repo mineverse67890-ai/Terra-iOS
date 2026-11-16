@@ -14,7 +14,6 @@ Sections 2–4 claimed "verified clean"; they were not. Fixed this session:
   source list → link error. Restored.
 - `LauncherRootViewController.m` called deleted `Terra*Host` classes → restored to pre-57a9634c7.
 - Device deployment target had been bumped to iOS 17 (C flags + Swift triple); restored to 14.0.
-  Simulator lines left at 17.
 - New UI was never shown. `SceneDelegate` now installs `[TerraLauncherRootHost makeHost]` as the
   window root on iOS 16+ (returns nil below → legacy `AmeRootTabController`). Opt-out:
   NSUserDefaults bool `TerraLegacyLauncherUI`.
@@ -37,8 +36,13 @@ Later the same day:
 - Cline was found overwriting files mid-session (restored old DownloadCenterView/InstancesView);
   it has been stopped and the files re-fixed. Don't run two agents on this tree at once.
 
-Still not done: full CI build, commit/push (stage Terra files only; Makefile/CMake also contain
-unrelated simulator-build hunks — split with `git add -p`).
+- **No simulator support.** Builds are device-only (arm64) via GitHub Actions. The experimental
+  x86_64 simulator work was committed and then reverted; Makefile, main_hook.m, tinygl4angle.c,
+  MobileGlues CMakeLists and Amethyst.xcodeproj are byte-identical to upstream
+  herbrine8403/Amethyst-iOS-MyRemastered again (except the iOS 16 minimum lines).
+  Natives/CMakeLists.txt = upstream + Terra Swift unit + iOS 16. Don't reintroduce PLATFORM=7.
+
+Work is on branch `feature/terra-launcher-ui`. Still not done: push + first CI build.
 
 ---
 
