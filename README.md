@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="Natives/Assets.xcassets/AppIcon-Light.appiconset/1024x1024.png" alt="Terra icon" width="120" style="border-radius: 24px;">
+  <img src="https://raw.githubusercontent.com/mineverse67890-ai/Terra-iOS/feature/terra-launcher-ui/Natives/Assets.xcassets/AppIcon-Light.appiconset/1024x1024.png" alt="Terra icon" width="120" style="border-radius: 24px;">
 </div>
 
 <h1 align="center">Terra</h1>
@@ -34,16 +34,22 @@ Terra is a Minecraft: Java Edition launcher for iPhone and iPad, built on [Angel
 
 ### New in Terra
 
-- **Desktop-Launcher Design** -- A dark interface laid out like the official Minecraft Launcher: sidebar navigation, Play / Installations / Download Center / Patch notes tabs, and a green PLAY button.
-- **Boot Animation** -- A short startup sequence that reveals the launcher dashboard.
+- **Desktop-Launcher Design** -- A dark interface laid out like the official Minecraft Launcher: sidebar navigation, Play / Installations / Download Center / Patch notes tabs, and a green PLAY button with a live JIT status indicator.
 - **Live Minecraft News** -- The Play page and News section pull the latest articles from the official launcher news feed. Tap any story to read it on minecraft.net.
-- **Rotating Artwork** -- The Play banner shows a different piece of official Minecraft artwork each time you open the app.
-- **Installations** -- Every instance lives in its own isolated folder, with its Minecraft version, loader badge (Fabric / Forge / Vanilla), and folder size shown at a glance. Launch, open mods, or delete with one tap.
-- **Download Center** -- Browse Minecraft versions and search Fabric mods on Modrinth, with live download progress.
-- **One-Tap Optimization Pack** -- Installs Sodium, Lithium, and FerriteCore into the selected Fabric installation.
+- **Official Update Artwork** -- The Play banner shows a different official Minecraft update banner each time you open the app.
+- **Installations** -- Each installation shows its Minecraft version, loader badge (Vanilla / Fabric / Quilt / Forge / NeoForge), and size. Launch, manage content, or open its settings with one tap.
+- **Download Center** -- Install any Minecraft version with Vanilla, Fabric, Quilt, Forge, or NeoForge, and browse mods, modpacks, shaders, resource packs, and data packs from Modrinth and CurseForge in a store-style browser with filters and project pages.
+- **Potato Optimize** -- One tap installs the best performance mods (Sodium, Lithium, FerriteCore, ImmediatelyFast, Entity Culling, ModernFix, and more) for your installation's loader.
+- **Competitive Download** -- One tap installs popular PvP mods (zoom, freelook, armor HUD, totem counter, keystrokes/CPS HUD, hitboxes) and PvP texture packs (low fire, short swords, small shield, crosshair).
+- **Content Manager** -- A sidebar-based manager for mods, shader packs, resource packs, and data packs with search, filters, sorting, and per-item details.
+- **Redesigned Settings** -- Clean, categorized settings for video, Java and memory, controls, downloads, and accounts, plus per-installation settings for Java version, memory, renderer, and game folder.
+- **Crash Troubleshooter** -- A clean loading screen with a Troubleshoot button that explains why the game crashed and how to fix it.
 - **English by Default** -- The full interface is in English out of the box. Other languages remain available in Settings.
 - **Works Worldwide** -- Downloads use Mojang's official servers by default. Regional mirrors are only used automatically in mainland China, so no VPN is needed.
 - **Ely.by Accounts** -- Sign in with Ely.by, or any authlib-injector server, alongside Microsoft and offline accounts.
+
+> [!TIP]
+> CurseForge requires a free API key. Get one at [console.curseforge.com](https://console.curseforge.com/) and paste it in **Settings → Downloads → CurseForge API key**. Modrinth works without a key.
 
 ### Inherited from Amethyst
 
