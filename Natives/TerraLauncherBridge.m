@@ -21,6 +21,7 @@
 #import "ModsManagerViewController.h"
 #import "LauncherPreferencesViewController.h"
 #import "ProfileSettingsViewController.h"
+#import "LauncherNavigationController.h"   // global localVersionList / remoteVersionList
 #import "utils.h"
 
 @interface TerraLauncherService ()
@@ -74,8 +75,13 @@
                                                object:nil];
 
     // Version manifest (for FindVersionInRemoteList / launch pipeline)
-    self.remoteVersions = [NSMutableArray new];
-    self.localVersions = [NSMutableArray new];
+    // ★ [TERRA-FIX] Share the legacy global lists (normally filled by LauncherRootViewController,
+    //   which the Terra UI never creates). MinecraftResourceDownloadTask and other launch code
+    //   read these globals directly.
+    if (!remoteVersionList) remoteVersionList = [NSMutableArray new];
+    if (!localVersionList) localVersionList = [NSMutableArray new];
+    self.remoteVersions = remoteVersionList;
+    self.localVersions = localVersionList;
     [self terraLoadLocalVersions];
     [self terraFetchRemoteVersions];
 
@@ -468,22 +474,77 @@
     [task resume];
 }
 
-/// Answers FindVersionInRemoteList posted by the right panel during launch
+/// Answers FindVersionInRemoteList posted by the right panel during launch.
+/// ★ [TERRA-FIX] Robust lookup: re-scan local versions every time (installs happen after app
+/// start), fetch the manifest on demand if it hasn't loaded, and accept any version whose JSON
+/// exists on disk. Previously a not-yet-loaded / failed manifest ⇒ "Version information not found".
 - (void)terraFindVersion:(NSNotification *)note {
     NSString *versionId = note.userInfo[@"versionId"];
     void (^callback)(NSDictionary *) = note.userInfo[@"callback"];
     if (!versionId || !callback) return;
 
-    NSDictionary *versionObject = nil;
-    for (NSDictionary *v in self.remoteVersions) {
-        if ([v[@"id"] isEqualToString:versionId]) { versionObject = v; break; }
-    }
-    if (!versionObject) {
-        for (NSDictionary *v in self.localVersions) {
-            if ([v[@"id"] isEqualToString:versionId]) { versionObject = v; break; }
+    NSDictionary *(^lookup)(void) = ^NSDictionary *{
+        if ([versionId isEqualToString:@"latest-release"] || [versionId isEqualToString:@"latest-snapshot"]) {
+            NSDictionary *latest = getPrefObject(@"internal.latest_version");
+            NSString *real = [latest isKindOfClass:NSDictionary.class]
+                ? latest[[versionId isEqualToString:@"latest-release"] ? @"release" : @"snapshot"] : nil;
+            if (real.length) {
+                for (NSDictionary *v in self.remoteVersions) {
+                    if ([v[@"id"] isEqual:real] && v[@"url"]) return v;
+                }
+            }
         }
+        for (NSDictionary *v in self.remoteVersions) {
+            if ([v[@"id"] isEqual:versionId] && (v[@"url"] || [versionId hasPrefix:@"latest-"])) return v;
+        }
+        [self terraLoadLocalVersions];
+        for (NSDictionary *v in self.localVersions) {
+            if ([v[@"id"] isEqual:versionId]) return v;
+        }
+        return nil;
+    };
+
+    NSDictionary *found = lookup();
+    BOOL manifestLoaded = self.remoteVersions.count > 2;
+    if (found && (manifestLoaded || ![versionId hasPrefix:@"latest-"])) {
+        callback(found);
+        return;
     }
-    callback(versionObject);
+
+    // Manifest not loaded yet (or failed earlier): fetch it now, then answer.
+    NSString *source = getPrefObject(@"general.download_source");
+    NSArray<NSString *> *urls = [source isEqualToString:@"bmclapi"]
+        ? @[@"https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json", @"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"]
+        : @[@"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json", @"https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json"];
+    [self terraFetchManifestFrom:urls index:0 completion:^{ callback(lookup()); }];
+}
+
+/// Fetch version_manifest_v2 from urls[index...] (first that works); completion on main queue.
+- (void)terraFetchManifestFrom:(NSArray<NSString *> *)urls index:(NSUInteger)index completion:(void (^)(void))completion {
+    if (index >= urls.count) {
+        dispatch_async(dispatch_get_main_queue(), completion);
+        return;
+    }
+    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urls[index]]];
+    req.timeoutInterval = 15;
+    [[NSURLSession.sharedSession dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *r, NSError *e) {
+        NSDictionary *json = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+        NSArray *versions = [json isKindOfClass:NSDictionary.class] ? json[@"versions"] : nil;
+        if (![versions isKindOfClass:NSArray.class]) {
+            [self terraFetchManifestFrom:urls index:index + 1 completion:completion];
+            return;
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.remoteVersions removeAllObjects];
+            [self.remoteVersions addObjectsFromArray:@[
+                @{@"id": @"latest-release", @"type": @"release"},
+                @{@"id": @"latest-snapshot", @"type": @"snapshot"},
+            ]];
+            [self.remoteVersions addObjectsFromArray:versions];
+            if ([json[@"latest"] isKindOfClass:NSDictionary.class]) setPrefObject(@"internal.latest_version", json[@"latest"]);
+            completion();
+        });
+    }] resume];
 }
 
 - (void)dealloc {
