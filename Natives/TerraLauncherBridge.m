@@ -157,59 +157,59 @@
 #pragma mark - Snapshot
 
 - (NSDictionary *)snapshot {
+    // ★ [TERRA-FIX] Installations = launcher profiles of the current game folder
+    //   (Documents/instances/<game folder>/launcher_profiles.json), exactly what the legacy
+    //   launch pipeline reads. Listing the game folders themselves made PLAY select a profile
+    //   that doesn't exist ("default") ⇒ "Unable to fetch version information".
     NSMutableArray *instances = [NSMutableArray array];
-    NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    NSString *instancesRoot = [docs stringByAppendingPathComponent:@"instances"];
     NSDictionary *profiles = [PLProfiles.current profiles] ?: @{};
+    // Game folder + loader per profile via TerraBrowseTarget (handles isolation + loader detection)
+    NSMutableDictionary<NSString *, id> *targets = [NSMutableDictionary dictionary];
+    Class targetClass = NSClassFromString(@"TerraBrowseTarget");
+    if ([targetClass respondsToSelector:NSSelectorFromString(@"allTargets")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        NSArray *all = [targetClass performSelector:NSSelectorFromString(@"allTargets")];
+#pragma clang diagnostic pop
+        for (id t in all) {
+            NSString *n = [t valueForKey:@"name"];
+            if (n) targets[n] = t;
+        }
+    }
 
-    NSArray *dirs = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:instancesRoot error:nil] ?: @[];
-    for (NSString *dirName in dirs) {
-        NSString *instanceRoot = [instancesRoot stringByAppendingPathComponent:dirName];
-        BOOL isDir = NO;
-        if (![[NSFileManager defaultManager] fileExistsAtPath:instanceRoot isDirectory:&isDir] || !isDir) continue;
+    NSArray *names = [profiles.allKeys sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    for (NSString *name in names) {
+        NSDictionary *prof = profiles[name];
+        if (![prof isKindOfClass:NSDictionary.class]) continue;
+        NSString *version = [prof[@"lastVersionId"] isKindOfClass:NSString.class] ? prof[@"lastVersionId"] : @"";
 
-        // Game dir: <instance>/minecraft (preferred) or the instance dir itself
-        NSString *mcDir = [instanceRoot stringByAppendingPathComponent:@"minecraft"];
-        if (![[NSFileManager defaultManager] fileExistsAtPath:mcDir]) mcDir = instanceRoot;
+        NSString *gameDir = nil, *loader = @"vanilla";
+        id target = targets[name];
+        if (target) {
+            gameDir = [target valueForKey:@"gameDir"];
+            loader = [target valueForKey:@"loader"] ?: @"vanilla";
+        }
+        if (gameDir.length == 0) {
+            const char *env = getenv("POJAV_GAME_DIR");
+            gameDir = env ? @(env) : @"";
+        }
 
-        // Version: profile lastVersionId, else first folder in versions/
-        NSString *version = profiles[dirName][@"lastVersionId"];
-        if (version.length == 0) {
-            NSString *versionsDir = [mcDir stringByAppendingPathComponent:@"versions"];
-            NSArray *vers = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:versionsDir error:nil];
-            for (NSString *v in vers) {
-                BOOL vIsDir = NO;
-                NSString *vPath = [versionsDir stringByAppendingPathComponent:v];
-                if ([[NSFileManager defaultManager] fileExistsAtPath:vPath isDirectory:&vIsDir] && vIsDir) {
-                    version = v;
-                    break;
-                }
+        // Size of this version's files (versions/<id>), not the shared game folder
+        NSString *sizeText = @"";
+        if (version.length > 0 && ![version hasPrefix:@"latest-"]) {
+            const char *env = getenv("POJAV_GAME_DIR");
+            NSString *vdir = [[(env ? @(env) : gameDir) stringByAppendingPathComponent:@"versions"] stringByAppendingPathComponent:version];
+            unsigned long long bytes = [self terraDirectorySize:vdir];
+            if (bytes >= 1024ull * 1024ull * 1024ull) {
+                sizeText = [NSString stringWithFormat:@"%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0)];
+            } else if (bytes >= 1024ull * 1024ull) {
+                sizeText = [NSString stringWithFormat:@"%.0f MB", bytes / (1024.0 * 1024.0)];
+            } else if (bytes > 0) {
+                sizeText = [NSString stringWithFormat:@"%.0f KB", bytes / 1024.0];
             }
         }
 
-        // Loader detection: peek into the version JSON
-        NSString *loader = @"vanilla";
-        if (version.length > 0) {
-            NSString *jsonPath = [[mcDir stringByAppendingPathComponent:@"versions"]
-                                   stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@.json", version, version]];
-            NSString *json = [NSString stringWithContentsOfFile:jsonPath encoding:NSUTF8StringEncoding error:nil] ?: @"";
-            if ([json containsString:@"fabric-loader"]) loader = @"fabric";
-            else if ([json containsString:@"forge"]) loader = @"forge";
-        }
-
-        // Folder size (human readable)
-        unsigned long long bytes = [self terraDirectorySize:mcDir];
-        NSString *sizeText;
-        if (bytes >= 1024ull * 1024ull * 1024ull) {
-            sizeText = [NSString stringWithFormat:@"%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0)];
-        } else if (bytes >= 1024ull * 1024ull) {
-            sizeText = [NSString stringWithFormat:@"%.0f MB", bytes / (1024.0 * 1024.0)];
-        } else {
-            sizeText = [NSString stringWithFormat:@"%.0f KB", bytes / 1024.0];
-        }
-
-        // Last played (profile lastPlayed timestamp)
-        NSNumber *lastPlayedNum = profiles[dirName][@"lastPlayed"];
+        NSNumber *lastPlayedNum = [prof[@"lastPlayed"] respondsToSelector:@selector(doubleValue)] ? prof[@"lastPlayed"] : nil;
         NSString *lastPlayed = @"";
         if (lastPlayedNum.doubleValue > 0) {
             NSDate *d = [NSDate dateWithTimeIntervalSince1970:lastPlayedNum.doubleValue];
@@ -218,17 +218,22 @@
             lastPlayed = [f stringFromDate:d];
         }
 
+        NSString *displayVersion = version;
+        if ([version isEqualToString:@"latest-release"]) displayVersion = @"Latest release";
+        else if ([version isEqualToString:@"latest-snapshot"]) displayVersion = @"Latest snapshot";
+
         [instances addObject:@{
-            @"name": dirName,
-            @"version": version ?: @"—",
+            @"name": name,
+            @"version": displayVersion.length ? displayVersion : @"—",
             @"loader": loader,
-            @"sizeText": sizeText ?: @"—",
-            @"modsPath": [mcDir stringByAppendingPathComponent:@"mods"] ?: @"",
+            @"sizeText": sizeText.length ? sizeText : @"—",
+            @"modsPath": [gameDir stringByAppendingPathComponent:@"mods"] ?: @"",
             @"lastPlayed": lastPlayed ?: @"",
         }];
     }
 
     NSString *selected = [PLProfiles.current selectedProfileName] ?: @"";
+    if (!profiles[selected] && names.count > 0) selected = names.firstObject;
     NSString *username = @"Player";
     BaseAuthenticator *auth = BaseAuthenticator.current;
     NSString *authName = auth.authData[@"username"] ?: auth.authData[@"name"];
@@ -324,15 +329,17 @@
 #pragma mark - Commands (implementations)
 
 - (void)terraDeleteInstanceNamed:(NSString *)name {
+    // ★ [TERRA-FIX] Delete only the installation (profile), like the official launcher.
+    //   Game files (versions, worlds, mods) are shared by the game folder and stay untouched.
     if (name.length == 0) return;
-    NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    NSString *instanceRoot = [[docs stringByAppendingPathComponent:@"instances"]
-                               stringByAppendingPathComponent:name];
-    // Safety: only delete inside Documents/instances
-    if (![instanceRoot hasPrefix:[docs stringByAppendingPathComponent:@"instances"]]) return;
-    NSError *err = nil;
-    [[NSFileManager defaultManager] removeItemAtPath:instanceRoot error:&err];
-    if (err) NSLog(@"[TERRA] delete instance failed: %@", err);
+    PLProfiles *profiles = PLProfiles.current;
+    if (!profiles.profiles[name]) return;
+    [profiles.profiles removeObjectForKey:name];
+    if ([profiles.selectedProfileName isEqualToString:name]) {
+        NSString *next = [profiles.profiles.allKeys sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)].firstObject;
+        if (next) [profiles setSelectedProfileName:next];
+    }
+    [profiles save];
     [self terraLoadLocalVersions];
     [self terraPostInstancesChanged];
 }

@@ -217,27 +217,7 @@ static NSString *TBPrettyTag(NSString *slug) {
         [out addObject:[self targetWithName:name versionId:versionId gameDir:gameDir]];
         [seen addObject:name];
     }
-    // Installation folders the Terra launcher lists (Documents/instances/<name>[/minecraft]).
-    // Same rules as TerraLauncherService -snapshot, without its expensive folder-size walk.
-    NSFileManager *fm = NSFileManager.defaultManager;
-    NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    NSString *root = [docs stringByAppendingPathComponent:@"instances"];
-    for (NSString *name in [[fm contentsOfDirectoryAtPath:root error:nil] ?: @[] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]) {
-        if ([seen containsObject:name] || [name hasPrefix:@"."]) continue;
-        NSString *dir = [root stringByAppendingPathComponent:name];
-        BOOL isDir = NO;
-        if (![fm fileExistsAtPath:dir isDirectory:&isDir] || !isDir) continue;
-        NSString *mcDir = [dir stringByAppendingPathComponent:@"minecraft"];
-        if (![fm fileExistsAtPath:mcDir]) mcDir = dir;
-        NSString *version = nil;
-        NSString *versionsDir = [mcDir stringByAppendingPathComponent:@"versions"];
-        for (NSString *v in [fm contentsOfDirectoryAtPath:versionsDir error:nil] ?: @[]) {
-            BOOL vDir = NO;
-            if ([fm fileExistsAtPath:[versionsDir stringByAppendingPathComponent:v] isDirectory:&vDir] && vDir) { version = v; break; }
-        }
-        [out addObject:[self targetWithName:name versionId:version ?: @"" gameDir:mcDir]];
-        [seen addObject:name];
-    }
+    // (Game folders under Documents/instances are not installations — they hold the profiles above.)
     return out;
 }
 

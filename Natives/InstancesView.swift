@@ -66,13 +66,13 @@ struct TerraInstancesScreen: View {
                             isPresented: Binding(get: { pendingDelete != nil },
                                                  set: { if !$0 { pendingDelete = nil } }),
                             titleVisibility: .visible) {
-            Button("Delete installation folder", role: .destructive) {
+            Button("Delete installation", role: .destructive) {
                 if let target = pendingDelete { model.deleteInstance(target) }
                 pendingDelete = nil
             }
             Button("Cancel", role: .cancel) { pendingDelete = nil }
         } message: {
-            Text("This removes all files of this installation (worlds, mods, configs) from Documents/instances. This cannot be undone.")
+            Text("Removes this installation from the list. Your downloaded game files, worlds and mods are kept.")
         }
     }
 
