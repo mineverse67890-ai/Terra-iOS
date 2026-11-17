@@ -1906,7 +1906,10 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
     // JNA 5.13.0 的 darwin-aarch64 libjnidispatch 从 JAR 中提取后能正常加载。
     // Tools.java / MinecraftResourceUtils.m 已强制将 JNA 替换为 5.13.0
     // （MC 26.3+ 要求的 5.17.0 在 iOS 上会导致 native crash）。
-    // 保留 boot.library.path 以便未来内置 iOS arm64 版 libjnidispatch。
+    // Terra: <app>/Frameworks now ships libjnidispatch.dylib (JNA 5.13.0 darwin-aarch64,
+    // retagged to iOS and signed with the app). JNA loads it from boot.library.path, so it
+    // no longer has to extract an unsigned jna*.tmp, which dyld rejects whenever the
+    // library-validation bypass is off (iOS 26 JIT without always-attached debugger).
     PUSH_MARGV_FORMAT(@"-Djna.boot.library.path=%@", frameworksPath);
 
     // ============================================================================
