@@ -224,18 +224,18 @@ typedef NS_ENUM(NSInteger, MultiplayerRoomRole) {
 /// 本方法现在返回 isFrameworkAvailable 的结果，保持 API 兼容性。
 ///
 /// @return YES 如果 zt.framework 可用
-- (BOOL)isZeroTierAppInstalled __attribute__((deprecated("使用 isFrameworkAvailable 代替")));
+- (BOOL)isZeroTierAppInstalled __attribute__((deprecated("Use isFrameworkAvailable instead")));
 
 /// 设置 ZeroTier 安装状态覆盖（已废弃，新版本为空操作）
 /// @param installed 已废弃参数，无实际效果
-- (void)setZeroTierInstalledOverride:(BOOL)installed __attribute__((deprecated("新版本无需手动覆盖安装状态")));
+- (void)setZeroTierInstalledOverride:(BOOL)installed __attribute__((deprecated("No longer needed; install state no longer requires a manual override")));
 
 /// 用户是否已手动覆盖 ZeroTier 安装状态（已废弃）
 /// @return 始终返回 NO
-- (BOOL)isZeroTierInstallOverridden __attribute__((deprecated("新版本始终返回 NO")));
+- (BOOL)isZeroTierInstallOverridden __attribute__((deprecated("Always returns NO in the new implementation")));
 
 /// 打开 ZeroTier One app（已废弃，新版本为空操作）
-- (void)openZeroTierApp __attribute__((deprecated("新版本使用进程内框架，无需打开外部 app")));
+- (void)openZeroTierApp __attribute__((deprecated("The new implementation uses an in-process framework; no external app needs to be opened")));
 
 #pragma mark - 网络加入与离开
 

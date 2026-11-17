@@ -16,7 +16,7 @@
 #import "ios_uikit_bridge.h"
 #import "utils.h"
 
-NSString * const kMinecraftResourceDownloadBackgroundSessionIdentifier = @"com.air-devs.air.MinecraftResourceDownloadTask";
+NSString * const kMinecraftResourceDownloadBackgroundSessionIdentifier = @"com.terra.terra-ios.MinecraftResourceDownloadTask";
 
 // 原版安装 6 步的阶段下标（与 PLTaskStagesVanilla() 一致，redesign-download-ui Phase 3 Task 3.1）
 static const NSUInteger kMCStageIndexFetchManifest = 0;
@@ -346,7 +346,14 @@ static const NSUInteger kMCStageIndexVerify = 5;
 
     NSString *path = [NSString stringWithFormat:@"%1$s/versions/%2$@/%2$@.json", getenv("POJAV_GAME_DIR"), versionStr];
     // Find it again to resolve latest-*
+    // ★ [TERRA-FIX] The Terra Download Center fetches the manifest itself, so the global
+    //   remoteVersionList may be empty. Keep the caller's manifest entry (it has "url") instead
+    //   of treating the version as local and failing with "<id>.json: no such file".
+    NSDictionary *passedEntry = [version isKindOfClass:NSDictionary.class] ? version : nil;
     version = (id)[MinecraftResourceUtils findVersion:versionStr inList:remoteVersionList];
+    if (!version && [passedEntry[@"url"] isKindOfClass:NSString.class] && [passedEntry[@"id"] isEqual:versionStr]) {
+        version = passedEntry;
+    }
 
     void(^completionBlock)(void) = ^{
         self.metadata = parseJSONFromFile(path);

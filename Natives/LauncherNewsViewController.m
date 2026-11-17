@@ -115,7 +115,7 @@ static void AmeWriteBentoLayoutFromConfigs(NSArray<HomeTileConfig *> *configs) {
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     [ud setObject:layout forKey:kAmeHomeCardLayoutKey];
     [ud synchronize];
-    NSLog(@"[HOMEWIRE] ameHomeCardLayout 已更新(%lu 张卡)", (unsigned long)layout.count);
+    NSLog(@"[HOMEWIRE] ameHomeCardLayout updated (%lu cards)", (unsigned long)layout.count);
 }
 
 // MARK: - ★ [SIZE4] 尺寸跨度 / 名称 / 码位 helper
@@ -442,7 +442,7 @@ static const CGFloat kHomeEditResizeThresholdMin   = 24.0;
         [injected addObject:mp];
         result = injected;
         [self saveConfigs:result];
-        NSLog(@"[MP-RESTORE] 已向已有主页布局补入「联机」快捷入口磁贴");
+        NSLog(@"[MP-RESTORE] added the \"Multiplayer\" shortcut tile to the existing home layout");
     }
     return result;
 }
@@ -2463,7 +2463,7 @@ static NSString *festivalGreeting(void) {
     self.homeEditDoneButton.hidden = NO;
     [self homeEditSetHeaderChromeHidden:YES];
     [self homeEditApplyAppearanceToVisibleCellsAnimated:YES];   // ★ [EDIT2] 动画进(把手弹入 + 卡片轻微浮起)
-    NSLog(@"[EDITMODE] 进入编辑模式(%lu 张可见卡)", (unsigned long)(self.displaySections.firstObject.count));
+    NSLog(@"[EDITMODE] entered edit mode (%lu visible cards)", (unsigned long)(self.displaySections.firstObject.count));
 }
 
 /// ★ [EDITMODE] 编辑模式顶栏收窄:JIT 状态 / 执行 Jar / 选择版本 / 下载中心(+角标)/
@@ -2497,7 +2497,7 @@ static NSString *festivalGreeting(void) {
     self.homeEditDoneButton.hidden = YES;
     [self homeEditSetHeaderChromeHidden:NO];   // 顶栏 pill 复原(角标按当前下载状态回显)
     [self homeEditApplyAppearanceToVisibleCellsAnimated:YES];   // ★ [EDIT2] 动画收回把手 + 恢复卡内交互(不 reloadData)
-    NSLog(@"[EDITMODE] 退出编辑模式(已写盘)");
+    NSLog(@"[EDITMODE] exited edit mode (saved to disk)");
 }
 
 #pragma mark 编辑态外观
@@ -2705,7 +2705,7 @@ static NSString *festivalGreeting(void) {
         [cv.collectionViewLayout invalidateLayout];
         [cv layoutIfNeeded];
     } completion:nil];
-    NSLog(@"[EDITMODE] 拖动改尺寸 → %@ (%@)", AmeTileSizeShortName(newSize), config.tileId ?: @"?");
+    NSLog(@"[EDITMODE] drag-resized → %@ (%@)", AmeTileSizeShortName(newSize), config.tileId ?: @"?");
 }
 
 #pragma mark 写配置(唯一真相源)
@@ -2737,7 +2737,7 @@ static NSString *festivalGreeting(void) {
     if (self.allTileConfigs.count == 0) return;
     [HomeTileConfig saveConfigs:self.allTileConfigs];
     AmeWriteBentoLayoutFromConfigs(self.allTileConfigs);
-    NSLog(@"[EDITMODE] 布局已写盘(%lu 张卡)", (unsigned long)self.allTileConfigs.count);
+    NSLog(@"[EDITMODE] layout saved to disk (%lu cards)", (unsigned long)self.allTileConfigs.count);
 }
 
 // MARK: - Data Loading

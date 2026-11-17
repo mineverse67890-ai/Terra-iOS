@@ -1334,7 +1334,7 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
 
     // ===== 2. 游戏版本选择按钮 =====
     self.sidebarVersionButton = [self createSidebarSelectButtonWithTitle:localize(@"i18n_str_2031", nil)
-                                                                    value:@"全部版本"
+                                                                    value:@"All Versions"
                                                                   selector:@selector(sidebarVersionButtonClicked:)];
     [self.filterSidebarContainer addSubview:self.sidebarVersionButton];
     self.sidebarVersionTitleLabel = [self findSubviewInButton:self.sidebarVersionButton withTag:100];
@@ -1348,7 +1348,7 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
 
     // ===== 3. 模组加载器选择按钮 =====
     self.sidebarLoaderButton = [self createSidebarSelectButtonWithTitle:localize(@"i18n_str_160", nil)
-                                                                   value:@"全部"
+                                                                   value:@"All"
                                                                  selector:@selector(sidebarLoaderButtonClicked:)];
     [self.filterSidebarContainer addSubview:self.sidebarLoaderButton];
     self.sidebarLoaderTitleLabel = [self findSubviewInButton:self.sidebarLoaderButton withTag:100];
@@ -1899,12 +1899,25 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
         versionManifestURL = @"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     }
     
+    [self loadVersionListFromURL:versionManifestURL allowOfficialFallback:YES];
+}
+
+/// ★ [TERRA-GLOBAL] Fetch the version manifest; if a mirror (e.g. bmclapi) fails, retry once with
+///   Mojang's official piston-meta so the list still loads outside mainland China.
+- (void)loadVersionListFromURL:(NSString *)versionManifestURL allowOfficialFallback:(BOOL)allowFallback {
+    static NSString *const kOfficialManifest = @"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     NSURL *url = [NSURL URLWithString:versionManifestURL];
     __weak typeof(self) weakSelf = self;
     NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) return;
+            NSInteger status = [response isKindOfClass:[NSHTTPURLResponse class]] ? ((NSHTTPURLResponse *)response).statusCode : 200;
+            if ((error || !data || status >= 400) && allowFallback && ![versionManifestURL isEqualToString:kOfficialManifest]) {
+                NSLog(@"[DownloadVC] [TERRA-GLOBAL] manifest failed from %@ (%@, HTTP %ld), retrying official", versionManifestURL, error.localizedDescription, (long)status);
+                [strongSelf loadVersionListFromURL:kOfficialManifest allowOfficialFallback:NO];
+                return;
+            }
             [strongSelf.loadingIndicator stopAnimating];
             
             if (data && !error) {
@@ -3889,7 +3902,7 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
             NSLog(@"[JIT-FLOW] [DownloadVC] openURL apple-magnifier:// (TrollStore) -> %d", urlOK);
             if (!urlOK) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    showDialog(localize(@"Error", nil), @"apple-magnifier:// 无响应（TrollStore / StikDebug 未处理该 URL Scheme？）。请在 TrollStore 设置里启用 URL Scheme，或改用其它 JIT 开启方式。\napple-magnifier:// was not handled (TrollStore URL Scheme disabled?). Enable it in TrollStore settings, or use another JIT enabler.");
+                    showDialog(localize(@"Error", nil), @"apple-magnifier:// was not handled (TrollStore URL Scheme disabled?). Enable it in TrollStore settings, or use another JIT enabler.");
                 });
             }
         }];
@@ -3931,7 +3944,7 @@ typedef NS_ENUM(NSInteger, ModernAssetType) {
             NSLog(@"[JIT] [DownloadVC] openURL stikjit:// -> %d", urlOK);
             if (!urlOK) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    showDialog(localize(@"Error", nil), @"stikjit:// 无响应（未安装 StikDebug？）。请安装 StikDebug 后重试，或换用其它 JIT 开启方式。\nstikjit:// was not handled (StikDebug not installed?). Install StikDebug and retry.");
+                    showDialog(localize(@"Error", nil), @"stikjit:// was not handled (StikDebug not installed?). Install StikDebug and retry.");
                 });
             }
         }];

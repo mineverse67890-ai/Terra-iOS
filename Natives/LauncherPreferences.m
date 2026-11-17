@@ -137,7 +137,28 @@ int ame141_currentLaunchAllocMem(void) {
 /// 哨兵也避免了"用户手动把新键改回 official_first 后，下次启动被旧键再次覆盖"。
 ///
 /// 迁移完成后保留旧键不删（向后兼容：尚未切换到 PLMirrorCenter 的旧读取方仍可使用）。
+/// ★ [TERRA-GLOBAL] One-time reset for installs that inherited the upstream China-mirror default.
+/// Upstream defaulted general.download_source to "bmclapi", and the migration below then forced all
+/// four mirror policies to mirror_first ⇒ downloads only worked from (or via a VPN to) China.
+/// Reset once to "auto" (official servers outside China, mirrors inside China by time zone);
+/// any choice the user makes in Settings afterwards is kept (sentinel download.terraGlobalReset).
+static void terraResetChinaMirrorDefaults(void) {
+    if ([getPrefObject(@"download.terraGlobalReset") boolValue]) return;
+    NSString *legacy = getPrefObject(@"general.download_source");
+    if ([legacy isKindOfClass:[NSString class]] && [legacy isEqualToString:@"bmclapi"]) {
+        setPrefObject(@"general.download_source", @"official");
+    }
+    for (NSString *key in @[@"download.fileSource", @"download.assetSearchSource",
+                            @"download.assetDownloadSource", @"download.modLoaderSource"]) {
+        setPrefObject(key, @"auto");
+    }
+    setPrefObject(@"download.sourceMigrated", @YES);   // legacy key must not re-force mirror_first
+    setPrefObject(@"download.terraGlobalReset", @YES);
+    NSLog(@"[Preferences] [TERRA-GLOBAL] reset download sources to auto/official (was legacy=%@)", legacy);
+}
+
 void migrateDownloadSourcePreferences(void) {
+    terraResetChinaMirrorDefaults();
     if ([getPrefObject(@"download.sourceMigrated") boolValue]) return;
 
     NSString *legacy = getPrefObject(@"general.download_source");
@@ -311,21 +332,38 @@ static NSString *ameNormalizeJREHome(NSString *dir) {
         BOOL isDir = NO;
         if ([NSFileManager.defaultManager fileExistsAtPath:cand isDirectory:&isDir] && isDir &&
             ameJREHomeLooksValid(cand)) {
-            NSLog(@"★ [JRE-NEST] 归一化 JRE 层级: %@ -> %@", dir, cand);
+            NSLog(@"★ [JRE-NEST] normalized JRE directory layout: %@ -> %@", dir, cand);
             return cand;
         }
     }
-    NSLog(@"★ [JRE-NEST] ERROR: %@ 缺 release / lib/server/libjvm.dylib，实际布局:", dir);
+    NSLog(@"★ [JRE-NEST] ERROR: %@ is missing release / lib/server/libjvm.dylib, actual layout:", dir);
     for (NSString *s in subs) NSLog(@"★ [JRE-NEST]     %@", s);
     return nil;
 }
 
+NSDictionary *ameJavaHomesIncludingBundled(void) {
+    NSMutableDictionary *homes = [getPrefObject(@"java.java_homes") mutableCopy] ?: [NSMutableDictionary dictionary];
+    NSString *bundled = [NSBundle.mainBundle.bundlePath stringByAppendingPathComponent:@"java_runtimes"];
+    for (NSString *dir in [NSFileManager.defaultManager contentsOfDirectoryAtPath:bundled error:nil] ?: @[]) {
+        // java-<major>-openjdk
+        if (![dir hasPrefix:@"java-"] || ![dir hasSuffix:@"-openjdk"]) continue;
+        NSString *major = [[dir stringByReplacingOccurrencesOfString:@"java-" withString:@""]
+                                stringByReplacingOccurrencesOfString:@"-openjdk" withString:@""];
+        if (major.integerValue <= 0 || homes[major]) continue;
+        homes[major] = @"internal";
+        NSLog(@"[TERRA-JAVA] bundled Java %@ was missing from java.java_homes, using it", major);
+    }
+    return homes;
+}
+
 NSString* getSelectedJavaHome(NSString* defaultJRETag, int minVersion) {
-    NSDictionary *pref = getPrefObject(@"java.java_homes");
+    NSDictionary *pref = ameJavaHomesIncludingBundled();
     NSDictionary<NSString *, NSString *> *selected = pref[@"0"];
     NSString *selectedVer = selected[defaultJRETag];
     if (minVersion > selectedVer.intValue) {
-        NSArray *sortedVersions = [pref.allKeys valueForKeyPath:@"self.integerValue"];
+        NSMutableArray *runtimeKeys = [pref.allKeys mutableCopy];
+        [runtimeKeys removeObject:@"0"];   // "0" holds the per-tag defaults, not a runtime
+        NSArray *sortedVersions = [runtimeKeys valueForKeyPath:@"self.integerValue"];
         sortedVersions = [sortedVersions sortedArrayUsingSelector:@selector(compare:)];
         BOOL found = NO;
         for (NSNumber *version in sortedVersions) {

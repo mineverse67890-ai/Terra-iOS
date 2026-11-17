@@ -165,7 +165,7 @@ static const CGFloat kDragThreshold = 10.0;
 - (BOOL)shouldUpdateFocusInContext:(UIFocusUpdateContext *)context {
     id<UIFocusItem> next = context.nextFocusedItem;
     if (next && [next isKindOfClass:[UIView class]] && [(UIView *)next isDescendantOfView:self]) {
-        NSLog(@"[KB-SPACE] 拒绝键盘焦点落入游戏内设置浮层: %@", NSStringFromClass([(UIView *)next class]));
+        NSLog(@"[KB-SPACE] refusing keyboard focus inside the in-game settings overlay: %@", NSStringFromClass([(UIView *)next class]));
         return NO;
     }
     return [super shouldUpdateFocusInContext:context];
@@ -376,7 +376,7 @@ static const CGFloat kDragThreshold = 10.0;
     [self applyMenuButtonVisibility];
     // 持久化（键：control.menu_button_visible）—— 与设置页同一真相源。
     setPrefObject(kPrefMenuButtonVisible, @(menuButtonVisible));
-    NSLog(@"[ISSUE-152] game menu button(小齿轮) visible=%d", menuButtonVisible ? 1 : 0);
+    NSLog(@"[ISSUE-152] game menu button (small gear) visible=%d", menuButtonVisible ? 1 : 0);
 }
 
 /// 设置页改动广播 ⇒ 重新按偏好应用（幂等）。

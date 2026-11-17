@@ -171,10 +171,10 @@ static NSString *E1InstanceSubtitle(NSString *name, NSDictionary *profile) {
     }
     NSString *version = profile[@"lastVersionId"];
     if (modCount > 0) {
-        return version.length ? [NSString stringWithFormat:@"%lu 个模组 · %@", (unsigned long)modCount, version]
-                              : [NSString stringWithFormat:@"%lu 个模组", (unsigned long)modCount];
+        return version.length ? [NSString stringWithFormat:@"%lu mods · %@", (unsigned long)modCount, version]
+                              : [NSString stringWithFormat:@"%lu mods", (unsigned long)modCount];
     }
-    return version.length ? [NSString stringWithFormat:@"无模组 · %@", version] : @"无模组";
+    return version.length ? [NSString stringWithFormat:@"No mods · %@", version] : @"No mods";
 }
 
 /// 实例当前渲染器(真实偏好,默认 Metal)—— 用于卡上「Metal」药丸(SPEC §2.1 success 绿)
@@ -1540,7 +1540,7 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     header.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:header];
 
-    self.instancesTitleLabel = E1MakeLabel(@"实例", 25.0, UIFontWeightBold, [UIColor whiteColor]);
+    self.instancesTitleLabel = E1MakeLabel(@"Instances", 25.0, UIFontWeightBold, [UIColor whiteColor]);
     [header addSubview:self.instancesTitleLabel];
 
     // 竖屏右上:齿轮 40×40 / 圆角 13(SPEC §1.1)
@@ -1950,7 +1950,7 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     play.layer.masksToBounds = YES;
     objc_setAssociatedObject(play, kE1InstanceNameKey, name, OBJC_ASSOCIATION_COPY_NONATOMIC);
     [play addTarget:self action:@selector(e1LaunchButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-    play.accessibilityLabel = [NSString stringWithFormat:@"启动 %@", name];
+    play.accessibilityLabel = [NSString stringWithFormat:@"Launch %@", name];
 
     [card addSubview:icon];
     [card addSubview:textCol];
@@ -2058,9 +2058,9 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
     [card.layer addSublayer:dash];
     [self.e1DashedBorderLayers addObject:dash];
 
-    UILabel *plus = E1MakeLabel(@"＋", 22.0, UIFontWeightRegular, E1ColorDim(dark));
+    UILabel *plus = E1MakeLabel(@"+", 22.0, UIFontWeightRegular, E1ColorDim(dark));
     plus.textAlignment = NSTextAlignmentCenter;
-    UILabel *cap  = E1MakeLabel(@"新建实例", 10.5, UIFontWeightRegular, E1ColorDim(dark));
+    UILabel *cap  = E1MakeLabel(@"New Instance", 10.5, UIFontWeightRegular, E1ColorDim(dark));
     cap.textAlignment = NSTextAlignmentCenter;
     UIStackView *col = [[UIStackView alloc] initWithArrangedSubviews:@[ plus, cap ]];
     col.translatesAutoresizingMaskIntoConstraints = NO;
@@ -2149,8 +2149,8 @@ static const void *kE1InstanceNameKey = &kE1InstanceNameKey;
 
 - (void)e1SortTapped {
     self.e1SortMode = (self.e1SortMode + 1) % 3;
-    NSString *t = (self.e1SortMode == 0) ? @"排序 ⇅"
-                : (self.e1SortMode == 1) ? @"名称 ⇅" : @"最近 ⇅";
+    NSString *t = (self.e1SortMode == 0) ? @"Sort ⇅"
+                : (self.e1SortMode == 1) ? @"Name ⇅" : @"Recent ⇅";
     [self.instancesSortButton setTitle:t forState:UIControlStateNormal];
     [self rebuildGrid];
 }

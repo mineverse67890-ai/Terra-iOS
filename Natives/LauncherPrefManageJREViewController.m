@@ -6,7 +6,7 @@
 #import "UIKit+hook.h"
 #import "ios_uikit_bridge.h"
 #import "utils.h"
-#import "BackgroundManager.h"
+#import "TerraStyle.h"
 #import "DownloadTaskManager.h"
 #import "DownloadTaskItem.h"
 #import "PLTaskStages.h"
@@ -34,6 +34,240 @@ typedef struct {
 // redesign-download-ui Phase 4 Task 4.3：移除 WFWorkflowProgressView（私有框架），
 // 运行时导入进度改由 DownloadTaskManager 统一任务驱动（rawTask = totalProgress，支持取消）
 static NSString *currentImportTaskId;
+
+#pragma mark - ★ [TERRA-STYLE] cells
+
+/// Card background shared by both cell kinds. Rows of a grouped card overlap their 1pt
+/// borders by 1pt so adjacent rows read as a single card with hairline separators.
+static UIView *TerraRuntimeCardBackground(void) {
+    UIView *bg = [TerraStyle cardView];
+    bg.translatesAutoresizingMaskIntoConstraints = NO;
+    bg.userInteractionEnabled = NO;
+    return bg;
+}
+
+static UIStackView *TerraRuntimeHStack(void) {
+    UIStackView *s = [UIStackView new];
+    s.axis = UILayoutConstraintAxisHorizontal;
+    s.alignment = UIStackViewAlignmentCenter;
+    s.spacing = 6;
+    return s;
+}
+
+/// "Default Java" row: tag title on the left, chosen version as a chip + chevron on the right.
+@interface TerraRuntimeDefaultCell : UITableViewCell
+@property(nonatomic, strong) UIView *cardBackground;
+@property(nonatomic, strong) UILabel *titleTextLabel;
+@property(nonatomic, strong) UILabel *valueChip;
+@property(nonatomic, copy) NSString *titleText;
+@property(nonatomic, copy) NSString *valueText;
+@property(nonatomic, strong) NSLayoutConstraint *bgTop;
+- (void)setPositionFirst:(BOOL)first last:(BOOL)last;
+@end
+
+@implementation TerraRuntimeDefaultCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
+    self.backgroundColor = UIColor.clearColor;
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    self.clipsToBounds = NO;
+
+    self.cardBackground = TerraRuntimeCardBackground();
+    [self.contentView addSubview:self.cardBackground];
+
+    self.titleTextLabel = [UILabel new];
+    self.titleTextLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
+    self.titleTextLabel.textColor = TerraStyle.text;
+    self.titleTextLabel.numberOfLines = 0;
+
+    self.valueChip = [TerraStyle chipWithText:@"" color:TerraStyle.greenBright];
+    UIImageView *chevron = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.up.chevron.down"
+        withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:11 weight:UIImageSymbolWeightBold]]];
+    chevron.tintColor = TerraStyle.dimText;
+    [chevron setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+
+    UIStackView *row = TerraRuntimeHStack();
+    row.translatesAutoresizingMaskIntoConstraints = NO;
+    row.spacing = 8;
+    [row addArrangedSubview:self.titleTextLabel];
+    [row addArrangedSubview:self.valueChip];
+    [row addArrangedSubview:chevron];
+    [row setCustomSpacing:6 afterView:self.valueChip];
+    [self.contentView addSubview:row];
+
+    UILayoutGuide *m = self.contentView.layoutMarginsGuide;
+    self.bgTop = [self.cardBackground.topAnchor constraintEqualToAnchor:self.contentView.topAnchor];
+    [NSLayoutConstraint activateConstraints:@[
+        self.bgTop,
+        [self.cardBackground.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor],
+        [self.cardBackground.leadingAnchor constraintEqualToAnchor:m.leadingAnchor],
+        [self.cardBackground.trailingAnchor constraintEqualToAnchor:m.trailingAnchor],
+        [row.leadingAnchor constraintEqualToAnchor:self.cardBackground.leadingAnchor constant:16],
+        [row.trailingAnchor constraintEqualToAnchor:self.cardBackground.trailingAnchor constant:-14],
+        [row.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:14],
+        [row.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:-14],
+    ]];
+    return self;
+}
+
+- (void)setTitleText:(NSString *)titleText {
+    _titleText = [titleText copy];
+    self.titleTextLabel.text = titleText;
+}
+
+- (void)setValueText:(NSString *)valueText {
+    _valueText = [valueText copy];
+    self.valueChip.text = [NSString stringWithFormat:@"  %@  ", valueText ?: @""];
+}
+
+- (void)setPositionFirst:(BOOL)first last:(BOOL)last {
+    CACornerMask mask = 0;
+    if (first) mask |= kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner;
+    if (last) mask |= kCALayerMinXMaxYCorner | kCALayerMaxXMaxYCorner;
+    self.cardBackground.layer.maskedCorners = mask;
+    self.cardBackground.layer.cornerRadius = mask ? 6 : 0;
+    self.bgTop.constant = first ? 0 : -1;
+}
+
+- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated {
+    [super setHighlighted:highlighted animated:animated];
+    self.cardBackground.backgroundColor = highlighted ? TerraStyle.raised : TerraStyle.surface;
+}
+
+@end
+
+/// One installed runtime: big "Java 21" title, folder name, "version · size", chips, selection mark.
+@interface TerraRuntimeCardCell : UITableViewCell
+@property(nonatomic, strong) UIView *cardBackground;
+@property(nonatomic, strong) UILabel *bigTitleLabel;
+@property(nonatomic, strong) UILabel *nameLabel;
+@property(nonatomic, strong) UILabel *infoLabel;
+@property(nonatomic, strong) UIStackView *chipRow;
+@property(nonatomic, strong) UIStackView *defaultChips;
+@property(nonatomic, strong) UIImageView *checkView;
+@property(nonatomic, strong) UIActivityIndicatorView *spinner;
+@property(nonatomic, strong) UIButton *deleteButton;
+@property(nonatomic, copy) NSString *runtimeName;
+@property(nonatomic) BOOL runtimeSelected;
+@end
+
+@implementation TerraRuntimeCardCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
+    self.backgroundColor = UIColor.clearColor;
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+
+    self.cardBackground = TerraRuntimeCardBackground();
+    [self.contentView addSubview:self.cardBackground];
+
+    self.bigTitleLabel = [UILabel new];
+    self.bigTitleLabel.font = [UIFont systemFontOfSize:22 weight:UIFontWeightHeavy];
+    self.bigTitleLabel.textColor = TerraStyle.text;
+
+    self.nameLabel = [UILabel new];
+    self.nameLabel.font = [UIFont monospacedSystemFontOfSize:12 weight:UIFontWeightRegular];
+    self.nameLabel.textColor = TerraStyle.dimText;
+    self.nameLabel.numberOfLines = 0;
+
+    self.infoLabel = [UILabel new];
+    self.infoLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+    self.infoLabel.textColor = TerraStyle.dimText;
+    self.infoLabel.numberOfLines = 0;
+
+    self.chipRow = TerraRuntimeHStack();
+    self.defaultChips = [UIStackView new];
+    self.defaultChips.axis = UILayoutConstraintAxisVertical;
+    self.defaultChips.alignment = UIStackViewAlignmentLeading;
+    self.defaultChips.spacing = 4;
+
+    UIStackView *texts = [[UIStackView alloc] initWithArrangedSubviews:@[self.bigTitleLabel, self.nameLabel, self.infoLabel, self.chipRow, self.defaultChips]];
+    texts.translatesAutoresizingMaskIntoConstraints = NO;
+    texts.axis = UILayoutConstraintAxisVertical;
+    texts.alignment = UIStackViewAlignmentLeading;
+    texts.spacing = 3;
+    [texts setCustomSpacing:8 afterView:self.infoLabel];
+    [texts setCustomSpacing:6 afterView:self.chipRow];
+    [self.contentView addSubview:texts];
+
+    self.checkView = [UIImageView new];
+    self.checkView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.checkView.contentMode = UIViewContentModeCenter;
+    [self.contentView addSubview:self.checkView];
+
+    self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+    self.spinner.translatesAutoresizingMaskIntoConstraints = NO;
+    self.spinner.color = TerraStyle.text;
+    self.spinner.hidesWhenStopped = YES;
+    [self.contentView addSubview:self.spinner];
+
+    self.deleteButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.deleteButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.deleteButton setImage:[UIImage systemImageNamed:@"trash"
+        withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:14 weight:UIImageSymbolWeightBold]]
+        forState:UIControlStateNormal];
+    self.deleteButton.tintColor = TerraStyle.danger;
+    self.deleteButton.backgroundColor = TerraStyle.raised;
+    self.deleteButton.layer.cornerRadius = 4;
+    self.deleteButton.layer.borderWidth = 1;
+    self.deleteButton.layer.borderColor = TerraStyle.border.CGColor;
+    self.deleteButton.accessibilityLabel = @"Delete runtime";
+    [self.contentView addSubview:self.deleteButton];
+
+    UILayoutGuide *m = self.contentView.layoutMarginsGuide;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.cardBackground.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:5],
+        [self.cardBackground.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:-5],
+        [self.cardBackground.leadingAnchor constraintEqualToAnchor:m.leadingAnchor],
+        [self.cardBackground.trailingAnchor constraintEqualToAnchor:m.trailingAnchor],
+
+        [texts.topAnchor constraintEqualToAnchor:self.cardBackground.topAnchor constant:14],
+        [texts.bottomAnchor constraintEqualToAnchor:self.cardBackground.bottomAnchor constant:-14],
+        [texts.leadingAnchor constraintEqualToAnchor:self.cardBackground.leadingAnchor constant:16],
+        [texts.trailingAnchor constraintLessThanOrEqualToAnchor:self.checkView.leadingAnchor constant:-10],
+
+        [self.checkView.trailingAnchor constraintEqualToAnchor:self.cardBackground.trailingAnchor constant:-14],
+        [self.checkView.topAnchor constraintEqualToAnchor:self.cardBackground.topAnchor constant:16],
+        [self.checkView.widthAnchor constraintEqualToConstant:30],
+        [self.checkView.heightAnchor constraintEqualToConstant:30],
+        [self.spinner.centerXAnchor constraintEqualToAnchor:self.checkView.centerXAnchor],
+        [self.spinner.centerYAnchor constraintEqualToAnchor:self.checkView.centerYAnchor],
+
+        [self.deleteButton.trailingAnchor constraintEqualToAnchor:self.checkView.trailingAnchor],
+        [self.deleteButton.bottomAnchor constraintEqualToAnchor:self.cardBackground.bottomAnchor constant:-14],
+        [self.deleteButton.widthAnchor constraintEqualToConstant:30],
+        [self.deleteButton.heightAnchor constraintEqualToConstant:30],
+        [self.deleteButton.topAnchor constraintGreaterThanOrEqualToAnchor:self.checkView.bottomAnchor constant:8],
+    ]];
+    return self;
+}
+
+- (void)setRuntimeSelected:(BOOL)runtimeSelected {
+    _runtimeSelected = runtimeSelected;
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:22 weight:UIImageSymbolWeightBold];
+    self.checkView.image = [UIImage systemImageNamed:runtimeSelected ? @"checkmark.square.fill" : @"square" withConfiguration:cfg];
+    self.checkView.tintColor = runtimeSelected ? TerraStyle.greenBright : [UIColor colorWithWhite:1 alpha:0.25];
+    self.cardBackground.layer.borderColor = (runtimeSelected ? TerraStyle.green : TerraStyle.border).CGColor;
+}
+
+- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated {
+    [super setHighlighted:highlighted animated:animated];
+    self.cardBackground.backgroundColor = highlighted ? TerraStyle.raised : TerraStyle.surface;
+}
+
+- (void)setChips:(NSArray<UILabel *> *)chips defaultChips:(NSArray<UILabel *> *)defaults {
+    for (UIView *v in self.chipRow.arrangedSubviews) [v removeFromSuperview];
+    for (UIView *v in self.defaultChips.arrangedSubviews) [v removeFromSuperview];
+    for (UILabel *c in chips) [self.chipRow addArrangedSubview:c];
+    for (UILabel *c in defaults) [self.defaultChips addArrangedSubview:c];
+    self.chipRow.hidden = chips.count == 0;
+    self.defaultChips.hidden = defaults.count == 0;
+}
+
+@end
+
+#pragma mark -
 
 @interface LauncherPrefManageJREViewController ()<UIContextMenuInteractionDelegate, UIDocumentPickerDelegate>
 @property(nonatomic) NSMutableDictionary<NSNumber *, NSMutableArray *> *javaRuntimes;
@@ -95,20 +329,22 @@ static NSString *currentImportTaskId;
 
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"plus"] style:UIBarButtonItemStylePlain target:self action:@selector(actionImportRuntime)];
 
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];
+    // ★ [TERRA-STYLE] solid charcoal page, custom card cells, no system separators.
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
-
-    // 适配自定义启动器背景：透明化 tableView + 导航栏毛玻璃
-    if (self.navigationController) {
-        [[BackgroundManager sharedManager] applyEffectToNavigationBar:self.navigationController.navigationBar];
-    }
-    [[BackgroundManager sharedManager] makeViewControllerTransparent:self];
-    // 修复：使用 Automatic 让系统自动为半透明导航栏添加顶部 contentInset，
-    // 避免第一栏（"1.16及更早版本"）被导航栏覆盖。配合 edgesForExtendedLayout=All
-    // 保留导航栏毛玻璃穿透效果，内容起始位置自动下移到导航栏下方。
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.cellLayoutMarginsFollowReadableWidth = YES;
+    self.tableView.sectionHeaderTopPadding = 0;
+    self.tableView.estimatedRowHeight = 96;
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedSectionHeaderHeight = 36;
+    self.tableView.sectionHeaderHeight = UITableViewAutomaticDimension;
+    self.tableView.estimatedSectionFooterHeight = 24;
+    self.tableView.sectionFooterHeight = UITableViewAutomaticDimension;
     self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
-    self.extendedLayoutIncludesOpaqueBars = YES;
-    self.edgesForExtendedLayout = UIRectEdgeAll;
+    [TerraStyle applyToViewController:self];
+    self.tableView.backgroundColor = TerraStyle.background;
+    self.tableView.tableHeaderView = [self terraHeaderView];
 
     self.javaRuntimes = @{
         @(DEFAULT_JRE): @[@"preference.manage_runtime.default.1165", @"preference.manage_runtime.default.117", @"launcher.menu.execute_jar"]
@@ -122,26 +358,95 @@ static NSString *currentImportTaskId;
     NSString *externalPath = [NSString stringWithFormat:@"%s/java_runtimes", getenv("POJAV_HOME")];
     [self listJREInPath:internalPath markInternal:YES];
     [self listJREInPath:externalPath markInternal:NO];
-
-    // 监听背景效果变化通知：切换毛玻璃↔半透明或调整透明度时，
-    // 重新透明化当前 VC 并 reload cell，让每个 cell 重新应用 applyEffectToCell:
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(reapplyBackgroundEffect)
-                                                 name:@"BackgroundUIEffectChanged"
-                                               object:nil];
 }
 
-/// 背景效果变化时重新应用透明化处理，确保 cell 在切换毛玻璃↔半透明后视觉一致
-- (void)reapplyBackgroundEffect {
-    [[BackgroundManager sharedManager] makeViewControllerTransparent:self];
-    if (self.navigationController) {
-        [[BackgroundManager sharedManager] applyEffectToNavigationBar:self.navigationController.navigationBar];
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [TerraStyle applyToViewController:self];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    // Size the auto-layout table header to the current width.
+    UIView *header = self.tableView.tableHeaderView;
+    if (!header) return;
+    CGFloat width = self.tableView.bounds.size.width;
+    CGSize size = [header systemLayoutSizeFittingSize:CGSizeMake(width, 0)
+                        withHorizontalFittingPriority:UILayoutPriorityRequired
+                              verticalFittingPriority:UILayoutPriorityFittingSizeLevel];
+    if (fabs(header.frame.size.height - size.height) > 0.5 || fabs(header.frame.size.width - width) > 0.5) {
+        header.frame = CGRectMake(0, 0, width, size.height);
+        self.tableView.tableHeaderView = header;
     }
-    [self.tableView reloadData];
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+/// Header card: "Java runtimes", one-line explanation, "Import runtime…" block button.
+- (UIView *)terraHeaderView {
+    UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 375, 160)];
+    container.preservesSuperviewLayoutMargins = YES;
+
+    UIView *card = [TerraStyle cardView];
+    card.translatesAutoresizingMaskIntoConstraints = NO;
+    [container addSubview:card];
+
+    UIView *block = [TerraStyle grassBlockOfSize:32];
+    [card addSubview:block];
+
+    UILabel *title = [UILabel new];
+    title.translatesAutoresizingMaskIntoConstraints = NO;
+    title.text = @"Java runtimes";
+    title.font = TerraStyle.titleFont;
+    title.textColor = TerraStyle.text;
+    [card addSubview:title];
+
+    UILabel *subtitle = [UILabel new];
+    subtitle.translatesAutoresizingMaskIntoConstraints = NO;
+    subtitle.text = @"Minecraft runs on Java. Pick defaults per game version, or import your own.";
+    subtitle.font = TerraStyle.bodyFont;
+    subtitle.textColor = TerraStyle.dimText;
+    subtitle.numberOfLines = 0;
+    [card addSubview:subtitle];
+
+    UIButton *import = [TerraStyle blockButtonWithTitle:@"Import runtime\u2026" symbol:@"square.and.arrow.down" primary:YES];
+    import.translatesAutoresizingMaskIntoConstraints = NO;
+    [import addTarget:self action:@selector(actionImportRuntime) forControlEvents:UIControlEventTouchUpInside];
+    [card addSubview:import];
+
+    UILabel *hint = [UILabel new];
+    hint.translatesAutoresizingMaskIntoConstraints = NO;
+    hint.text = @".tar.xz runtimes built for iOS (aarch64)";
+    hint.font = TerraStyle.captionFont;
+    hint.textColor = TerraStyle.dimText;
+    hint.numberOfLines = 0;
+    [card addSubview:hint];
+
+    UILayoutGuide *m = container.readableContentGuide;
+    [NSLayoutConstraint activateConstraints:@[
+        [card.topAnchor constraintEqualToAnchor:container.topAnchor constant:16],
+        [card.bottomAnchor constraintEqualToAnchor:container.bottomAnchor constant:-8],
+        [card.leadingAnchor constraintEqualToAnchor:m.leadingAnchor],
+        [card.trailingAnchor constraintEqualToAnchor:m.trailingAnchor],
+
+        [block.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:16],
+        [block.topAnchor constraintEqualToAnchor:card.topAnchor constant:18],
+        [title.leadingAnchor constraintEqualToAnchor:block.trailingAnchor constant:12],
+        [title.trailingAnchor constraintLessThanOrEqualToAnchor:card.trailingAnchor constant:-16],
+        [title.centerYAnchor constraintEqualToAnchor:block.centerYAnchor],
+
+        [subtitle.topAnchor constraintEqualToAnchor:block.bottomAnchor constant:10],
+        [subtitle.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:16],
+        [subtitle.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-16],
+
+        [import.topAnchor constraintEqualToAnchor:subtitle.bottomAnchor constant:14],
+        [import.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:16],
+        [import.trailingAnchor constraintLessThanOrEqualToAnchor:card.trailingAnchor constant:-16],
+
+        [hint.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:16],
+        [hint.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-16],
+        [hint.topAnchor constraintEqualToAnchor:import.bottomAnchor constant:8],
+        [hint.bottomAnchor constraintEqualToAnchor:card.bottomAnchor constant:-16],
+    ]];
+    return container;
 }
 
 + (void)actionCancelImportRuntime {
@@ -261,7 +566,6 @@ static NSString *currentImportTaskId;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    NSNumber *version = self.sortedJavaVersions[section];
     switch (self.sortedJavaVersions[section].intValue) {
         case DEFAULT_JRE: return localize(@"preference.manage_runtime.header.default", nil);
         case INVALID_JRE: return localize(@"preference.manage_runtime.header.invalid", nil);
@@ -269,42 +573,67 @@ static NSString *currentImportTaskId;
     }
 }
 
-/// section header：透明背景，与界面背景一致（可看到背景图）。
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    NSString *title = [self tableView:tableView titleForHeaderInSection:section];
-    UITableViewHeaderFooterView *header = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"JRESectionHeader"];
-    if (!header) {
-        header = [[UITableViewHeaderFooterView alloc] initWithReuseIdentifier:@"JRESectionHeader"];
-    }
-    header.textLabel.text = title;
-    return header;
+/// ★ [TERRA-STYLE] uppercase launcher-style section headers.
+/// Section 0 = "DEFAULT JAVA"; the first runtime section = "INSTALLED RUNTIMES"; invalid = "INVALID RUNTIMES".
+- (NSString *)terraHeaderTextForSection:(NSInteger)section {
+    int version = self.sortedJavaVersions[section].intValue;
+    if (version == DEFAULT_JRE) return @"Default Java";
+    if (version == INVALID_JRE) return localize(@"preference.manage_runtime.header.invalid", nil);
+    if (section == 1) return @"Installed runtimes";
+    return nil;
 }
 
-/// section header 透明化：不套毛玻璃，与界面背景融为一体。
-/// 有自定义背景时用白色文字 + 阴影保证可读性；无背景时用系统默认色。
-- (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section {
-    if (![view isKindOfClass:[UITableViewHeaderFooterView class]]) return;
-    UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
-
-    // 透明背景：不再使用毛玻璃，可看到背景图
-    header.backgroundView = nil;
-    if ([[BackgroundManager sharedManager] hasBackground]) {
-        header.textLabel.textColor = [UIColor whiteColor];
-        header.textLabel.shadowColor = [UIColor blackColor];
-        header.textLabel.shadowOffset = CGSizeMake(0, 1);
-    } else {
-        header.textLabel.textColor = [UIColor labelColor];
-        header.textLabel.shadowColor = nil;
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    NSString *text = [self terraHeaderTextForSection:section];
+    UIView *v = [UIView new];
+    v.preservesSuperviewLayoutMargins = YES;
+    if (!text) {
+        [v.heightAnchor constraintEqualToConstant:0].active = YES;
+        return v;
     }
+    UILabel *label = [TerraStyle sectionLabel:text];
+    label.translatesAutoresizingMaskIntoConstraints = NO;
+    if (self.sortedJavaVersions[section].intValue == INVALID_JRE) label.textColor = TerraStyle.danger;
+    [v addSubview:label];
+    [NSLayoutConstraint activateConstraints:@[
+        [label.leadingAnchor constraintEqualToAnchor:v.readableContentGuide.leadingAnchor constant:2],
+        [label.trailingAnchor constraintLessThanOrEqualToAnchor:v.readableContentGuide.trailingAnchor],
+        [label.topAnchor constraintEqualToAnchor:v.topAnchor constant:18],
+        [label.bottomAnchor constraintEqualToAnchor:v.bottomAnchor constant:-8],
+    ]];
+    return v;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
     switch (self.sortedJavaVersions[section].intValue) {
-        case DEFAULT_JRE: return localize(@"preference.manage_runtime.footer.default", nil);
-        case 8: return localize(@"preference.manage_runtime.footer.java8", nil);
-        case 17: return localize(@"preference.manage_runtime.footer.java17", nil);
+        case DEFAULT_JRE: return @"Used unless an installation picks its own Java.";
+        case INVALID_JRE: return @"Missing or broken files. Delete and import again.";
         default: return nil;
     }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
+    NSString *text = [self tableView:tableView titleForFooterInSection:section];
+    UIView *v = [UIView new];
+    v.preservesSuperviewLayoutMargins = YES;
+    if (!text) {
+        [v.heightAnchor constraintEqualToConstant:0].active = YES;
+        return v;
+    }
+    UILabel *label = [UILabel new];
+    label.translatesAutoresizingMaskIntoConstraints = NO;
+    label.text = text;
+    label.font = TerraStyle.captionFont;
+    label.textColor = TerraStyle.dimText;
+    label.numberOfLines = 0;
+    [v addSubview:label];
+    [NSLayoutConstraint activateConstraints:@[
+        [label.leadingAnchor constraintEqualToAnchor:v.readableContentGuide.leadingAnchor constant:2],
+        [label.trailingAnchor constraintEqualToAnchor:v.readableContentGuide.trailingAnchor],
+        [label.topAnchor constraintEqualToAnchor:v.topAnchor constant:8],
+        [label.bottomAnchor constraintEqualToAnchor:v.bottomAnchor constant:-4],
+    ]];
+    return v;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -319,55 +648,85 @@ static NSString *currentImportTaskId;
     }
 }
 
+/// Display titles for the three default-Java rows (same order as selectedRTTags).
+- (NSString *)terraDefaultRowTitle:(NSInteger)row {
+    if (row == 2) return @"Running .jar files";
+    return localize(self.javaRuntimes[@DEFAULT_JRE][row], nil);
+}
+
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForDefaultRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DefaultCell"];
+    TerraRuntimeDefaultCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DefaultCell"];
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"DefaultCell"];
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell = [[TerraRuntimeDefaultCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"DefaultCell"];
     }
-    cell.textLabel.text = localize(self.javaRuntimes[@DEFAULT_JRE][indexPath.row], nil);
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"Java %@",
+    cell.titleText = [self terraDefaultRowTitle:indexPath.row];
+    cell.valueText = [NSString stringWithFormat:@"Java %@",
         ((NSDictionary *)self.selectedRuntimes[@"0"])[self.selectedRTTags[indexPath.row]]];
-    // 适配自定义启动器背景：cell 应用毛玻璃/半透明效果，避免默认 systemBackgroundColor 遮挡背景
-    [[BackgroundManager sharedManager] applyEffectToCell:cell];
+    NSInteger count = [self tableView:tableView numberOfRowsInSection:indexPath.section];
+    [cell setPositionFirst:indexPath.row == 0 last:indexPath.row == count - 1];
     return cell;
 }
 
+/// Same rule the old checkmark used.
+- (BOOL)terraIsSelectedRuntime:(NSString *)name version:(NSNumber *)version internal:(BOOL)isInternal {
+    return [self.selectedRuntimes[version.stringValue] isEqualToString:name] ||
+        (isInternal && [self.selectedRuntimes[version.stringValue] isEqualToString:@"internal"]);
+}
+
 - (UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRuntimeRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RTCell"];
+    TerraRuntimeCardCell *cell = [tableView dequeueReusableCellWithIdentifier:@"RTCell"];
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"RTCell"];
+        cell = [[TerraRuntimeCardCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"RTCell"];
+        [cell.deleteButton addTarget:self action:@selector(terraDeleteTapped:) forControlEvents:UIControlEventTouchUpInside];
     }
     NSNumber *version = self.sortedJavaVersions[indexPath.section];
     NSString *name = self.javaRuntimes[version][indexPath.row];
     BOOL isInternal = [objc_getAssociatedObject(name, @"internalJRE") boolValue];
     BOOL isInstalling = [objc_getAssociatedObject(name, @"installing") boolValue];
-    if (isInternal) {
-        cell.textLabel.text = [NSString stringWithFormat:@"[Internal] %@", name];
-    } else {
-        cell.textLabel.text = name;
-    }
+    BOOL isInvalid = version.intValue == INVALID_JRE;
+    cell.runtimeName = name;
+
+    cell.bigTitleLabel.text = isInvalid ? @"Invalid runtime" : [NSString stringWithFormat:@"Java %@", version];
+    cell.bigTitleLabel.textColor = isInvalid ? TerraStyle.danger : TerraStyle.text;
+    cell.nameLabel.text = name;
+    cell.infoLabel.text = @" ";
+
+    NSMutableArray<UILabel *> *chips = [NSMutableArray new];
+    [chips addObject:isInternal
+        ? [TerraStyle chipWithText:@"Built-in" color:TerraStyle.dimText]
+        : [TerraStyle chipWithText:@"Imported" color:[UIColor colorWithRed:0.45 green:0.70 blue:1.0 alpha:1]]];
 
     if (isInstalling) {
         self.installingIndexPath = indexPath;
-
-        // redesign-download-ui Phase 4 Task 4.3：进度展示移至统一进度页，
-        // cell 内仅显示菊花指示器
-        UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
-        [spinner startAnimating];
-        cell.accessoryView = spinner;
+        // redesign-download-ui Phase 4 Task 4.3：进度展示移至统一进度页，cell 内仅显示菊花指示器
+        [chips addObject:[TerraStyle chipWithText:@"Installing…" color:TerraStyle.warning]];
+        [cell.spinner startAnimating];
+        cell.checkView.hidden = YES;
     } else {
-        cell.accessoryView = nil;
+        [cell.spinner stopAnimating];
+        cell.checkView.hidden = isInvalid;
     }
 
-    // Set checkmark; with internal runtime it's a bit tricky to check
-    if ([self.selectedRuntimes[version.stringValue] isEqualToString:name] ||
-      (isInternal && [self.selectedRuntimes[version.stringValue] isEqualToString:@"internal"])) {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryNone;
+    BOOL selected = [self terraIsSelectedRuntime:name version:version internal:isInternal];
+    cell.runtimeSelected = selected;
+
+    // "Default for …" chips: on the runtime currently used for this major version.
+    NSMutableArray<UILabel *> *defaults = [NSMutableArray new];
+    if (selected && !isInvalid) {
+        NSDictionary *defaultMap = (NSDictionary *)self.selectedRuntimes[@"0"];
+        NSArray<NSString *> *defaultTitles = @[@"Default for 1.16.5 and older", @"Default for 1.17+", @"Default for .jar files"];
+        for (NSInteger i = 0; i < self.selectedRTTags.count && i < defaultTitles.count; i++) {
+            id value = defaultMap[self.selectedRTTags[i]];
+            if (value && [[value description] isEqualToString:version.stringValue]) {
+                [defaults addObject:[TerraStyle chipWithText:defaultTitles[i] color:TerraStyle.greenBright]];
+            }
+        }
     }
+    [cell setChips:chips defaultChips:defaults];
+
+    // Delete: same rule as editingStyleForRowAtIndexPath (not internal, not installing)
+    cell.deleteButton.hidden = isInternal || isInstalling;
 
     // Display size
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -377,17 +736,24 @@ static NSString *currentImportTaskId;
             name];
         [NSFileManager.defaultManager nr_getAllocatedSize:&folderSize ofDirectoryAtURL:[NSURL fileURLWithPath:directory] error:nil];
         dispatch_async(dispatch_get_main_queue(), ^{
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ - %@",
+            if (![cell.runtimeName isEqualToString:name]) return; // cell was reused
+            cell.infoLabel.text = [NSString stringWithFormat:@"%@  ·  %@",
                 [self javaVersionForPath:directory],
                 [NSByteCountFormatter stringFromByteCount:folderSize countStyle:NSByteCountFormatterCountStyleMemory]];
         });
     });
 
-    // 适配自定义启动器背景：cell 应用毛玻璃/半透明效果，避免默认 systemBackgroundColor 遮挡背景
-    // 注意：applyEffectToCell: 只重置 backgroundView/backgroundColor/contentView.backgroundColor，
-    // 不影响 accessoryView（progressView）和 accessoryType（checkmark）
-    [[BackgroundManager sharedManager] applyEffectToCell:cell];
     return cell;
+}
+
+/// Trash button on a runtime card → same confirmation/delete path as swipe-to-delete.
+- (void)terraDeleteTapped:(UIButton *)sender {
+    UIView *v = sender;
+    while (v && ![v isKindOfClass:UITableViewCell.class]) v = v.superview;
+    NSIndexPath *indexPath = v ? [self.tableView indexPathForCell:(UITableViewCell *)v] : nil;
+    if (!indexPath || indexPath.section == 0) return;
+    if ([self tableView:self.tableView editingStyleForRowAtIndexPath:indexPath] != UITableViewCellEditingStyleDelete) return;
+    [self tableView:self.tableView commitEditingStyle:UITableViewCellEditingStyleDelete forRowAtIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -412,22 +778,22 @@ static NSString *currentImportTaskId;
     }
     setPrefObject(@"java.java_homes", self.selectedRuntimes);
 
-    // Update checkmark
-    NSInteger runtimeCount = [self tableView:tableView numberOfRowsInSection:indexPath.section];
-    for (int i = 0; i < runtimeCount; i++) {
-        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:indexPath.section]];
-        if (i == indexPath.row) {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-        } else {
-            cell.accessoryType = UITableViewCellAccessoryNone;
-        }
-    }
+    // Update selection mark (and "Default for" chips) for this section
+    [tableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationNone];
+}
+
+/// Default picker changed → refresh "Default for …" chips on the runtime cards.
+- (void)terraReloadRuntimeSections {
+    if (self.sortedJavaVersions.count < 2) return;
+    [self.tableView reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, self.sortedJavaVersions.count - 1)]
+                  withRowAnimation:UITableViewRowAnimationNone];
 }
 
 #pragma mark Context Menu configuration
 
 - (void)tableView:(UITableView *)tableView openPickerAtIndexPath:(NSIndexPath *)indexPath minVersion:(NSInteger)minVer {
-    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    TerraRuntimeDefaultCell *cell = (TerraRuntimeDefaultCell *)[tableView cellForRowAtIndexPath:indexPath];
+    if (![cell isKindOfClass:TerraRuntimeDefaultCell.class]) return;
 
     // 收集可选的 Java 版本
     NSMutableArray<NSString *> *versionTitles = [NSMutableArray new];
@@ -444,7 +810,7 @@ static NSString *currentImportTaskId;
 
     // iPhone 上改用 UIAlertController actionSheet，避免紧凑菜单被压缩不可调整
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:cell.textLabel.text
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:cell.titleText
                                                                        message:nil
                                                                 preferredStyle:UIAlertControllerStyleActionSheet];
         if (versionTitles.count == 0) {
@@ -457,15 +823,16 @@ static NSString *currentImportTaskId;
                 NSNumber *verNum = versionNumbers[i];
                 // 当前选中项前加 ✓ 标记
                 NSString *title = version;
-                if ([cell.detailTextLabel.text isEqualToString:version]) {
+                if ([cell.valueText isEqualToString:version]) {
                     title = [NSString stringWithFormat:@"✓ %@", version];
                 }
                 [alert addAction:[UIAlertAction actionWithTitle:title
                                                            style:UIAlertActionStyleDefault
                                                          handler:^(UIAlertAction *a) {
-                    cell.detailTextLabel.text = version;
+                    cell.valueText = version;
                     ((NSMutableDictionary *)self.selectedRuntimes[@"0"])[self.selectedRTTags[indexPath.row]] = verNum.stringValue;
                     setPrefObject(@"java.java_homes", self.selectedRuntimes);
+                    [self terraReloadRuntimeSections];
                 }]];
             }
         }
@@ -488,13 +855,14 @@ static NSString *currentImportTaskId;
             image:nil
             identifier:nil
             handler:^(UIAction *action) {
-                cell.detailTextLabel.text = version;
+                cell.valueText = version;
                 ((NSMutableDictionary *)self.selectedRuntimes[@"0"])[self.selectedRTTags[indexPath.row]] = verNum.stringValue;
                 setPrefObject(@"java.java_homes", self.selectedRuntimes);
+                [self terraReloadRuntimeSections];
             }]];
     }
 
-    cell.detailTextLabel.interactions = [NSArray new];
+    cell.valueChip.interactions = [NSArray new];
 
     if (menuItems.count == 0) {
         [menuItems addObject:[UIAction
@@ -504,10 +872,10 @@ static NSString *currentImportTaskId;
             handler:^(UIAction *action){}]];
     }
 
-    self.currentMenu = [UIMenu menuWithTitle:cell.textLabel.text children:menuItems];
+    self.currentMenu = [UIMenu menuWithTitle:cell.titleText children:menuItems];
     UIContextMenuInteraction *interaction = [[UIContextMenuInteraction alloc] initWithDelegate:self];
     [cell addInteraction:interaction];
-    CGRect detailFrame = cell.detailTextLabel.frame;
+    CGRect detailFrame = [cell.valueChip convertRect:cell.valueChip.bounds toView:cell];
     CGPoint location = CGPointMake(CGRectGetMidX(detailFrame), CGRectGetMidY(detailFrame));
     [interaction _presentMenuAtLocation:location];
 }
@@ -532,14 +900,16 @@ styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
     if (editingStyle != UITableViewCellEditingStyleDelete) return;
 
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    // Runtime folder name (what the old cell.textLabel showed for non-internal runtimes)
+    NSString *runtimeName = self.javaRuntimes[self.sortedJavaVersions[indexPath.section]][indexPath.row];
     NSString *title = localize(@"preference.title.confirm", nil);
-    NSString *message = [NSString stringWithFormat:localize(@"preference.title.confirm.delete_runtime", nil), cell.textLabel.text];
+    NSString *message = [NSString stringWithFormat:localize(@"preference.title.confirm.delete_runtime", nil), runtimeName];
     UIAlertController *confirmAlert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleActionSheet];
     confirmAlert.popoverPresentationController.sourceView = cell;
     confirmAlert.popoverPresentationController.sourceRect = cell.bounds;
     UIAlertAction *ok = [UIAlertAction actionWithTitle:localize(@"OK", nil) style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         NSError *error;
-        NSString *directory = [NSString stringWithFormat:@"%s/java_runtimes/%@", getenv("POJAV_HOME"), cell.textLabel.text];
+        NSString *directory = [NSString stringWithFormat:@"%s/java_runtimes/%@", getenv("POJAV_HOME"), runtimeName];
         [NSFileManager.defaultManager removeItemAtPath:directory error:&error];
         if(!error) {
             [self removeRuntimeAtIndexPath:indexPath];
@@ -622,7 +992,7 @@ styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
 }
 
 - (void)removeRuntimeAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+    TerraRuntimeCardCell *cell = (TerraRuntimeCardCell *)[self.tableView cellForRowAtIndexPath:indexPath];
     NSNumber *version = self.sortedJavaVersions[indexPath.section];
     NSString *name = self.javaRuntimes[version][indexPath.row];
 
@@ -631,7 +1001,7 @@ styleForMenuWithConfiguration:(UIContextMenuConfiguration *)configuration
         [self.javaRuntimes removeObjectForKey:version];
         [self.selectedRuntimes removeObjectForKey:version.stringValue];
         [self.sortedJavaVersions removeObject:version];
-    } else if (cell.accessoryType == UITableViewCellAccessoryCheckmark) {
+    } else if ([cell isKindOfClass:TerraRuntimeCardCell.class] && cell.runtimeSelected) {
         self.selectedRuntimes[version.stringValue] = self.javaRuntimes[version][0];
     }
 

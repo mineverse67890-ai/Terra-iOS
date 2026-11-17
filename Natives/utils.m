@@ -343,6 +343,8 @@ NSError* saveJSONToFile(NSDictionary *dict, NSString *path) {
 // 刻意与系统的 AppleLanguages 分开——那是全局键，会牵动 App 内所有 bundle 的语言
 // 选择，也不适合作为「跟随系统 / 指定语言」这种应用内偏好的保存位置。
 NSString * const AmeLauncherLanguageDefaultsKey = @"ame_launcher_language";
+// ★ [TERRA-EN] Set only when the user explicitly chooses "Follow System" in the language picker.
+static NSString * const AmeLauncherFollowSystemDefaultsKey = @"ame_launcher_language_follow_system";
 
 #pragma mark - ★ [I18N] 语言解析核心（单一事实源）
 
@@ -438,15 +440,14 @@ NSString *AmeLauncherEffectiveLanguageCode(void) {
     if (sAmeEffectiveCodeCache.length > 0 && sAmeEffectiveCodeGeneration == sAmeLanguageGeneration) {
         return sAmeEffectiveCodeCache;
     }
+    // ★ [TERRA-EN] explicit choice → (only if user chose "Follow System") device language → English.
+    //   Builds default to English; the device language is no longer picked up implicitly.
     NSString *result = nil;
     NSString *override = AmeLauncherPreferredLanguageOverride();
     if (override.length > 0) {
         result = override;
-    } else {
-        for (NSString *pref in [NSLocale preferredLanguages]) {
-            NSString *m = AmeLauncherMatchLanguageCode(pref);
-            if (m.length > 0) { result = m; break; }
-        }
+    } else if (AmeLauncherFollowsSystemLanguage()) {
+        result = AmeLauncherSystemLanguageCode();
     }
     if (result.length == 0) result = @"en";
     sAmeEffectiveCodeCache = result;
@@ -471,12 +472,27 @@ NSString *AmeLauncherPreferredLanguageOverride(void) {
 }
 
 // ★ [I18N] 写入/清除覆盖。code 为 nil 或空串时清除（回到跟随系统）。
+BOOL AmeLauncherFollowsSystemLanguage(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:AmeLauncherFollowSystemDefaultsKey];
+}
+
+NSString *AmeLauncherSystemLanguageCode(void) {
+    for (NSString *pref in [NSLocale preferredLanguages]) {
+        NSString *m = AmeLauncherMatchLanguageCode(pref);
+        if (m.length > 0) return m;
+    }
+    return nil;
+}
+
 void AmeLauncherSetPreferredLanguageOverride(NSString *code) {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if (code.length > 0) {
         [defaults setObject:code forKey:AmeLauncherLanguageDefaultsKey];
+        [defaults setBool:NO forKey:AmeLauncherFollowSystemDefaultsKey];
     } else {
+        // nil/empty = the user picked "Follow System"
         [defaults removeObjectForKey:AmeLauncherLanguageDefaultsKey];
+        [defaults setBool:YES forKey:AmeLauncherFollowSystemDefaultsKey];
     }
     [defaults synchronize];
     sAmeLanguageGeneration++;   // ★ [I18N] 使缓存的"生效语言"失效，下次 localize 重新解析
@@ -631,7 +647,7 @@ void AmeLauncherPrimeLanguage(void) {
     dispatch_once(&once, ^{
         NSString *code = AmeLauncherEffectiveLanguageCode();   // 解析 + 缓存(单一事实源)
         NSBundle *bundle = AmeBundleForLanguageCode(code);     // 预热 bundle 缓存
-        BOOL hasOverride = (AmeLauncherPreferredLanguageOverride().length > 0);
+        BOOL hasOverride = (AmeLauncherPreferredLanguageOverride().length > 0 || !AmeLauncherFollowsSystemLanguage());
         double coverage = AmeLauncherLanguageTranslatedRatio(code);
         NSLog(@"[i18n][I18N-ORDER] effective=%@ followSystem=%@ bundle=%@ coverage=%.2f bundlePref=%@ systemPref=%@",
               code,
@@ -641,7 +657,7 @@ void AmeLauncherPrimeLanguage(void) {
               [[NSBundle mainBundle] preferredLocalizations].firstObject ?: @"(nil)",
               [NSLocale preferredLanguages].firstObject ?: @"(nil)");
         if (bundle == nil) {
-            NSLog(@"[i18n][I18N-ORDER] ★ 警告:生效语言 %@ 没有对应 .lproj ⇒ 界面会整体回退英文", code);
+            NSLog(@"[i18n][I18N-ORDER] ★ WARNING: effective language %@ has no matching .lproj ⇒ UI will fall back to English", code);
         }
     });
 }
@@ -1161,13 +1177,13 @@ BOOL AMEJITEnablerAppInstalled(void) {
 void AMEJITLogPocketJReadiness(NSString *context) {
     BOOL hasPairing = AMEJITHasPairingFile();
     NSLog(@"[JIT] [POCKETJ-JIT] readiness(%@): ios17_4=%@ get-task-allow=%@ "
-          @"enabler-app-installed=%@ pairing-file=%@ found=%@ (推荐位置=%@)",
+          @"enabler-app-installed=%@ pairing-file=%@ found=%@ (recommended location=%@)",
           context ?: @"?",
           AMEJITDeviceSupportsBuiltInStikJIT() ? @"YES" : @"NO",
           AMEJITHasGetTaskAllow() ? @"YES" : @"NO",
           AMEJITEnablerAppInstalled() ? @"YES" : @"NO",
           hasPairing ? @"YES" : @"NO",
-          hasPairing ? (AMEJITPairingFilePath() ?: @"(?)") : @"(未找到,已试多路径)",
+          hasPairing ? (AMEJITPairingFilePath() ?: @"(?)") : @"(not found, tried multiple paths)",
           AMEJITPairingFileCandidates().firstObject ?: @"(nil)");
 }
 
@@ -1886,7 +1902,7 @@ BOOL amePCLVersionIsolationForProfile(NSDictionary *prof, NSString *concreteVers
     // 2) 自动判定（PCL: ShouldBeIndie 的 mods/saves 启发式）
     NSString *vid = amePCLProfileVersionId(prof, concreteVersionId);
     if (vid.length > 0 && amePCLVersionFolderHasUserData(vid)) {
-        NSLog(@"★ [VER-ISOLATE-PCL] 开启版本隔离（自动）：versions/%@ 下已有 mods/saves", vid);
+        NSLog(@"★ [VER-ISOLATE-PCL] version isolation enabled (auto): versions/%@ already has mods/saves", vid);
         return YES;
     }
 
@@ -1908,7 +1924,7 @@ NSString *amePCLVersionGameDirSubpath(NSDictionary *prof, NSString *concreteVers
 
     NSString *vid = amePCLProfileVersionId(prof, concreteVersionId);
     if (vid.length == 0) {
-        NSLog(@"★ [VER-ISOLATE-PCL] 版本 id 不可确定，本版本回退共享目录（不隔离）");
+        NSLog(@"★ [VER-ISOLATE-PCL] version id could not be determined, falling back to the shared directory (no isolation)");
         return @".";
     }
     return [NSString stringWithFormat:@"versions/%@", vid];
@@ -1956,14 +1972,14 @@ void amePCLMigrateVersionIsolationOnce(void) {
             if (alreadyIsolated) {
                 prof[@"versionIsolation"] = @"1";      // 显式落值 ⇒ 设置页可见、可回退
                 changed = YES;
-                NSLog(@"★ [VER-ISOLATE-PCL] 迁移：profile「%@」已存在版本隔离数据 ⇒ 显式置为开启", name);
+                NSLog(@"★ [VER-ISOLATE-PCL] migration: profile \"%@\" already has version-isolation data ⇒ explicitly enabled", name);
             }
         }
         if (changed) saveJSONToFile(pd, profPath);
     }
 
     setPrefObject(kAmePCLVersionIsolationMigrated, @YES);
-    NSLog(@"★ [VER-ISOLATE-PCL] 版本隔离一次性迁移完成（哨兵 %@）", kAmePCLVersionIsolationMigrated);
+    NSLog(@"★ [VER-ISOLATE-PCL] one-time version isolation migration done (sentinel %@)", kAmePCLVersionIsolationMigrated);
 }
 
 // ★ [VER-ISOLATE-MIGRATE] ====================================================
@@ -2083,5 +2099,5 @@ BOOL ameVIWizardShouldPresent(void) {
 
 void ameVIWizardMarkDontShowAgain(void) {
     setPrefObject(kAmeVIWizardOffKey, @YES);   // 幂等：重复调用结果一致；只在用户选择时写一次
-    NSLog(@"★ [VI-FLOW] 向导：用户选「以后不再提示」⇒ 哨兵已落（%@），之后不再自动弹", kAmeVIWizardOffKey);
+    NSLog(@"★ [VI-FLOW] wizard: user chose \"Don't show again\" ⇒ sentinel written (%@), will not pop up automatically again", kAmeVIWizardOffKey);
 }

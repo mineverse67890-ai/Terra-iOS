@@ -385,7 +385,7 @@ static void sc_add_extra(const char *name) {
 static void sc_decide_ext(const char *ext, int ok, const char *why) {
     if (ok && sc_has_token(sc_real_ext_string, ext)) {
         if (sc_log_enabled())
-            NSLog(@"[SHADER-CAP] report %s = YES (渲染器已自报, 无需补报)", ext);
+            NSLog(@"[SHADER-CAP] report %s = YES (already reported by renderer, no supplement needed)", ext);
         return;
     }
     if (sc_log_enabled())
@@ -398,74 +398,74 @@ static void sc_decide_all(void) {
         SC_HAVE(SC_BindBufferBase) &&
         (SC_HAVE(SC_BufferStorage) || SC_HAVE(SC_BufferStorageEXT)) &&
         SC_HAVE(SC_ShaderStorageBlockBinding) && sc_lim_ssbo_bindings > 0,
-        "需 glBindBufferBase+glBufferStorage+glShaderStorageBlockBinding 且 MAX_SHADER_STORAGE_BUFFER_BINDINGS>0");
+        "requires glBindBufferBase+glBufferStorage+glShaderStorageBlockBinding and MAX_SHADER_STORAGE_BUFFER_BINDINGS>0");
 
     sc_decide_ext("GL_ARB_shader_image_load_store",
         SC_HAVE(SC_BindImageTexture) &&
         (SC_HAVE(SC_TexStorage2D) || SC_HAVE(SC_TexStorage3D)) && sc_lim_image_units > 0,
-        "需 glBindImageTexture+glTexStorage2D/3D 且 MAX_IMAGE_UNITS>0");
+        "requires glBindImageTexture+glTexStorage2D/3D and MAX_IMAGE_UNITS>0");
 
     sc_decide_ext("GL_ARB_sampler_objects",
         SC_HAVE(SC_GenSamplers) && SC_HAVE(SC_BindSampler) && SC_HAVE(SC_DeleteSamplers),
-        "需 glGenSamplers+glBindSampler+glDeleteSamplers (硬件采样器/SEPARATE_HARDWARE_SAMPLERS 的真实语义)");
+        "requires glGenSamplers+glBindSampler+glDeleteSamplers (real semantics of hardware samplers / SEPARATE_HARDWARE_SAMPLERS)");
 
     sc_decide_ext("GL_ARB_texture_filter_anisotropic",
         SC_HAVE(SC_TexParameterf) && sc_lim_aniso > 1,
-        "需 glTexParameterf 且 MAX_TEXTURE_MAX_ANISOTROPY_EXT>1");
+        "requires glTexParameterf and MAX_TEXTURE_MAX_ANISOTROPY_EXT>1");
     sc_decide_ext("GL_EXT_texture_filter_anisotropic",
         SC_HAVE(SC_TexParameterf) && sc_lim_aniso > 1,
-        "需 glTexParameterf 且 MAX_TEXTURE_MAX_ANISOTROPY_EXT>1");
+        "requires glTexParameterf and MAX_TEXTURE_MAX_ANISOTROPY_EXT>1");
 
     sc_decide_ext("GL_ARB_buffer_storage",
         SC_HAVE(SC_BufferStorage) || SC_HAVE(SC_BufferStorageEXT),
-        "需 glBufferStorage / glBufferStorageEXT");
+        "requires glBufferStorage / glBufferStorageEXT");
 
     sc_decide_ext("GL_ARB_texture_storage",
         SC_HAVE(SC_TexStorage2D) || SC_HAVE(SC_TexStorage2DEXT),
-        "需 glTexStorage2D / glTexStorage2DEXT");
+        "requires glTexStorage2D / glTexStorage2DEXT");
     sc_decide_ext("GL_EXT_texture_storage",
         SC_HAVE(SC_TexStorage2D) || SC_HAVE(SC_TexStorage2DEXT),
-        "需 glTexStorage2D / glTexStorage2DEXT");
+        "requires glTexStorage2D / glTexStorage2DEXT");
 
     sc_decide_ext("GL_ARB_uniform_buffer_object",
         SC_HAVE(SC_BindBufferBase) && sc_lim_ubo_bindings > 0,
-        "需 glBindBufferBase 且 MAX_UNIFORM_BUFFER_BINDINGS>0");
+        "requires glBindBufferBase and MAX_UNIFORM_BUFFER_BINDINGS>0");
 
     sc_decide_ext("GL_ARB_vertex_array_object",
-        SC_HAVE(SC_BindVertexArray), "需 glBindVertexArray");
+        SC_HAVE(SC_BindVertexArray), "requires glBindVertexArray");
 
     sc_decide_ext("GL_ARB_draw_buffers",
-        SC_HAVE(SC_DrawBuffers), "需 glDrawBuffers (MRT)");
+        SC_HAVE(SC_DrawBuffers), "requires glDrawBuffers (MRT)");
 
     sc_decide_ext("GL_ARB_draw_instanced",
-        SC_HAVE(SC_DrawArraysInstanced), "需 glDrawArraysInstanced");
+        SC_HAVE(SC_DrawArraysInstanced), "requires glDrawArraysInstanced");
     sc_decide_ext("GL_ARB_instanced_arrays",
-        SC_HAVE(SC_VertexAttribDivisor), "需 glVertexAttribDivisor");
+        SC_HAVE(SC_VertexAttribDivisor), "requires glVertexAttribDivisor");
 
     sc_decide_ext("GL_ARB_framebuffer_object",
         SC_HAVE(SC_GenFramebuffers) && SC_HAVE(SC_BindFramebuffer),
-        "需 glGenFramebuffers+glBindFramebuffer");
+        "requires glGenFramebuffers+glBindFramebuffer");
     sc_decide_ext("GL_EXT_framebuffer_object",
         SC_HAVE(SC_GenFramebuffers) && SC_HAVE(SC_BindFramebuffer),
-        "需 glGenFramebuffers+glBindFramebuffer");
+        "requires glGenFramebuffers+glBindFramebuffer");
 
     sc_decide_ext("GL_ARB_multisample",
-        SC_HAVE(SC_RenderbufferStorageMultisample), "需 glRenderbufferStorageMultisample");
+        SC_HAVE(SC_RenderbufferStorageMultisample), "requires glRenderbufferStorageMultisample");
     sc_decide_ext("GL_EXT_framebuffer_multisample",
-        SC_HAVE(SC_RenderbufferStorageMultisample), "需 glRenderbufferStorageMultisample");
+        SC_HAVE(SC_RenderbufferStorageMultisample), "requires glRenderbufferStorageMultisample");
 
     sc_decide_ext("GL_ARB_map_buffer_range",
-        SC_HAVE(SC_MapBufferRange), "需 glMapBufferRange");
+        SC_HAVE(SC_MapBufferRange), "requires glMapBufferRange");
 
     // ★ 明确「证据不足以判定」的项: 一律不报(写进日志备查)。
     if (sc_log_enabled()) {
         NSLog(@"[SHADER-CAP] report GL_ARB_compute_shader = %s (glDispatchCompute=%s; MAX_COMPUTE_WORK_GROUP_INVOCATIONS=%d)",
               (SC_HAVE(SC_DispatchCompute) && sc_lim_compute_invoc > 0) ? "YES" : "NO",
               SC_HAVE(SC_DispatchCompute) ? "present" : "absent", sc_lim_compute_invoc);
-        NSLog(@"[SHADER-CAP] report tesselation 证据: glPatchParameteri=%s (本次不碰)",
+        NSLog(@"[SHADER-CAP] report tesselation evidence: glPatchParameteri=%s (not touched this run)",
               SC_HAVE(SC_PatchParameteri) ? "present" : "absent");
         NSLog(@"[SHADER-CAP] report GL_ARB_direct_state_access / GL_ARB_texture_float / GL_ARB_depth_texture "
-              @"/ GL_ARB_shadow / GL_EXT_framebuffer_sRGB = NOT REPORTED (无足够运行时证据, 见报告待验证清单)");
+              @"/ GL_ARB_shadow / GL_EXT_framebuffer_sRGB = NOT REPORTED (insufficient runtime evidence, see report pending-verification list)");
     }
 }
 
@@ -576,7 +576,7 @@ void ame_shader_cap_probe_run_once(void) {
 
     if (sc_log_enabled()) {
         if (sc_extra_count == 0) {
-            NSLog(@"[SHADER-CAP] extras(none) -- 没有可诚实补报的扩展");
+            NSLog(@"[SHADER-CAP] extras(none) -- no extensions can be honestly supplemented");
         } else {
             for (int i = 0; i < sc_extra_count; i++)
                 NSLog(@"[SHADER-CAP] extra[%d] = %s", i, sc_extra_names[i]);

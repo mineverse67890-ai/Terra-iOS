@@ -48,8 +48,8 @@ static NSString *AMENonEmpty(NSString * _Nullable s, NSString *fallback) {
 
 @implementation UpdateChecker
 
-+ (NSString *)repoOwner { return @"herbrine8403"; }
-+ (NSString *)repoName { return @"Amethyst-iOS-MyRemastered"; }
++ (NSString *)repoOwner { return @"mineverse67890-ai"; }   // ★ [TERRA] was upstream (would offer Air 6.x as an "update")
++ (NSString *)repoName { return @"Terra-iOS"; }
 
 + (NSString *)latestReleaseURL {
     /* /releases/latest 接口自动返回最新的非 pre-release（正式版） */

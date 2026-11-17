@@ -9,7 +9,7 @@
 *   **主要语言**: Objective-C (原生 iOS 组件), Java (游戏核心逻辑), C/C++ (部分底层库和图形适配)
 *   **构建系统**: 使用 `Makefile` 和 `CMake` 进行项目构建。
 *   **构建环境**: GitHub Actions (macOS 14)，Xcode 15.4/16，iPhoneOS 17.5 SDK
-*   **最低系统支持**: iOS 14.0
+*   **最低系统支持**: iOS 16.0
 *   **核心依赖**:
     *   **Java 运行时**: 包含 OpenJDK 8, 17, 21 的 iOS 移植版本。
     *   **图形适配**: MetalANGLE (Metal to OpenGL ES), GL4ES (OpenGL ES to OpenGL), Mesa 3D, MobileGlues。
@@ -149,8 +149,8 @@
 
 1.  在每次更改完源代码后，需要将更改提交到 GitHub 远程分支以构建项目进行测试。
 2.  如果在提交到 GitHub 过程中出现网络问题，请提醒用户关闭网络代理。
-3.  此项目使用 Xcode 15.4/16，iPhoneOS 17.5 SDK 构建，且最低系统支持为 iOS 14.0。
-4.  Git 提交时请使用 `herbrine8403` 用户名和 `weishixvn@outlook.com` 邮箱。
+3.  此项目使用 Xcode 15.4/16，iPhoneOS 17.5 SDK 构建，且最低系统支持为 iOS 16.0。
+4.  本仓库是 Amethyst 的 fork（Terra-iOS）：Git 提交使用本机 `git config` 中配置的身份，不要使用上游作者 `herbrine8403` 的用户名或邮箱。
 5.  项目支持多平台构建，包括 iOS、tvOS、iOS 模拟器和 visionOS，通过 `PLATFORM` 参数指定。
 6.  渲染器设置为 Auto 时将自动选择合适的渲染器，包括 MobileGlues。
 7.  JVM 版本将根据游戏版本自动选择 (Java 8/17/21)。

@@ -15,7 +15,16 @@
 
 extern UIWindow *mainWindow;
 
+// ★ [TERRA] SwiftUI official-launcher root (LauncherRootView.swift, compiled by swiftc).
+//   App minimum is iOS 16, so this is always the launcher root (legacy AmeRootTabController
+//   remains only as a fallback).
+//   Opt-out for debugging: NSUserDefaults bool "TerraLegacyLauncherUI" = YES.
+@interface TerraLauncherRootHost : NSObject
++ (nullable UIViewController *)makeHost;
+@end
+
 @interface SceneDelegate ()
+@property(nonatomic) BOOL ameUsesTerraRoot;
 @end
 
 @implementation SceneDelegate
@@ -41,14 +50,14 @@ extern UIWindow *mainWindow;
                     NSLog(@"[SceneDelegate] Failed to update geometry: %@", error);
                 }];
             } else {
-                NSLog(@"★ [GAME-LANDSCAPE] legacy path: UIWindowSceneGeometryPreferencesIOS 缺失 ⇒ 跳过初始 geometry 请求");
+                NSLog(@"★ [GAME-LANDSCAPE] legacy path: UIWindowSceneGeometryPreferencesIOS missing => skipping initial geometry request");
             }
         } else {
-            NSLog(@"★ [GAME-LANDSCAPE] legacy path: 场景不支持 requestGeometryUpdateWithPreferences: ⇒ 跳过初始 geometry 请求");
+            NSLog(@"★ [GAME-LANDSCAPE] legacy path: scene does not support requestGeometryUpdateWithPreferences: => skipping initial geometry request");
         }
     } else if ([UIViewController respondsToSelector:NSSelectorFromString(@"attemptRotationToDeviceOrientation")]) {
         [UIViewController attemptRotationToDeviceOrientation];
-        NSLog(@"★ [GAME-LANDSCAPE] legacy path: iOS<16 ⇒ 初始方向走 attemptRotationToDeviceOrientation");
+        NSLog(@"★ [GAME-LANDSCAPE] legacy path: iOS<16 => initial orientation via attemptRotationToDeviceOrientation");
     }
     
     self.window = [[UIWindow alloc] initWithWindowScene:windowScene];
@@ -89,9 +98,12 @@ extern UIWindow *mainWindow;
     // 立即应用背景（移除原来的 0.1s 延迟）：
     // 延迟会在启动时露出窗口底色形成"黑条"或"黑闪"。BackgroundManager 在其 init
     // 中已 loadSavedBackground/loadUISettings，单例首次访问即完成初始化，无需延迟。
-    [[BackgroundManager sharedManager] applyBackgroundToWindow:self.window];
+    // ★ [TERRA] SwiftUI root is fully opaque ⇒ no global wallpaper/video behind it.
+    if (!self.ameUsesTerraRoot) {
+        [[BackgroundManager sharedManager] applyBackgroundToWindow:self.window];
+    }
 
-    [self showTranslationNoticeIfNeeded];
+    // ★ [TERRA] machine-translation notice removed (Terra is English-first).
 
     // 启动时自动检查启动器更新（参照 ZL2 LauncherUpgradeViewModel.checkOnAppStart）。
     // 仅当确实存在新版本时才弹窗；请求失败、已是最新、处于限频窗口内一律静默。
@@ -103,9 +115,8 @@ extern UIWindow *mainWindow;
     // ★ [VI-FLOW] B：版本隔离向导 —— 每次进启动器都会再弹，直到用户主动选「以后不再提示」
     //   （哨兵 internal.version_isolation_wizard_off 只在用户点该按钮时写；弹出时【不】写哨兵）。
     //   延后一拍 + 可跳过 ⇒ 绝不阻碍启动；用户随时可从实例设置页的「版本隔离向导」入口重新打开。
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self amePresentVersionIsolationWizardIfNeeded];
-    });
+    // ★ [TERRA] version-isolation wizard no longer pops up on launch; it is still available
+    //   from the installation's settings (amePresentVersionIsolationWizard is kept).
 
     // ★ [MP-RESTORE] 联机恢复 —— lazy init：启动路径上**不**创建 TerracottaManager /
     //   不触发 terracotta_ios_start / 不起 ZeroTier 节点（避免把当年"启动崩溃"风险带回）。
@@ -176,6 +187,20 @@ extern UIWindow *mainWindow;
 //   重新取词 —— 等价于"重启一次界面"，但不动进程、不动运行中的游戏
 //   （SurfaceViewController 不在这棵树里，且切语言只可能发生在启动器设置页）。
 - (void)ameInstallLauncherRootUIWithSettingsLanguagePage:(BOOL)pushLanguagePage {
+    // ★ [TERRA] iOS 16+: one full-screen SwiftUI root (single NavigationStack) — no legacy
+    //   tab bar, floating pills or hidden home controllers underneath. The ObjC launch
+    //   pipeline is attached invisibly by TerraLauncherService (TerraLauncherBridge.m).
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"TerraLegacyLauncherUI"]) {
+        UIViewController *terraRoot = [TerraLauncherRootHost makeHost];
+        if (terraRoot) {
+            self.ameUsesTerraRoot = YES;
+            self.window.rootViewController = terraRoot;
+            [[BackgroundManager sharedManager] applyBackgroundToWindow:nil];
+            return;
+        }
+    }
+    self.ameUsesTerraRoot = NO;
+
     UIViewController *home = [self ameMakeLauncherHomeViewController];
     AmeRootTabController *tabs = [AmeRootTabController tabControllerWithHomeViewController:home];
     self.window.rootViewController = tabs;
@@ -196,9 +221,9 @@ extern UIWindow *mainWindow;
     // 语言已切换的确认提示（用新语言显示），明确告诉用户"已经真的换了"。
     dispatch_async(dispatch_get_main_queue(), ^{
         UIAlertController *alert = [UIAlertController
-            alertControllerWithTitle:localize(@"preference.lang.switched.title", @"语言已切换")
+            alertControllerWithTitle:localize(@"preference.lang.switched.title", @"Language Changed")
                              message:localize(@"preference.lang.switched.message",
-                                 @"界面已按所选语言重新加载。")
+                                 @"The interface has been reloaded in the selected language.")
                       preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:localize(@"OK", nil)
                                                   style:UIAlertActionStyleDefault
@@ -269,7 +294,7 @@ extern UIWindow *mainWindow;
     UIViewController *presenter = self.window.rootViewController;
     while (presenter.presentedViewController) presenter = presenter.presentedViewController;
     if (!presenter) {
-        NSLog(@"★ [VI-FLOW] 向导：无可用 presenter，本次跳过");
+        NSLog(@"★ [VI-FLOW] wizard: no presenter available, skipping this time");
         return;
     }
 
@@ -277,7 +302,7 @@ extern UIWindow *mainWindow;
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.modalPresentationStyle = UIModalPresentationFormSheet;
     [presenter presentViewController:nav animated:YES completion:nil];
-    NSLog(@"★ [VI-FLOW] 向导已弹出（只写设置、不搬文件；可跳过；可选「以后不再提示」）");
+    NSLog(@"★ [VI-FLOW] wizard presented (writes settings only, does not move files; skippable; optional \"Don't show again\")");
 }
 
 - (void)applyUITheme:(NSNotification *)notification {

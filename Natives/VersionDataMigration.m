@@ -235,13 +235,13 @@ NSDictionary *ameVDMExecuteItem(NSString *srcRoot, NSString *dstRoot,
         [fm removeItemAtPath:stageItem error:nil];
         NSError *err = nil;
         if (![fm copyItemAtPath:src toPath:stageItem error:&err]) {
-            [errors addObject:[NSString stringWithFormat:@"%@: stage 失败 %@", item, err.localizedDescription ?: @"?"]];
+            [errors addObject:[NSString stringWithFormat:@"%@: staging failed: %@", item, err.localizedDescription ?: @"?"]];
             [fm removeItemAtPath:stageItem error:nil];
         } else {
             ameVDMApplyMtimes(stageItem, src, files, srcIsDir);
             NSError *err2 = nil;
             if (![fm moveItemAtPath:stageItem toPath:dst error:&err2]) {
-                [errors addObject:[NSString stringWithFormat:@"%@: 原子改名失败 %@", item, err2.localizedDescription ?: @"?"]];
+                [errors addObject:[NSString stringWithFormat:@"%@: atomic rename failed: %@", item, err2.localizedDescription ?: @"?"]];
                 [fm removeItemAtPath:stageItem error:nil];
             } else {
                 copied = newRels.count;
@@ -260,7 +260,7 @@ NSDictionary *ameVDMExecuteItem(NSString *srcRoot, NSString *dstRoot,
             if (ameVDMCopyFileAtomic(sf, df, &err)) {
                 copied++;
             } else {
-                [errors addObject:[NSString stringWithFormat:@"%@: 复制失败 %@", rel.length ? rel : item,
+                [errors addObject:[NSString stringWithFormat:@"%@: copy failed: %@", rel.length ? rel : item,
                                    err.localizedDescription ?: @"?"]];
             }
         }
@@ -280,14 +280,14 @@ NSDictionary *ameVDMExecuteItem(NSString *srcRoot, NSString *dstRoot,
             NSString *alt = ameVDMConflictPath(df);
             if (ameVDMCopyFileAtomic(sf, alt, &err)) {
                 renamed++;
-                [errors addObject:[NSString stringWithFormat:@"冲突改名保留: %@ -> %@",
+                [errors addObject:[NSString stringWithFormat:@"Conflict kept under new name: %@ -> %@",
                                    rel.length ? rel : item, alt.lastPathComponent]];
             } else {
-                [errors addObject:[NSString stringWithFormat:@"冲突改名失败 %@: %@",
+                [errors addObject:[NSString stringWithFormat:@"Conflict rename failed for %@: %@",
                                    rel.length ? rel : item, err.localizedDescription ?: @"?"]];
             }
         } else {
-            [errors addObject:[NSString stringWithFormat:@"冲突跳过（保留两边，未覆盖）: %@",
+            [errors addObject:[NSString stringWithFormat:@"Conflict skipped (both kept, nothing overwritten): %@",
                                rel.length ? rel : item]];
         }
     }
@@ -295,7 +295,7 @@ NSDictionary *ameVDMExecuteItem(NSString *srcRoot, NSString *dstRoot,
     // 4) removeSource：只有用户明确选择 + 无冲突 + 逐文件校验通过，才删源。
     if (removeSource && copied + identical > 0) {
         if (conflictRels.count > 0) {
-            [errors addObject:@"存在未解决冲突，已保留源目录（不删除用户数据）"];
+            [errors addObject:@"Unresolved conflicts remain; source folder kept (user data not deleted)"];
         } else {
             BOOL allOk = YES;
             for (NSString *rel in files) {
@@ -306,9 +306,9 @@ NSDictionary *ameVDMExecuteItem(NSString *srcRoot, NSString *dstRoot,
             if (allOk) {
                 NSError *e2 = nil;
                 if ([fm removeItemAtPath:src error:&e2]) rep[@"removed"] = @YES;
-                else [errors addObject:[NSString stringWithFormat:@"删除源失败: %@", e2.localizedDescription ?: @"?"]];
+                else [errors addObject:[NSString stringWithFormat:@"Failed to delete source: %@", e2.localizedDescription ?: @"?"]];
             } else {
-                [errors addObject:@"校验未通过，已保留源目录（不删除用户数据）"];
+                [errors addObject:@"Verification failed; source folder kept (user data not deleted)"];
             }
         }
     }

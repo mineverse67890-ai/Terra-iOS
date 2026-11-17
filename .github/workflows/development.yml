@@ -146,6 +146,14 @@ jobs:
           echo "★ 当前 SDKPATH=${SDKPATH:-未设置}"
           echo "★ DEVELOPER_DIR=${DEVELOPER_DIR:-未设置}"
 
+      # Precompiled headers (glslang PCH) are only valid for the exact SDK they were built with,
+      # so the cache key includes the Xcode build + iOS SDK + runner image.
+      - name: Compute toolchain cache signature
+        run: |
+          SIG="$(xcodebuild -version | tr -s ' \n' '-')sdk$(xcrun --sdk iphoneos --show-sdk-version)-img${ImageVersion:-none}"
+          echo "TOOLCHAIN_SIG=$SIG" >> "$GITHUB_ENV"
+          echo "Toolchain cache signature: $SIG"
+
       - name: Cache heavy 3rd-party builds (MobileGlues / glslang / SPIRV-Cross / LTW / SFPEW)
         uses: actions/cache@v4
         with:
@@ -154,9 +162,9 @@ jobs:
             Natives/build/mobileglues/3rdparty
             Natives/build/sfpew
             Natives/external/LTW/ltw/src/main/tinywrapper
-          key: dep3rd-${{ runner.os }}-xcodeauto-${{ hashFiles('Makefile') }}
+          key: dep3rd-${{ runner.os }}-${{ env.TOOLCHAIN_SIG }}-${{ hashFiles('Makefile') }}
           restore-keys: |
-            dep3rd-${{ runner.os }}-
+            dep3rd-${{ runner.os }}-${{ env.TOOLCHAIN_SIG }}-
 
       - name: Cache JRE and game assets downloads
         uses: actions/cache@v4
@@ -405,15 +413,15 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: com.air-devs.air-${{ matrix.platform_name }}.ipa
-          path: artifacts/com.air-devs.air-*-${{ matrix.platform_name }}.ipa
+          name: com.terra.terra-ios-${{ matrix.platform_name }}.ipa
+          path: artifacts/com.terra.terra-ios-*-${{ matrix.platform_name }}.ipa
 
       - name: Upload regular tipa
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: com.air-devs.air-${{ matrix.platform_name }}-trollstore.tipa
-          path: artifacts/com.air-devs.air-*-${{ matrix.platform_name }}-trollstore.tipa
+          name: com.terra.terra-ios-${{ matrix.platform_name }}-trollstore.tipa
+          path: artifacts/com.terra.terra-ios-*-${{ matrix.platform_name }}-trollstore.tipa
 
       - name: Upload PojavLauncher.dSYM
         if: matrix.platform_name == 'ios' && success()

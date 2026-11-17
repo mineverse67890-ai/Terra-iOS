@@ -6,6 +6,7 @@
 #import "ios_uikit_bridge.h"
 #import "utils.h"
 #import "BackgroundManager.h"
+#import "TerraTroubleshootViewController.h"   // ★ [TERRA-DIAG]
 
 @interface PLCrashView ()
 // 数据
@@ -65,7 +66,7 @@ typedef NS_ENUM(NSInteger, CrashType) {
 
 // 当前正在显示的崩溃 VC 实例（单例）
 static PLCrashView *currentCrashVC = nil;
-static NSString *const kGitHubIssuesURL = @"https://github.com/herbrine8403/Amethyst-iOS-MyRemastered/issues";
+static NSString *const kGitHubIssuesURL = @"https://github.com/mineverse67890-ai/Terra-iOS/issues";   // ★ [TERRA] was upstream repo
 
 #pragma mark - Public Methods
 
@@ -815,6 +816,15 @@ static NSString *const kGitHubIssuesURL = @"https://github.com/herbrine8403/Amet
     // 用户反馈两个按钮效果一样（都回到启动器），不符合 FCL 行为。
     // 现在"退出启动器"改为调用 exitLauncherAction（exit(0) 直接退出，不重启）。
 
+    // 0. ★ [TERRA-DIAG] "Why did it crash?" — plain-English cause + step-by-step fixes
+    UIButton *diagnoseButton = [self createButtonWithTitle:@"Why did it crash?"
+                                                      icon:@"stethoscope"
+                                           backgroundColor:[UIColor colorWithRed:0x3C/255.0 green:0x85/255.0 blue:0x27/255.0 alpha:1.0]
+                                                 textColor:[UIColor whiteColor]
+                                                      bold:YES
+                                                    action:@selector(terraShowDiagnosis)];
+    [container addArrangedSubview:diagnoseButton];
+
     // 1. 重启启动器按钮（蓝色强调）
     // 参照 FCL：很多崩溃是临时加载失败（JIT/dylib/内存碎片），重启即可解决。
     _restartButton = [self createButtonWithTitle:localize(@"crash.restart_launcher", @"重启启动器")
@@ -1038,6 +1048,11 @@ static NSString *const kGitHubIssuesURL = @"https://github.com/herbrine8403/Amet
 }
 
 #pragma mark - Actions
+
+/// ★ [TERRA-DIAG] Opens TerraTroubleshootViewController for this exit code.
+- (void)terraShowDiagnosis {
+    [TerraTroubleshootViewController presentFrom:self exitCode:_exitCode stageProvider:nil];
+}
 
 - (void)shareLog {
     NSString *latestlogPath = [NSString stringWithFormat:@"file://%s/latestlog.txt", getenv("POJAV_HOME")];

@@ -19,7 +19,7 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.in ${CMAKE_CURRENT_LIST_DIR}/c
 #
 #   注:iOS 的 target triple 里【不能】带 SDK 版本(clang 会报
 #   "version 'ios26.2' in target triple ... is invalid"),SDK 由 -isysroot 指向的
-#   SDK 决定。因此这里只写 minOS(ios14.0),并显式给出 -miphoneos-version-min=14.0,
+#   SDK 决定。因此这里只写 minOS(ios16.0),并显式给出 -miphoneos-version-min=16.0,
 #   让 clang 把 SDK 版本如实记录为 -isysroot 所指 SDK(CI 里已锁 Xcode 26.3 / iPhoneOS26.2)。
 if(CMAKE_OSX_SYSROOT)
   get_filename_component(AME_SDK_NAME "${CMAKE_OSX_SYSROOT}" NAME)      # iPhoneOS26.2.sdk
@@ -33,7 +33,7 @@ if(NOT AME_SDK_VERSION)
 endif()
 message(STATUS "★ AME_SDK_VERSION = ${AME_SDK_VERSION} (from ${CMAKE_OSX_SYSROOT})")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target arm64-apple-ios14.0 -miphoneos-version-min=14.0 -mcpu=apple-a8 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target arm64-apple-ios16.0 -miphoneos-version-min=16.0 -mcpu=apple-a8 -fcommon -fobjc-arc -ObjC -F'${CMAKE_OSX_SYSROOT}/System/Cryptexes/OS/System/Library/Frameworks'")
 set(CMAKE_C_FLAGS_DEBUG "-funwind-tables -g")
 
 if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "Linux|^GNU$|Android")
@@ -290,9 +290,9 @@ target_link_libraries(audio_capture
 #  add_custom_command 调 swiftc 产出 AmeTabBar.o,再把该 .o 当外部对象加进
 #  add_executable(AngelAuraAmethyst ...) 的源列表(只追加,不动既有 OBJC 顺序)。
 #
-#  target triple 按平台自动判定(设备 / 模拟器),与 C 侧 minOS 一致(ios14.0):
-#    设备:   arm64-apple-ios14.0             (SDK = .../iPhoneOS*.sdk)
-#    模拟器: <arch>-apple-ios14.0-simulator  (SDK = .../iPhoneSimulator*.sdk)
+#  target triple 按平台自动判定(设备 / 模拟器),与 C 侧 minOS 一致(ios16.0):
+#    设备:   arm64-apple-ios16.0             (SDK = .../iPhoneOS*.sdk)
+#    模拟器: <arch>-apple-ios16.0-simulator  (SDK = .../iPhoneSimulator*.sdk)
 #
 #  链接:Swift 运行时在 SDK 的 usr/lib/swift(SDK 里有 libswiftCore.tbd 等),
 #  设备 iOS 12.2+ 的系统里也自带 /usr/lib/swift ⇒
@@ -302,6 +302,17 @@ target_link_libraries(audio_capture
 # ============================================================================
 
 set(AME_TABBAR_SWIFT_SRC "${CMAKE_CURRENT_LIST_DIR}/AmeTabBar.swift")
+# ★ [TERRA] New SwiftUI UI set (official-launcher redesign). These files
+#   reference each other (TerraTheme.swift holds the shared model/bridge), so
+#   they MUST be compiled as ONE swiftc unit (see TERRA_SWIFT single command).
+set(TERRA_SWIFT_SRCS
+  "${CMAKE_CURRENT_LIST_DIR}/TerraTheme.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/LauncherRootView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/InstancesView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/DownloadCenterView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraSettingsView.swift"
+  "${CMAKE_CURRENT_LIST_DIR}/TerraNewsFeed.swift"
+)
 
 # 架构:C 侧统一走 CMAKE_OSX_ARCHITECTURES(Makefile 传 arm64);缺省退回宿主架构
 set(AME_SWIFT_ARCH "${CMAKE_OSX_ARCHITECTURES}")
@@ -310,9 +321,9 @@ if(NOT AME_SWIFT_ARCH)
 endif()
 
 # 设备 / 模拟器:看 -isysroot 指向的 SDK 路径里有没有 Simulator
-set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios14.0")
+set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios16.0")
 if("${CMAKE_OSX_SYSROOT}" MATCHES "[Ss]imulator")
-  set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios14.0-simulator")
+  set(AME_SWIFT_TRIPLE "${AME_SWIFT_ARCH}-apple-ios16.0-simulator")
 endif()
 
 # Swift 运行时目录(SDK 内)
@@ -352,6 +363,32 @@ else()
   set(AME_TABBAR_NEEDS_BUILD TRUE)
 endif()
 
+# ★ [TERRA-SWIFT] Terra-iOS SwiftUI views: compile ALL TERRA_SWIFT_SRCS as ONE
+#   swiftc unit (single .o). The files share types via TerraTheme.swift, so
+#   per-file compilation would fail with "cannot find type in scope".
+set(TERRA_SWIFT_OBJ "${CMAKE_CURRENT_BINARY_DIR}/TerraSwift.o")
+list(APPEND TERRA_SWIFT_OBJS "${TERRA_SWIFT_OBJ}")
+
+if(NOT AME_SWIFTC)
+  message(FATAL_ERROR "★ [TERRA-SWIFT] swiftc not found. The Terra SwiftUI views must be compiled with Swift;"
+                      "install Xcode / Command Line Tools, or make sure `xcrun -f swiftc` works.")
+endif()
+
+add_custom_command(
+  OUTPUT  "${TERRA_SWIFT_OBJ}"
+  COMMAND "${AME_SWIFTC}" -parse-as-library -emit-object -wmo -module-name TerraUI
+          -target "${AME_SWIFT_TRIPLE}"
+          -sdk "${CMAKE_OSX_SYSROOT}"
+          ${AME_SWIFT_OPT_FLAGS}
+          -o "${TERRA_SWIFT_OBJ}"
+          ${TERRA_SWIFT_SRCS}
+  DEPENDS ${TERRA_SWIFT_SRCS}
+  COMMENT "★ [TERRA-SWIFT] swiftc ${AME_SWIFT_TRIPLE} -sdk ${CMAKE_OSX_SYSROOT} -> TerraSwift.o (single unit)"
+  VERBATIM)
+add_custom_target(TerraSwiftUnit DEPENDS "${TERRA_SWIFT_OBJ}")
+
+set_source_files_properties("${TERRA_SWIFT_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
+
 # Swift 现在是底栏的唯一实现(LauncherMenuViewController.m 直接引用 AmeTabBarHost),
 # 编不出来就会在链接期报 undefined symbol ⇒ 这里直接给出可读的失败原因。
 if(AME_TABBAR_NEEDS_BUILD AND NOT AME_SWIFTC)
@@ -377,6 +414,7 @@ endif()
 # 外部对象:CMake 只把它放进链接行,不去「编译」它
 set_source_files_properties("${AME_TABBAR_OBJ}" PROPERTIES GENERATED TRUE EXTERNAL_OBJECT TRUE)
 message(STATUS "★ [SWIFT-BAR] swiftc=${AME_SWIFTC} triple=${AME_SWIFT_TRIPLE} obj=${AME_TABBAR_OBJ} swiftlib=${AME_SWIFT_LIBDIR} build=${AME_TABBAR_NEEDS_BUILD}")
+message(STATUS "★ [TERRA-SWIFT] objs=${TERRA_SWIFT_OBJS}")
 
 # Angel Aura Amethyst
 add_executable(AngelAuraAmethyst
@@ -483,6 +521,21 @@ add_executable(AngelAuraAmethyst
   LauncherCardLayoutViewController.m
   LauncherRightPanelViewController.m
   VersionManagerViewController.m
+  # ★ [TERRA] SwiftUI ↔ legacy launch pipeline bridge (thin command channel)
+  TerraLauncherBridge.m
+  # ★ [TERRA-DIAG] launch/crash diagnosis (loading-screen Troubleshoot + crash screen)
+  TerraCrashAnalyzer.m
+  TerraTroubleshootViewController.m
+  # ★ [TERRA-STYLE] shared Minecraft-launcher look for redesigned UIKit screens
+  TerraStyle.m
+  # ★ [TERRA-UI] redesigned Mods manager + per-installation settings
+  TerraModsManagerViewController.m
+  TerraInstanceSettingsViewController.m
+  # ★ [TERRA-UI] Modrinth/CurseForge browser, version+loader installer, Potato/Competitive presets
+  TerraBrowseAPI.m
+  TerraBrowseViewController.m
+  TerraVersionInstaller.m
+  TerraPotatoOptimizer.m
   ProfileSettingsViewController.m
   DownloadViewController.m
   LauncherPreferences.m
@@ -643,6 +696,8 @@ add_executable(AngelAuraAmethyst
 
   # ★ [SWIFT-BAR] SwiftUI 底部标签栏目标文件(swiftc 产出;只追加,不动上面既有 OBJC 顺序)
   ${AME_TABBAR_OBJ}
+  # ★ [TERRA-SWIFT] Terra-iOS SwiftUI 视图目标文件(swiftc 产出;只追加)
+  ${TERRA_SWIFT_OBJS}
   # ★ [ROOTTAB] 根标签栏控制器(真正的 UITabBarController;音乐/LiveContainer 同构)
   AmeRootTabController.m
 )
@@ -651,6 +706,9 @@ add_executable(AngelAuraAmethyst
 if(AME_TABBAR_NEEDS_BUILD)
   add_dependencies(AngelAuraAmethyst AmeTabBarSwift)
 endif()
+
+# ★ [TERRA-SWIFT] 保证 Terra SwiftUI 视图 .o 先于链接生成(单一 swiftc 单元)
+add_dependencies(AngelAuraAmethyst TerraSwiftUnit)
 
 # Add ModLoaderIcons PNG files into the app bundle Resources/ModLoaderIcons so they are available at runtime.
 # This will copy all *.png under Natives/ModLoaderIcons into the bundle at Resources/ModLoaderIcons/<name>.png

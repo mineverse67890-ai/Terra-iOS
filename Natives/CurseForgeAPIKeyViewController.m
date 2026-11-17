@@ -170,7 +170,7 @@ static UIColor *CFKErrorColor(void) {
         UIBarButtonItem *landBugCloseItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemClose
                                                                                           target:self
                                                                                           action:@selector(landBugCloseTapped)];
-        landBugCloseItem.accessibilityLabel = @"关闭";
+        landBugCloseItem.accessibilityLabel = @"Close";
         self.navigationItem.leftBarButtonItem = landBugCloseItem;
     }
 }

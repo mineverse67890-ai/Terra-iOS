@@ -865,7 +865,7 @@ static NSInteger const kSectionVersions    = 1;
 /// 找到视图中的 FAB 按钮
 - (UIButton *)findFabButton {
     for (UIView *v in self.view.subviews) {
-        if ([v isKindOfClass:[UIButton class]] && [v.accessibilityLabel isEqualToString:@"新建版本"]) {
+        if ([v isKindOfClass:[UIButton class]] && [v.accessibilityLabel isEqualToString:localize(@"i18n_str_2027", nil)]) {
             return (UIButton *)v;
         }
     }
@@ -887,7 +887,7 @@ static NSInteger const kSectionVersions    = 1;
     //   正解:直接切到"下载"标签(它本来就是 DownloadViewController)。
     UITabBarController *tbc = self.tabBarController;
     if (tbc) {
-        NSLog(@"[TABFIX] '+' ⇒ 切到下载标签(index 1)");
+        NSLog(@"[TABFIX] '+' => switching to Downloads tab (index 1)");
         tbc.selectedIndex = 1;
     } else {
         // 兜底:不在标签栏里(老流程)时保持原行为

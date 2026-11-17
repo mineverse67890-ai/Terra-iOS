@@ -65,7 +65,7 @@ static int amePerfCmpDouble(const void *a, const void *b) {
     }
     cached = on ? 1 : 0;
     if (on) {
-        NSLog(@"[PERF] AmePerfProbe 已启用 (判据: >16.7ms=jank, >33.4ms=severe, 占比<1%%&&severe==0=流畅)");
+        NSLog(@"[PERF] AmePerfProbe enabled (criteria: >16.7ms=jank, >33.4ms=severe, ratio<1%%&&severe==0=smooth)");
     }
     return on;
 }
@@ -167,14 +167,14 @@ static int amePerfCmpDouble(const void *a, const void *b) {
           n, avg, p95, maxMs,
           kAmePerfFrameBudgetMs, _jankCount, jankPct,
           kAmePerfSevereMs, _severeCount,
-          smooth ? @"判定:流畅" : @"判定:有卡顿");
+          smooth ? @"verdict: smooth" : @"verdict: janky");
 
     if (_severeCount > 0) {
         NSMutableArray<NSString *> *parts = [NSMutableArray arrayWithCapacity:(NSUInteger)_worstCount];
         for (int i = 0; i < _worstCount; i++) {
             [parts addObject:[NSString stringWithFormat:@"%.1fms", _worstMs[i]]];
         }
-        NSLog(@"[PERF][scroll] tag=%@ 最重帧(共 %d 次 severe,记录 %d 个): %@",
+        NSLog(@"[PERF][scroll] tag=%@ worst frames (%d severe total, %d recorded): %@",
               self.sessionTag ?: @"?", _severeCount, _worstCount,
               [parts componentsJoinedByString:@", "]);
     }

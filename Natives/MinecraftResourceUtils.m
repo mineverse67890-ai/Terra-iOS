@@ -68,7 +68,7 @@
         break;
     }
     if (!hasBootstrap) {
-        NSLog(@"[MCDL] 检测到 -DignoreList= 但未匹配到 bootstrap 库，仍按 Forge/NeoForge 处理");
+        NSLog(@"[MCDL] found -DignoreList= but no bootstrap library matched, still treating as Forge/NeoForge");
     }
 
     NSMutableArray *mutableJvm = [jvm mutableCopy];
@@ -92,7 +92,7 @@
     NSMutableDictionary *mutableArguments = [arguments mutableCopy];
     mutableArguments[@"jvm"] = mutableJvm;
     json[@"arguments"] = mutableArguments;
-    NSLog(@"[MCDL] Forge/NeoForge: 已向 -DignoreList 追加 lwjgl（消除 launcher/lwjgl 重复导出 com.apple.ios.audio 导致的 JPMS ResolutionException）");
+    NSLog(@"[MCDL] Forge/NeoForge: appended lwjgl to -DignoreList (avoids the JPMS ResolutionException from launcher/lwjgl both exporting com.apple.ios.audio)");
 }
 
 #pragma mark - OptiFine launchwrapper（参照 ZL2 Install.OptiFine.checkOFLaunchWrapper）
@@ -144,7 +144,7 @@
             if (data.length > 0) break;
         }
         if (data.length == 0) {
-            NSLog(@"[MCDL] OptiFine launchwrapper 1.12 下载失败");
+            NSLog(@"[MCDL] OptiFine launchwrapper 1.12 download failed");
             return nil;
         }
         [[NSFileManager defaultManager] createDirectoryAtPath:[absolutePath stringByDeletingLastPathComponent]

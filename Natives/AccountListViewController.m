@@ -926,7 +926,7 @@
         if (!strongSelf) return;
         if (strongSelf.ameLoginInFlightToken != token) return;   // 已被正常解锁/又换了新一次 ⇒ 不管
         if (!strongSelf.ameLoginInFlight) return;
-        NSLog(@"[ACCT-DONE] in-flight 看门狗超时(60s),强制解锁(防回调丢失把列表锁死)");
+        NSLog(@"[ACCT-DONE] in-flight watchdog timed out (60s), force-unlocking (prevents a lost callback from locking the list)");
         [strongSelf ameSetLoginInFlight:NO];
     });
 }

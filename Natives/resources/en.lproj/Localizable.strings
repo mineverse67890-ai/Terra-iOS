@@ -662,7 +662,7 @@
 "crash.suggestion.oom_getmoream" = "Use GetMoreRam (LiveContainer) to bypass iOS memory limit";
 "crash.suggestion.oom_mods" = "Remove heavy mods (shaders, high-res textures)";
 "crash.suggestion.oom_restart" = "Restart launcher and retry (release memory fragmentation)";
-"crash.suggestion.segfault_renderer" = "Try switching renderer (gl4es / MetalGlues / virgil)";
+"crash.suggestion.segfault_renderer" = "Try another renderer (Auto, MobileGlues or Zink) in the installation's settings";
 "crash.suggestion.segfault_jit" = "Ensure JIT is enabled (TrollStore/SideStore + JIT)";
 "crash.suggestion.segfault_restart" = "Restart launcher and retry";
 "crash.suggestion.abort_mods" = "Check mod compatibility (remove recently added mods)";
@@ -674,9 +674,9 @@
 "crash.suggestion.missinglib_reinstall" = "Reinstall the current game version";
 "crash.suggestion.missinglib_check" = "Check if libraries folder is complete";
 "crash.suggestion.missinglib_network" = "Check network connection and download source";
-"crash.suggestion.javaver_change" = "Switch Java version in settings (8/17/21)";
+"crash.suggestion.javaver_change" = "Set the installation's Java Version to Auto (Java 8/17/21/25)";
 "crash.suggestion.javaver_check" = "Check required Java version for game version";
-"crash.suggestion.renderer_switch" = "Try switching renderer: gl4es / MetalGlues / virgil";
+"crash.suggestion.renderer_switch" = "Try another renderer: Auto, MobileGlues or Zink";
 "crash.suggestion.renderer_shader" = "Disable shaders and retry";
 "crash.suggestion.renderer_resolution" = "Lower game resolution scale";
 "crash.suggestion.modload_remove" = "Remove problematic mod (check log for errors)";
@@ -930,7 +930,7 @@
 "i18n_str_2" = "Add Account";
 "i18n_str_10" = "Microsoft Account";
 "i18n_str_11" = "Sign in with a Microsoft account (premium)";
-"i18n_str_12" = "Sign in with a LittleSkin skin-site account (registration required)";
+"i18n_str_12" = "Sign in with an Ely.by account (free, registration required)";
 "i18n_str_13" = "Custom Third-party";
 "i18n_str_14" = "Supports any Yggdrasil-compatible authlib-injector server";
 "i18n_str_15" = "Local Account";
@@ -1626,12 +1626,12 @@
 "i18n_str_1031" = "Joining room...";
 "i18n_str_1033" = "Online play error";
 "i18n_str_1035" = "Third-party login";
-"i18n_str_1036" = "A commonly used authlib-injector skin site in China. Register an account at littleskin.cn first.";
+"i18n_str_1036" = "A free skin and account service that works worldwide. Register at ely.by first.";
 "i18n_str_1037" = "Custom third-party login";
-"i18n_str_1038" = "Supports any Yggdrasil-compatible authlib-injector server (such as LittleSkin, Blessing Skin, etc.). Enter the API root address.";
+"i18n_str_1038" = "Supports any Yggdrasil-compatible authlib-injector server (such as Ely.by, Blessing Skin, etc.). Enter the API root address.";
 "i18n_str_1039" = "Username / Email";
 "i18n_str_1040" = "Password";
-"i18n_str_1041" = "API address (e.g., https://littleskin.cn/api/yggdrasil)";
+"i18n_str_1041" = "API address (e.g., https://authserver.ely.by)";
 "i18n_str_1042" = "Log in";
 "i18n_str_1043" = "Username and password cannot be empty";
 "i18n_str_1044" = "Please enter the server address";
@@ -1970,7 +1970,7 @@
 "i18n_str_2047" = "Host is Ready";
 "i18n_str_2048" = "Additional Options";
 "i18n_str_2049" = "Please restart the launcher and try again.";
-"i18n_str_2050" = "LittleSkin Login";
+"i18n_str_2050" = "Ely.by Login";
 "i18n_str_2051" = "Collapse";
 "i18n_str_2052" = "Preparing...";
 "i18n_str_2053" = "[✓] Current status: ON";

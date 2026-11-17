@@ -708,9 +708,9 @@ void init_loadMobileGluesConfig() {
     id enableAngle = getPrefObject(@"mobileglues.enable_angle");
     BOOL angleOn = [enableAngle respondsToSelector:@selector(boolValue)] && [enableAngle boolValue];
     config[@"enableANGLE"] = angleOn ? @3 : @0;
-    NSLog(@"[JavaLauncher] Task158: mg backend -> MobileGlues mode 0 (直选) -- enableANGLE=%@, "
-          @"customGLVersion=%@ (Air 对齐：mode 0 不强制，保持 GL 4.0 默认；"
-          @"enableANGLE 在 iOS 上被 MG settings.cpp Apple 分支硬编码忽略)",
+    NSLog(@"[JavaLauncher] Task158: mg backend -> MobileGlues mode 0 (direct) -- enableANGLE=%@, "
+          @"customGLVersion=%@ (aligned with Air: mode 0 does not force it, keeps GL 4.0 default; "
+          @"enableANGLE is hard-coded to be ignored on iOS by the Apple branch of MG settings.cpp)",
           config[@"enableANGLE"], config[@"customGLVersion"]);
 
     id enableNoError = getPrefObject(@"mobileglues.enable_no_error");
@@ -772,7 +772,7 @@ void init_loadMobileGluesConfig() {
                 break;
         }
         config[@"multidrawOrder"] = mdOrder;
-        NSLog(@"[JavaLauncher]   mobileglues.multidraw_mode = %@ -> multidrawOrder = %@ (旧键 multidrawMode 已被 MG 2.0.16+ 弃用，不再写入)",
+        NSLog(@"[JavaLauncher]   mobileglues.multidraw_mode = %@ -> multidrawOrder = %@ (legacy key multidrawMode deprecated since MG 2.0.16+, no longer written)",
               multidrawMode, mdOrder);
     }
 
@@ -1454,8 +1454,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
         // 不再对 preferredJavaVersion 做任何钳制，直接采纳 Profile 指定的 Java 版本。
         // caciocavallo 三路切换会根据实际 Java 版本选择对应 jar（三个独立文件夹）：
         // - Java 8     → libs_caciocavallo（1.10-SNAPSHOT）
-        // - Java 17/21 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译）
-        // - Java 25    → libs_caciocavallo25（1.18-SNAPSHOT 含 Java 24 class，catsruledogs iOS）
+        // - Java 17/21/25 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译）
+        //   (caciocavallo25 was removed; see the "Add Caciocavallo bootclasspath" note below)
         int preferredJavaVersion = [PLProfiles resolveKeyForCurrentProfile:@"javaVersion"].intValue;
         if (preferredJavaVersion > 0) {
             if (minVersion > preferredJavaVersion) {
@@ -1687,8 +1687,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
             getenv("POJAV_HOME"), getPrefObject(@"general.game_directory"),
             viGameDirSub]
             .stringByStandardizingPath;
-        NSLog(@"[VER-ISOLATE-PCL] gameDir=%@ (版本隔离=%@, 约束版本 id=%@)",
-              gameDir, [viGameDirSub isEqualToString:@"."] ? @"关" : @"开", viConcreteId ?: @"(nil)");
+        NSLog(@"[VER-ISOLATE-PCL] gameDir=%@ (version isolation=%@, constrained version id=%@)",
+              gameDir, [viGameDirSub isEqualToString:@"."] ? @"Off" : @"On", viConcreteId ?: @"(nil)");
 
         // ★ [MODS-PRELOAD-FIX] 原先这里会把 bundle 的 mods_preload/MetalUniversal-*.jar
         //   拷进实例 mods/。该机制已下线:26.x 的 Metal 后端全程走 `-javaagent:metallum_agent.jar`
@@ -1705,7 +1705,7 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
                     if ([f hasPrefix:@"MetalUniversal-"] && [f hasSuffix:@".jar"]) {
                         NSString *p = [modsDir stringByAppendingPathComponent:f];
                         if ([pfm removeItemAtPath:p error:nil]) {
-                            NSLog(@"[MODS-PRELOAD-FIX] 清理旧版预置 mod(已改走 agent 注入): %@", f);
+                            NSLog(@"[MODS-PRELOAD-FIX] removing legacy preinstalled mod (now injected via agent): %@", f);
                         }
                     }
                 }
@@ -1726,8 +1726,8 @@ int launchJVM(NSString *accountId, id launchTarget, int width, int height, int m
     // caciocavallo 三路切换（参照 FCL/ZalithLauncher2 二元思路，扩展为三路以兼容 Java 25）：
     // 三个独立的平级文件夹，按实际 Java 版本选择：
     // - Java 8     → libs_caciocavallo（1.10-SNAPSHOT，包名 net.java.openjdk.cacio，bootclasspath/p）
-    // - Java 17/21 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译，包名 com.github.caciocavallosilano.cacio，bootclasspath/a）
-    // - Java 25    → libs_caciocavallo25（1.18-SNAPSHOT 含 Java 24 class，包名 com.github.caciocavallosilano.cacio，bootclasspath/a）
+    // - Java 17/21/25 → libs_caciocavallo17（1.18-SNAPSHOT 纯 Java 17 编译，包名 com.github.caciocavallosilano.cacio，bootclasspath/a）
+    //   (caciocavallo25 was removed; Java 25 uses the Java 17 build -- see "Add Caciocavallo bootclasspath")
     //   来自 catsruledogs/Amethyst-iOS-25。其 CTCGraphicsEnvironment 是 Java 24 class（class version 68），
     //   含 Java 25 兼容修复，纯 Java 17 编译版本会在 get_method_id 阶段 SIGSEGV。
     //   class version 68 仅 Java 24+ 可加载，故 Java 17/21 不能共用，需用 caciocavallo17 目录的纯 Java 17 jar。
@@ -2977,7 +2977,6 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
                 //   但我们独立自检（brk #0x69 -> 可写 JIT 区）未过 ⇒ 明确告知。
                 NSLog(@"[JIT-FLOW] [Headless] stikdebug reported complete but self-check failed (brk #0x69 not serviced) -- NOT proceeding");
                 showDialog(localize(@"Error", nil),
-                    @"StikDebug / JIT 工具可能已提示完成，但本机 JIT 自检未通过（未能申请到可写 JIT 区），安装器无法运行。请重试、重启 App，或改用 TrollStore 直启及其它 JIT 开启方式。\n"
                     @"Your JIT tool may report \"complete\" but the launcher's own self-check failed (no writable JIT region obtainable). Retry, restart the app, or use TrollStore / another enabler.");
                 return -1;
             }
@@ -3015,7 +3014,6 @@ int launchHeadlessJVM(NSString *mainClass, NSArray<NSString *> *args, int minJav
         if (result == NULL) {
             NSLog(@"[JavaLauncher] launchHeadlessJVM: JIT26 debugger not servicing brk, cannot run processors");
             showDialog(localize(@"Error", nil),
-                @"JIT 调试器未响应，安装器无法运行。请先用带 UniversalJIT26 脚本的方式启用 JIT 后重试。\n"
                 @"JIT debugger is not responding. Enable JIT with the UniversalJIT26 script and try again.");
             return -1;
         }

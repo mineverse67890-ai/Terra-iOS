@@ -341,7 +341,7 @@ static const double kInnerProcessorsStart = 0.45;
             *error = [NSError errorWithDomain:ForgeProcessorExecutorErrorDomain
                                          code:ForgeProcessorExecutorErrorProcessingFailed
                                      userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:localize(@"i18n_str_1163", nil),
-                                         failed.length ? [NSString stringWithFormat:@"（%@）", failed] : @"",
+                                         failed.length ? [NSString stringWithFormat:@"(%@)", failed] : @"",
                                          detail ?: localize(@"i18n_str_97", nil)]}];
         }
         return NO;

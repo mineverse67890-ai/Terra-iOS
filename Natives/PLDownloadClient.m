@@ -771,7 +771,7 @@ didFinishDownloadingToURL:(NSURL *)location {
     }
     if (statusCode > 0 && (statusCode < 200 || statusCode >= 300)) {
         op.pendingDownloadError = PLDownloadErrorMake(PLDownloadClientErrorCodeNetworkFailure,
-            [NSString stringWithFormat:@"HTTP %ld（%@）", (long)statusCode,
+            [NSString stringWithFormat:@"HTTP %ld (%@)", (long)statusCode,
                 op.request.candidateURLs[op.urlIndex].absoluteString],
             nil);
         op.pendingPartPath = nil;

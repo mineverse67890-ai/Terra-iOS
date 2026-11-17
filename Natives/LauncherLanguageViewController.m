@@ -119,8 +119,10 @@ NSString * const AmeLauncherLanguageChangedNotification = @"AmeLauncherLanguageC
         // 直接回答"系统英文→英文、系统中文→中文"。显示与实际渲染同一事实源。
         cell.textLabel.text = localize(@"preference.lang.follow_system", @"跟随系统");
         // ★ [I18N-PARTIAL] 生效语言若是"部分翻译"语言（如日语），这里同样带「部分翻译」标注。
-        cell.detailTextLabel.text = AmeLauncherDisplayNameAnnotatedForLanguageCode(AmeLauncherEffectiveLanguageCode());
-        cell.accessoryType = (currentOverride.length == 0) ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+        // ★ [TERRA-EN] subtitle = what "Follow System" would resolve to (device language, else English)
+        cell.detailTextLabel.text = AmeLauncherDisplayNameAnnotatedForLanguageCode(AmeLauncherSystemLanguageCode() ?: @"en");
+        cell.accessoryType = (currentOverride.length == 0 && AmeLauncherFollowsSystemLanguage())
+            ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     } else {
         NSString *code = [self codeForRowAtIndexPath:indexPath];
         // ★ [I18N-PARTIAL] 部分翻译语言（单一事实源）显示为「日本語（部分翻译）」。
@@ -142,7 +144,9 @@ NSString * const AmeLauncherLanguageChangedNotification = @"AmeLauncherLanguageC
             }
         }
         cell.detailTextLabel.text = subtitle;
-        cell.accessoryType = (code && [code isEqualToString:currentOverride])
+        // ★ [TERRA-EN] no explicit choice and not following system ⇒ English is the active selection
+        NSString *selectedCode = currentOverride ?: (AmeLauncherFollowsSystemLanguage() ? nil : @"en");
+        cell.accessoryType = (code && [code isEqualToString:selectedCode])
             ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     }
     return cell;
@@ -156,10 +160,11 @@ NSString * const AmeLauncherLanguageChangedNotification = @"AmeLauncherLanguageC
     // section 0 → nil（跟随系统）
     NSString *code = [self codeForRowAtIndexPath:indexPath];
 
-    NSString *before = AmeLauncherPreferredLanguageOverride() ?: @"";
+    // ★ [TERRA-EN] compare the EFFECTIVE language (Follow System can change it without an override)
+    NSString *before = AmeLauncherEffectiveLanguageCode() ?: @"";
     // ★ [I18N] 持久化到自定义键（不碰系统 AppleLanguages）。
     AmeLauncherSetPreferredLanguageOverride(code);
-    NSString *after = AmeLauncherPreferredLanguageOverride() ?: @"";
+    NSString *after = AmeLauncherEffectiveLanguageCode() ?: @"";
 
     [tableView reloadData];
     if (self.searchController.isActive) {

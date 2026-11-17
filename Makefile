@@ -9,7 +9,7 @@ OUTPUTDIR   := $(SOURCEDIR)/artifacts
 WORKINGDIR  := $(SOURCEDIR)/Natives/build
 DETECTPLAT  := $(shell uname -s)
 DETECTARCH  := $(shell uname -m)
-VERSION     := 6.0.0
+VERSION     := 0.1.0
 BRANCH      := $(shell git branch --show-current)
 COMMIT      := $(shell git log --oneline | sed '2,10000000d' | cut -b 1-7)
 PLATFORM    ?= 2
@@ -101,8 +101,8 @@ endif
 # ============================================================================
 # ★ [SWIFT-BAR] SwiftUI 底部标签栏(Natives/AmeTabBar.swift)编译变量
 # ----------------------------------------------------------------------------
-#  与 C 侧同样按平台判定 target:设备 arm64-apple-ios14.0,
-#  模拟器 <arch>-apple-ios14.0-simulator(看 SDKPATH 指向 iPhoneSimulator 与否)。
+#  与 C 侧同样按平台判定 target:设备 arm64-apple-ios16.0,
+#  模拟器 <arch>-apple-ios16.0-simulator(看 SDKPATH 指向 iPhoneSimulator 与否)。
 #  swiftc 产出 $(WORKINGDIR)/AmeTabBar.o,路径再经 -DAME_TABBAR_OBJ=... 交给 CMake;
 #  CMakeLists.txt 里留着同一条 swiftc 规则,直接跑 cmake 时兜底。
 # ============================================================================
@@ -110,7 +110,7 @@ SWIFTC        ?= $(shell xcrun -f swiftc 2>/dev/null || command -v swiftc 2>/dev
 SWIFT_SRC     ?= $(SOURCEDIR)/Natives/AmeTabBar.swift
 SWIFT_OBJ     ?= $(WORKINGDIR)/AmeTabBar.o
 SWIFT_ARCH    ?= arm64
-SWIFT_MIN_IOS ?= 14.0
+SWIFT_MIN_IOS ?= 16.0
 ifeq ($(findstring Simulator,$(SDKPATH)),Simulator)
 SWIFT_TARGET  ?= $(SWIFT_ARCH)-apple-ios$(SWIFT_MIN_IOS)-simulator
 else
@@ -215,13 +215,13 @@ METHOD_PACKAGE = \
 	else \
 		IPA_SUFFIX=".ipa"; \
 	fi; \
-	rm -f $(OUTPUTDIR)/com.air-devs.air-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
-	rm -f $(OUTPUTDIR)/com.air-devs.air.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
+	rm -f $(OUTPUTDIR)/com.terra.terra-ios-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
+	rm -f $(OUTPUTDIR)/com.terra.terra-ios.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX; \
 	if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/com.air-devs.air-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
+		zip --symlinks -r $(OUTPUTDIR)/com.terra.terra-ios-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload; \
 	fi; \
 	if [ '$(SLIMMED)' = '1' ] || [ '$(SLIMMED_ONLY)' = '1' ]; then \
-		zip --symlinks -r $(OUTPUTDIR)/com.air-devs.air.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
+		zip --symlinks -r $(OUTPUTDIR)/com.terra.terra-ios.slimmed-$(VERSION)-$(PLATFORM_NAME)$$IPA_SUFFIX Payload --exclude='Payload/AngelAuraAmethyst.app/java_runtimes/*'; \
 	fi
 
 # Function to download and unpack Java runtimes.
@@ -458,7 +458,7 @@ native: dep_mg swift
 		-DCMAKE_SYSTEM_PROCESSOR=aarch64 \
 		-DCMAKE_OSX_SYSROOT="$(SDKPATH)" \
 		-DCMAKE_OSX_ARCHITECTURES=arm64 \
-		-DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
+		-DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
 		-DCMAKE_C_FLAGS="-arch arm64" \
 		-DAME_TABBAR_OBJ="$(SWIFT_OBJ)" \
 		-DCONFIG_BRANCH="$(BRANCH)" \
@@ -1191,9 +1191,9 @@ deploy:
 		else \
 			$(call METHOD_PACKAGE); \
 			if [ '$(SLIMMED_ONLY)' = '0' ]; then \
-				open $(OUTPUTDIR)/com.air-devs.air-$(VERSION)-$(PLATFORM_NAME).ipa; \
+				open $(OUTPUTDIR)/com.terra.terra-ios-$(VERSION)-$(PLATFORM_NAME).ipa; \
 			else \
-				open $(OUTPUTDIR)/com.air-devs.air.slimmed-$(VERSION)-$(PLATFORM_NAME).ipa; \
+				open $(OUTPUTDIR)/com.terra.terra-ios.slimmed-$(VERSION)-$(PLATFORM_NAME).ipa; \
 			fi; \
 		fi; \
 	else \
@@ -1204,7 +1204,7 @@ deploy:
 package: payload
 	echo '[Amethyst v$(VERSION)] package - start'
 	if [ '$(TEAMID)' != '-1' ] && [ '$(SIGNING_TEAMID)' != '-1' ] && [ -f '$(PROVISIONING)' ] && [ '$(DETECTPLAT)' = 'Darwin' ]; then \
-		printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n	<key>application-identifier</key>\n	<string>$(TEAMID).com.air-devs.air</string>\n	<key>com.apple.developer.team-identifier</key>\n	<string>$(TEAMID)</string>\n	<key>get-task-allow</key>\n	<true/>\n	<key>keychain-access-groups</key>\n	<array>\n	<string>$(TEAMID).*</string>\n	<string>com.apple.token</string>\n	</array>\n	<key>com.apple.developer.kernel.extended-virtual-addressing</key>\n	<true/>\n	<key>com.apple.developer.kernel.increased-memory-limit</key>\n	<true/>\n</dict>\n</plist>' > entitlements.codesign.xml; \
+		printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n	<key>application-identifier</key>\n	<string>$(TEAMID).com.terra.terra-ios</string>\n	<key>com.apple.developer.team-identifier</key>\n	<string>$(TEAMID)</string>\n	<key>get-task-allow</key>\n	<true/>\n	<key>keychain-access-groups</key>\n	<array>\n	<string>$(TEAMID).*</string>\n	<string>com.apple.token</string>\n	</array>\n	<key>com.apple.developer.kernel.extended-virtual-addressing</key>\n	<true/>\n	<key>com.apple.developer.kernel.increased-memory-limit</key>\n	<true/>\n</dict>\n</plist>' > entitlements.codesign.xml; \
 		$(MAKE) codesign; \
 		rm -rf entitlements.codesign.xml; \
 	else \

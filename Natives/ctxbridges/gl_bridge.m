@@ -795,7 +795,7 @@ static void ame_task41_swap_forensics(EGLSurface surface, unsigned long swapInde
             if (l57 != nil) {
                 BOOL m57 = [l57 isKindOfClass:CAMetalLayer.class];
                 CGSize d57 = m57 ? ((CAMetalLayer *)l57).drawableSize : CGSizeZero;
-                NSLog(@"[GLGeo] Task57 render-thread layer read (split-brain probe): bounds=%.0fx%.0f drawable=%.0fx%.0f scale=%.2f sublayers=%lu surface=%dx%d (对照主线程心跳: bounds/drawable 恒 1180x820)",
+                NSLog(@"[GLGeo] Task57 render-thread layer read (split-brain probe): bounds=%.0fx%.0f drawable=%.0fx%.0f scale=%.2f sublayers=%lu surface=%dx%d (compare main-thread heartbeat: bounds/drawable always 1180x820)",
                       l57.bounds.size.width, l57.bounds.size.height,
                       d57.width, d57.height, (double)l57.contentsScale,
                       (unsigned long)[l57.sublayers count], surfW, surfH);

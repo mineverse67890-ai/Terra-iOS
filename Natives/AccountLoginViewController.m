@@ -2,18 +2,20 @@
 //  AccountLoginViewController.m
 //  Amethyst
 //
-//  参照 FCL (Fold Craft Launcher) 与 HMCL 的账户登录界面：
-//  - 顶部标题区（大标题 + 副标题）
-//  - 四张可点击的登录方式卡片（微软 / LittleSkin / 自定义第三方 / 本地）
-//  - 每张卡片：左侧彩色图标圆 + 中间标题/描述 + 右侧箭头
-//  - 适配自定义启动器背景（透明 view + 卡片毛玻璃）
-//  - 使用 UIButton 替代 UIControl，避免触摸拦截问题
+//  ★ [TERRA-STYLE] "Add an account" — Minecraft-launcher look (solid charcoal, square-ish
+//  cards, crisp borders, green accents, bevelled block icons). Behaviour is unchanged:
+//  - four tappable login-method cards (Microsoft / Ely.by / custom third-party / local)
+//  - selection goes back to AccountListViewController through onSelectLoginType
+//  - [ACCT-DUP]/[ACCT-DONE] re-entry guard and unlock rules kept as before
+//  Cards use UIView + UITapGestureRecognizer (card.tag = type + 1), same as before.
 //
 
 #import "AccountLoginViewController.h"
-#import "BackgroundManager.h"
-#import "ScreenUtils.h"
+#import "TerraStyle.h"
 #import "utils.h"
+
+/// Max content width on iPad / wide windows.
+static const CGFloat kTerraLoginMaxWidth = 640;
 
 @interface AccountLoginViewController () <UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
@@ -32,30 +34,15 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // 适配自定义启动器背景：将当前视图控制器透明化，使全局背景壁纸能够透出
-    [[BackgroundManager sharedManager] makeViewControllerTransparent:self];
     self.title = localize(@"i18n_str_2", nil);
-    // 透明背景，让自定义启动器背景透出（applyBackgroundToView 会把背景加到 window/splitVC 底层）
-    self.view.backgroundColor = [UIColor clearColor];
-
+    [TerraStyle applyToViewController:self];
     [self setupUI];
-    // 应用背景（遍历 responder chain 找到 splitVC/window，在最底层加背景）
-    [[BackgroundManager sharedManager] applyBackgroundToView:self.view];
-
-    // 监听背景 UI 效果变化通知，当用户切换背景效果（半透明/毛玻璃）时重新应用透明化
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(reapplyBackgroundEffect)
-                                                 name:@"BackgroundUIEffectChanged"
-                                               object:nil];
 }
 
-/// 背景效果改变时重新应用透明化（由 BackgroundUIEffectChanged 通知触发）
-- (void)reapplyBackgroundEffect {
-    [[BackgroundManager sharedManager] makeViewControllerTransparent:self];
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    // navigationController may not be attached yet in viewDidLoad; re-apply for the bar tint.
+    [TerraStyle applyToViewController:self];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -67,205 +54,274 @@
 #pragma mark - Setup
 
 - (void)setupUI {
-    // ScrollView 容器
     self.scrollView = [[UIScrollView alloc] init];
     self.scrollView.translatesAutoresizingMaskIntoConstraints = NO;
     self.scrollView.alwaysBounceVertical = YES;
-    self.scrollView.backgroundColor = [UIColor clearColor];
+    self.scrollView.backgroundColor = UIColor.clearColor;
     self.scrollView.delegate = self;
     self.scrollView.showsVerticalScrollIndicator = NO;
     [self.view addSubview:self.scrollView];
 
-    // 卡片堆栈
+    // Full-width content container; the column inside is centered and capped at 640pt.
+    UIView *content = [[UIView alloc] init];
+    content.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.scrollView addSubview:content];
+
+    UIStackView *column = [[UIStackView alloc] init];
+    column.translatesAutoresizingMaskIntoConstraints = NO;
+    column.axis = UILayoutConstraintAxisVertical;
+    column.alignment = UIStackViewAlignmentFill;
+    column.spacing = 0;
+    [content addSubview:column];
+
+    UILayoutGuide *safe = self.view.safeAreaLayoutGuide;
+    NSLayoutConstraint *fullWidth = [column.widthAnchor constraintEqualToAnchor:content.widthAnchor constant:-40];
+    fullWidth.priority = UILayoutPriorityDefaultHigh;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.scrollView.topAnchor constraintEqualToAnchor:self.view.topAnchor],
+        [self.scrollView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor],
+        [self.scrollView.trailingAnchor constraintEqualToAnchor:safe.trailingAnchor],
+        [self.scrollView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
+
+        [content.topAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.topAnchor],
+        [content.leadingAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.leadingAnchor],
+        [content.trailingAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.trailingAnchor],
+        [content.bottomAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.bottomAnchor],
+        [content.widthAnchor constraintEqualToAnchor:self.scrollView.frameLayoutGuide.widthAnchor],
+
+        [column.topAnchor constraintEqualToAnchor:content.topAnchor constant:24],
+        [column.bottomAnchor constraintEqualToAnchor:content.bottomAnchor constant:-32],
+        [column.centerXAnchor constraintEqualToAnchor:content.centerXAnchor],
+        [column.widthAnchor constraintLessThanOrEqualToConstant:kTerraLoginMaxWidth],
+        [column.widthAnchor constraintLessThanOrEqualToAnchor:content.widthAnchor constant:-40],
+        fullWidth,
+    ]];
+
+    [self setupHeader];
+    [column addArrangedSubview:self.headerContainer];
+    [column setCustomSpacing:22 afterView:self.headerContainer];
+
+    UILabel *methods = [TerraStyle sectionLabel:@"Sign-in method"];
+    [column addArrangedSubview:methods];
+    [column setCustomSpacing:10 afterView:methods];
+
+    // 四张登录卡片
     self.cardStack = [[UIStackView alloc] init];
     self.cardStack.translatesAutoresizingMaskIntoConstraints = NO;
     self.cardStack.axis = UILayoutConstraintAxisVertical;
-    self.cardStack.spacing = [ScreenUtils dp:14];
+    self.cardStack.spacing = 10;
     self.cardStack.alignment = UIStackViewAlignmentFill;
-    [self.scrollView addSubview:self.cardStack];
+    [column addArrangedSubview:self.cardStack];
 
-    [NSLayoutConstraint activateConstraints:@[
-        [self.scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
-        [self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
-        [self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
-        [self.scrollView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor],
-
-        [self.cardStack.topAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.topAnchor constant:[ScreenUtils dp:20]],
-        [self.cardStack.leadingAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.leadingAnchor constant:[ScreenUtils dp:20]],
-        [self.cardStack.trailingAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.trailingAnchor constant:-[ScreenUtils dp:20]],
-        [self.cardStack.bottomAnchor constraintEqualToAnchor:self.scrollView.contentLayoutGuide.bottomAnchor constant:-[ScreenUtils dp:20]],
-        [self.cardStack.widthAnchor constraintEqualToAnchor:self.scrollView.frameLayoutGuide.widthAnchor constant:-[ScreenUtils dp:40]],
-    ]];
-
-    // 标题区
-    [self setupHeader];
-
-    // 间距
-    [self.cardStack addArrangedSubview:[self spacerViewWithHeight:[ScreenUtils dp:8]]];
-
-    // 四张登录卡片
     [self.cardStack addArrangedSubview:[self createLoginCardWithType:AccountLoginTypeMicrosoft
-                                                                title:localize(@"i18n_str_10", nil)
-                                                          description:localize(@"i18n_str_11", nil)
-                                                           iconName:@"xbox.logo"
-                                                       fallbackIcon:@"person.crop.circle.fill"
-                                                          accentColor:[UIColor colorWithRed:0.0 green:0.45 blue:0.93 alpha:1.0]]];
+        title:localize(@"i18n_str_10", nil)
+        description:@"Own Minecraft: Java Edition? Play online servers and Realms."
+        symbol:@"xbox.logo" fallback:@"person.crop.square.fill"
+        face:[UIColor colorWithRed:0.06 green:0.49 blue:0.06 alpha:1.0]
+        primary:YES]];
     [self.cardStack addArrangedSubview:[self createLoginCardWithType:AccountLoginTypeLittleSkin
-                                                                title:@"LittleSkin"
-                                                          description:localize(@"i18n_str_12", nil)
-                                                           iconName:@"person.fill.viewfinder"
-                                                       fallbackIcon:@"person.crop.circle.fill"
-                                                          accentColor:[UIColor colorWithRed:0.55 green:0.30 blue:0.85 alpha:1.0]]];
+        title:@"Ely.by"
+        description:@"Free Ely.by account with custom skins."
+        symbol:@"person.text.rectangle.fill" fallback:@"person.fill.viewfinder"
+        face:[UIColor colorWithRed:0.16 green:0.42 blue:0.72 alpha:1.0]
+        primary:NO]];
     [self.cardStack addArrangedSubview:[self createLoginCardWithType:AccountLoginTypeThirdParty
-                                                                title:localize(@"i18n_str_13", nil)
-                                                          description:localize(@"i18n_str_14", nil)
-                                                           iconName:@"globe"
-                                                       fallbackIcon:@"globe"
-                                                          accentColor:[UIColor colorWithRed:0.90 green:0.55 blue:0.15 alpha:1.0]]];
+        title:localize(@"i18n_str_13", nil)
+        description:@"Any authlib-injector (Yggdrasil) server."
+        symbol:@"server.rack" fallback:@"globe"
+        face:[UIColor colorWithRed:0.72 green:0.47 blue:0.12 alpha:1.0]
+        primary:NO]];
     [self.cardStack addArrangedSubview:[self createLoginCardWithType:AccountLoginTypeLocal
-                                                                title:localize(@"i18n_str_15", nil)
-                                                          description:localize(@"i18n_str_16", nil)
-                                                           iconName:@"person.fill"
-                                                       fallbackIcon:@"person.fill"
-                                                          accentColor:[UIColor colorWithRed:0.50 green:0.55 blue:0.60 alpha:1.0]]];
+        title:localize(@"i18n_str_15", nil)
+        description:@"Offline — just pick a username."
+        symbol:@"wifi.slash" fallback:@"person.fill"
+        face:[UIColor colorWithWhite:0.36 alpha:1.0]
+        primary:NO]];
+
+    [column setCustomSpacing:16 afterView:self.cardStack];
+    UILabel *note = [[UILabel alloc] init];
+    note.text = @"Offline accounts can't join servers that require a Microsoft login.";
+    note.font = TerraStyle.captionFont;
+    note.textColor = TerraStyle.dimText;
+    note.numberOfLines = 0;
+    note.textAlignment = NSTextAlignmentCenter;
+    [column addArrangedSubview:note];
 }
 
-/// 顶部标题区（FCL/HMCL 风格：大标题 + 副标题）
+/// Header: grass block + "MINECRAFT: JAVA EDITION" + title + one-line subtitle.
 - (void)setupHeader {
     self.headerContainer = [[UIView alloc] init];
     self.headerContainer.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.cardStack addArrangedSubview:self.headerContainer];
+
+    UIView *block = [TerraStyle grassBlockOfSize:40];
+    [self.headerContainer addSubview:block];
+
+    UILabel *edition = [TerraStyle sectionLabel:@"Minecraft: Java Edition"];
+    edition.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.headerContainer addSubview:edition];
 
     self.headerTitleLabel = [[UILabel alloc] init];
     self.headerTitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.headerTitleLabel.text = localize(@"i18n_str_17", nil);
-    self.headerTitleLabel.font = [UIFont systemFontOfSize:[ScreenUtils sp:26] weight:UIFontWeightBold];
-    self.headerTitleLabel.textColor = [UIColor labelColor];   // ★ [HOST-BUG-A]
+    self.headerTitleLabel.text = @"Add an account";
+    self.headerTitleLabel.font = [UIFont systemFontOfSize:26 weight:UIFontWeightHeavy];
+    self.headerTitleLabel.textColor = TerraStyle.text;
     self.headerTitleLabel.numberOfLines = 1;
+    self.headerTitleLabel.adjustsFontSizeToFitWidth = YES;
+    self.headerTitleLabel.minimumScaleFactor = 0.7;
     [self.headerContainer addSubview:self.headerTitleLabel];
 
     self.headerSubtitleLabel = [[UILabel alloc] init];
     self.headerSubtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.headerSubtitleLabel.text = localize(@"i18n_str_18", nil);
-    self.headerSubtitleLabel.font = [UIFont systemFontOfSize:[ScreenUtils sp:14] weight:UIFontWeightRegular];
-    self.headerSubtitleLabel.textColor = [UIColor secondaryLabelColor];   // ★ [HOST-BUG-A]
+    self.headerSubtitleLabel.text = @"Choose how you want to sign in.";
+    self.headerSubtitleLabel.font = TerraStyle.bodyFont;
+    self.headerSubtitleLabel.textColor = TerraStyle.dimText;
     self.headerSubtitleLabel.numberOfLines = 0;
     [self.headerContainer addSubview:self.headerSubtitleLabel];
 
     [NSLayoutConstraint activateConstraints:@[
-        [self.headerTitleLabel.topAnchor constraintEqualToAnchor:self.headerContainer.topAnchor],
-        [self.headerTitleLabel.leadingAnchor constraintEqualToAnchor:self.headerContainer.leadingAnchor],
+        [block.leadingAnchor constraintEqualToAnchor:self.headerContainer.leadingAnchor],
+        [block.topAnchor constraintEqualToAnchor:self.headerContainer.topAnchor constant:2],
+
+        [edition.leadingAnchor constraintEqualToAnchor:block.trailingAnchor constant:14],
+        [edition.trailingAnchor constraintLessThanOrEqualToAnchor:self.headerContainer.trailingAnchor],
+        [edition.topAnchor constraintEqualToAnchor:self.headerContainer.topAnchor],
+
+        [self.headerTitleLabel.topAnchor constraintEqualToAnchor:edition.bottomAnchor constant:2],
+        [self.headerTitleLabel.leadingAnchor constraintEqualToAnchor:edition.leadingAnchor],
         [self.headerTitleLabel.trailingAnchor constraintEqualToAnchor:self.headerContainer.trailingAnchor],
 
-        [self.headerSubtitleLabel.topAnchor constraintEqualToAnchor:self.headerTitleLabel.bottomAnchor constant:[ScreenUtils dp:6]],
-        [self.headerSubtitleLabel.leadingAnchor constraintEqualToAnchor:self.headerContainer.leadingAnchor],
+        [self.headerSubtitleLabel.topAnchor constraintEqualToAnchor:self.headerTitleLabel.bottomAnchor constant:4],
+        [self.headerSubtitleLabel.leadingAnchor constraintEqualToAnchor:edition.leadingAnchor],
         [self.headerSubtitleLabel.trailingAnchor constraintEqualToAnchor:self.headerContainer.trailingAnchor],
         [self.headerSubtitleLabel.bottomAnchor constraintEqualToAnchor:self.headerContainer.bottomAnchor],
+        [self.headerContainer.bottomAnchor constraintGreaterThanOrEqualToAnchor:block.bottomAnchor],
     ]];
 }
 
-/// 创建一张登录方式卡片（FCL/HMCL 风格）
-/// 使用 UIButton 替代 UIControl，确保 touch 事件可靠触发
+/// Square bevelled "block" icon tile: flat face, light top edge, dark bottom edge, dark outline.
+- (UIView *)blockIconWithSymbol:(NSString *)symbol fallback:(NSString *)fallback face:(UIColor *)face {
+    CGFloat size = 46;
+    UIView *tile = [[UIView alloc] init];
+    tile.translatesAutoresizingMaskIntoConstraints = NO;
+    tile.userInteractionEnabled = NO;
+    tile.backgroundColor = face;
+    tile.layer.cornerRadius = 3;
+    tile.layer.borderWidth = 2;
+    tile.layer.borderColor = [UIColor colorWithWhite:0.07 alpha:1].CGColor;
+    tile.clipsToBounds = YES;
+
+    UIView *top = [[UIView alloc] init];
+    top.translatesAutoresizingMaskIntoConstraints = NO;
+    top.backgroundColor = [UIColor colorWithWhite:1 alpha:0.22];
+    [tile addSubview:top];
+    UIView *bottom = [[UIView alloc] init];
+    bottom.translatesAutoresizingMaskIntoConstraints = NO;
+    bottom.backgroundColor = [UIColor colorWithWhite:0 alpha:0.32];
+    [tile addSubview:bottom];
+
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:20 weight:UIImageSymbolWeightBold];
+    UIImageView *icon = [[UIImageView alloc] initWithImage:
+        [UIImage systemImageNamed:symbol withConfiguration:cfg] ?: [UIImage systemImageNamed:fallback withConfiguration:cfg]];
+    icon.translatesAutoresizingMaskIntoConstraints = NO;
+    icon.tintColor = UIColor.whiteColor;
+    icon.contentMode = UIViewContentModeCenter;
+    [tile addSubview:icon];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [tile.widthAnchor constraintEqualToConstant:size],
+        [tile.heightAnchor constraintEqualToConstant:size],
+        [top.topAnchor constraintEqualToAnchor:tile.topAnchor],
+        [top.leadingAnchor constraintEqualToAnchor:tile.leadingAnchor],
+        [top.trailingAnchor constraintEqualToAnchor:tile.trailingAnchor],
+        [top.heightAnchor constraintEqualToConstant:4],
+        [bottom.bottomAnchor constraintEqualToAnchor:tile.bottomAnchor],
+        [bottom.leadingAnchor constraintEqualToAnchor:tile.leadingAnchor],
+        [bottom.trailingAnchor constraintEqualToAnchor:tile.trailingAnchor],
+        [bottom.heightAnchor constraintEqualToConstant:5],
+        [icon.centerXAnchor constraintEqualToAnchor:tile.centerXAnchor],
+        [icon.centerYAnchor constraintEqualToAnchor:tile.centerYAnchor],
+    ]];
+    return tile;
+}
+
+/// One login-method card: block icon + title (+ "Recommended" chip) + one-line description + chevron.
+/// card.tag = type + 1 and a tap gesture → cardTapped: (unchanged mechanism).
 - (UIView *)createLoginCardWithType:(AccountLoginType)type
                               title:(NSString *)title
                         description:(NSString *)description
-                         iconName:(NSString *)iconName
-                     fallbackIcon:(NSString *)fallbackIcon
-                        accentColor:(UIColor *)accentColor {
-    // 卡片容器（UIView + 手势），不直接用 UIButton 是因为需要复杂内部布局
-    // 用 UIView + UITapGestureRecognizer 替代 UIControl，避免 UIVisualEffectView 拦截
-    UIView *card = [[UIView alloc] init];
+                             symbol:(NSString *)symbol
+                           fallback:(NSString *)fallback
+                               face:(UIColor *)face
+                            primary:(BOOL)primary {
+    UIView *card = [TerraStyle cardView];
     card.translatesAutoresizingMaskIntoConstraints = NO;
-    card.layer.cornerRadius = [ScreenUtils dp:16];
-    card.layer.cornerCurve = kCACornerCurveContinuous;
-    card.layer.borderWidth = 0.5;
-    card.layer.borderColor = [UIColor separatorColor].CGColor;   // ★ [HOST-BUG-A]
-    // 启用触摸交互
     card.userInteractionEnabled = YES;
+    if (primary) {
+        card.backgroundColor = TerraStyle.raised;
+        card.layer.borderColor = TerraStyle.green.CGColor;
+        card.layer.borderWidth = 1.5;
+    }
+    card.accessibilityLabel = [NSString stringWithFormat:@"%@. %@", title, description];
+    card.accessibilityTraits = UIAccessibilityTraitButton;
+    card.isAccessibilityElement = YES;
 
-    // 毛玻璃背景（blurView.userInteractionEnabled = NO 由 applyEffectToView 保证）
-    [[BackgroundManager sharedManager] applyEffectToView:card];
+    UIView *tile = [self blockIconWithSymbol:symbol fallback:fallback face:face];
+    [card addSubview:tile];
 
-    // 左侧图标圆（accentColor 轻底色 + SF Symbol）
-    UIView *iconCircle = [[UIView alloc] init];
-    iconCircle.translatesAutoresizingMaskIntoConstraints = NO;
-    iconCircle.backgroundColor = [accentColor colorWithAlphaComponent:0.18];
-    iconCircle.layer.cornerRadius = [ScreenUtils dp:24];
-    iconCircle.layer.cornerCurve = kCACornerCurveContinuous;   // ★ [CORNER-FIX] 连续圆角(与系统卡片一致)
-    iconCircle.userInteractionEnabled = NO;
-    [card addSubview:iconCircle];
-
-    UIImageView *iconView = [[UIImageView alloc] init];
-    iconView.translatesAutoresizingMaskIntoConstraints = NO;
-    UIImage *icon = [UIImage systemImageNamed:iconName] ?: [UIImage systemImageNamed:fallbackIcon];
-    iconView.image = icon;
-    iconView.tintColor = accentColor;
-    iconView.contentMode = UIViewContentModeScaleAspectFit;
-    iconView.userInteractionEnabled = NO;
-    [iconCircle addSubview:iconView];
-
-    // 中间标题
     UILabel *titleLabel = [[UILabel alloc] init];
-    titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     titleLabel.text = title;
-    titleLabel.font = [UIFont systemFontOfSize:[ScreenUtils sp:17] weight:UIFontWeightSemibold];
-    titleLabel.textColor = [UIColor labelColor];   // ★ [HOST-BUG-A]
+    titleLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightBold];
+    titleLabel.textColor = TerraStyle.text;
     titleLabel.numberOfLines = 1;
-    titleLabel.userInteractionEnabled = NO;
-    [card addSubview:titleLabel];
+    [titleLabel setContentCompressionResistancePriority:UILayoutPriorityDefaultLow forAxis:UILayoutConstraintAxisHorizontal];
 
-    // 中间描述
+    UIStackView *titleRow = [[UIStackView alloc] initWithArrangedSubviews:@[titleLabel]];
+    titleRow.axis = UILayoutConstraintAxisHorizontal;
+    titleRow.alignment = UIStackViewAlignmentCenter;
+    titleRow.spacing = 8;
+    if (primary) {
+        [titleRow addArrangedSubview:[TerraStyle chipWithText:@"RECOMMENDED" color:TerraStyle.greenBright]];
+    }
+
     UILabel *descLabel = [[UILabel alloc] init];
-    descLabel.translatesAutoresizingMaskIntoConstraints = NO;
     descLabel.text = description;
-    descLabel.font = [UIFont systemFontOfSize:[ScreenUtils sp:13] weight:UIFontWeightRegular];
-    descLabel.textColor = [UIColor secondaryLabelColor];   // ★ [HOST-BUG-A]
-    descLabel.numberOfLines = 0;
-    descLabel.userInteractionEnabled = NO;
-    [card addSubview:descLabel];
+    descLabel.font = [UIFont systemFontOfSize:13];
+    descLabel.textColor = TerraStyle.dimText;
+    descLabel.numberOfLines = 2;
 
-    // 右侧箭头
-    UIImageView *chevron = [[UIImageView alloc] init];
+    UIStackView *texts = [[UIStackView alloc] initWithArrangedSubviews:@[titleRow, descLabel]];
+    texts.translatesAutoresizingMaskIntoConstraints = NO;
+    texts.axis = UILayoutConstraintAxisVertical;
+    texts.alignment = UIStackViewAlignmentLeading;
+    texts.spacing = 3;
+    texts.userInteractionEnabled = NO;
+    [card addSubview:texts];
+
+    UIImageView *chevron = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"chevron.right"
+        withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:14 weight:UIImageSymbolWeightBold]]];
     chevron.translatesAutoresizingMaskIntoConstraints = NO;
-    chevron.image = [UIImage systemImageNamed:@"chevron.right"];
-    chevron.tintColor = [UIColor tertiaryLabelColor];   // ★ [HOST-BUG-A]
-    chevron.contentMode = UIViewContentModeScaleAspectFit;
+    chevron.tintColor = primary ? TerraStyle.greenBright : TerraStyle.dimText;
+    chevron.contentMode = UIViewContentModeCenter;
     chevron.userInteractionEnabled = NO;
+    [chevron setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
     [card addSubview:chevron];
 
-    // 布局约束
-    CGFloat padding = [ScreenUtils dp:16];
-    CGFloat iconSize = [ScreenUtils dp:48];
-    CGFloat iconInset = [ScreenUtils dp:24];
-
     [NSLayoutConstraint activateConstraints:@[
-        [iconCircle.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:padding],
-        [iconCircle.centerYAnchor constraintEqualToAnchor:card.centerYAnchor],
-        [iconCircle.widthAnchor constraintEqualToConstant:iconSize],
-        [iconCircle.heightAnchor constraintEqualToConstant:iconSize],
+        [card.heightAnchor constraintGreaterThanOrEqualToConstant:76],
 
-        [iconView.centerXAnchor constraintEqualToAnchor:iconCircle.centerXAnchor],
-        [iconView.centerYAnchor constraintEqualToAnchor:iconCircle.centerYAnchor],
-        [iconView.widthAnchor constraintEqualToConstant:iconInset],
-        [iconView.heightAnchor constraintEqualToConstant:iconInset],
+        [tile.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:14],
+        [tile.centerYAnchor constraintEqualToAnchor:card.centerYAnchor],
 
-        [titleLabel.leadingAnchor constraintEqualToAnchor:iconCircle.trailingAnchor constant:[ScreenUtils dp:14]],
-        [titleLabel.topAnchor constraintEqualToAnchor:card.topAnchor constant:[ScreenUtils dp:18]],
-        [titleLabel.trailingAnchor constraintEqualToAnchor:chevron.leadingAnchor constant:-[ScreenUtils dp:8]],
+        [texts.leadingAnchor constraintEqualToAnchor:tile.trailingAnchor constant:14],
+        [texts.trailingAnchor constraintLessThanOrEqualToAnchor:chevron.leadingAnchor constant:-10],
+        [texts.centerYAnchor constraintEqualToAnchor:card.centerYAnchor],
+        [texts.topAnchor constraintGreaterThanOrEqualToAnchor:card.topAnchor constant:14],
+        [texts.bottomAnchor constraintLessThanOrEqualToAnchor:card.bottomAnchor constant:-14],
 
-        [descLabel.leadingAnchor constraintEqualToAnchor:titleLabel.leadingAnchor],
-        [descLabel.topAnchor constraintEqualToAnchor:titleLabel.bottomAnchor constant:[ScreenUtils dp:4]],
-        [descLabel.trailingAnchor constraintEqualToAnchor:titleLabel.trailingAnchor],
-        [descLabel.bottomAnchor constraintEqualToAnchor:card.bottomAnchor constant:-[ScreenUtils dp:18]],
-
-        [chevron.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-padding],
+        [chevron.trailingAnchor constraintEqualToAnchor:card.trailingAnchor constant:-16],
         [chevron.centerYAnchor constraintEqualToAnchor:card.centerYAnchor],
-        [chevron.widthAnchor constraintEqualToConstant:[ScreenUtils dp:14]],
-        [chevron.heightAnchor constraintEqualToConstant:[ScreenUtils dp:20]],
     ]];
 
-    // 使用 UITapGestureRecognizer 处理点击（比 UIControlEventTouchUpInside 更可靠，
-    // 不会被 UIVisualEffectView 的 contentView 拦截）
     // tag 从 1 开始，避免 0 被 UIKit 视为"未设置 tag"
     card.tag = type + 1;
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(cardTapped:)];
@@ -273,13 +329,6 @@
     [card addGestureRecognizer:tapGesture];
 
     return card;
-}
-
-- (UIView *)spacerViewWithHeight:(CGFloat)height {
-    UIView *spacer = [[UIView alloc] init];
-    spacer.translatesAutoresizingMaskIntoConstraints = NO;
-    [spacer.heightAnchor constraintEqualToConstant:height].active = YES;
-    return spacer;
 }
 
 #pragma mark - Actions
@@ -301,7 +350,7 @@
     AccountLoginType type = (AccountLoginType)(card.tag - 1);
 
     __weak typeof(self) weakSelf = self;
-    // 轻微高亮反馈（FCL 风格）
+    // Press feedback: brief darken (block "pressed" look)
     [UIView animateWithDuration:0.1 animations:^{
         card.alpha = 0.65;
     } completion:^(BOOL finished) {

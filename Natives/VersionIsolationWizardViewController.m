@@ -216,7 +216,7 @@
 
 - (void)actionSkip {
     // 跳过：什么都不写 ⇒ 下次进启动器【仍会再弹】（跳过 ≠ 以后不弹）。
-    NSLog(@"★ [VI-FLOW] 向导：用户跳过本次（未写任何设置、未搬任何文件；下次仍会再弹）");
+    NSLog(@"★ [VI-FLOW] wizard: user skipped this time (no settings written, no files moved; will show again next time)");
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -224,7 +224,7 @@
 /// 从此不再【自动】弹；手动入口（实例设置页）不受影响，随时可再看。不写任何设置、不搬文件。
 - (void)actionDontShowAgain {
     ameVIWizardMarkDontShowAgain();
-    NSLog(@"★ [VI-FLOW] 向导：用户选择「以后不再提示」⇒ 以后不再自动弹出");
+    NSLog(@"★ [VI-FLOW] wizard: user chose \"Don't show again\" ⇒ will no longer pop up automatically");
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -249,7 +249,7 @@
         applied++;
     }
     if (applied > 0) [PLProfiles.current save];
-    NSLog(@"★ [VI-FLOW] 向导：一键应用 %lu 个实例（只写设置、未搬文件）", (unsigned long)applied);
+    NSLog(@"★ [VI-FLOW] wizard: applied to %lu instances in one tap (settings only, no files moved)", (unsigned long)applied);
 
     UIAlertController *a = [UIAlertController
         alertControllerWithTitle:localize(@"preference.vi.wizard.done.title", nil)

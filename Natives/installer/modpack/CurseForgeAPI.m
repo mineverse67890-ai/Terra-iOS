@@ -93,10 +93,11 @@ static const NSInteger kCFAListAllSourcesFailedCode = 9002;
 static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
     if (![loader isKindOfClass:[NSString class]] || loader.length == 0) return 0;
     NSString *l = loader.lowercaseString;
-    if ([l containsString:@"fabric"])   return 1;
-    if ([l containsString:@"quilt"])    return 3;
-    if ([l containsString:@"neoforge"]) return 5;
-    if ([l containsString:@"forge"])    return 4;
+    // Official CurseForge ModLoaderType: 1 Forge, 4 Fabric, 5 Quilt, 6 NeoForge
+    if ([l containsString:@"fabric"])   return 4;
+    if ([l containsString:@"quilt"])    return 5;
+    if ([l containsString:@"neoforge"]) return 6;
+    if ([l containsString:@"forge"])    return 1;
     return 0;
 }
 
@@ -868,7 +869,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
             //   绝不把原始「HTTP=403」抛给界面（无 key 场景由调用方改用 missingAPIKeyError）。
             detail = localize(@"i18n_str_9103", nil);
         } else {
-            detail = failures.count ? [NSString stringWithFormat:@"CurseForge 列表请求失败: %@", [failures componentsJoinedByString:@" | "]] : @"CurseForge 列表请求失败";
+            detail = failures.count ? [NSString stringWithFormat:@"CurseForge list request failed: %@", [failures componentsJoinedByString:@" | "]] : @"CurseForge list request failed";
         }
         NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
         userInfo[NSLocalizedDescriptionKey] = detail;
@@ -881,7 +882,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
     NSString *base = candidates[index];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", base, pathQuery]];
     if (!url) {
-        [failures addObject:[NSString stringWithFormat:@"%@ (URL 无效)", base]];
+        [failures addObject:[NSString stringWithFormat:@"%@ (invalid URL)", base]];
         [self cfaFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject index:index + 1 state:state failures:failures completion:completion];
         return;
     }
@@ -905,7 +906,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
         NSString *reason = nil;
 
         if (error) {
-            reason = [NSString stringWithFormat:@"%@ HTTP=%ld 网络错误(%@)", base, (long)status, error.localizedDescription ?: @"?"];
+            reason = [NSString stringWithFormat:@"%@ HTTP=%ld network error (%@)", base, (long)status, error.localizedDescription ?: @"?"];
         } else if (status == 401 || status == 403) {
             // ★ [MODSRC-403] 该候选拒绝本 key：视为「此候选失败」，继续下一个候选（镜像），
             //   并把后续候选切到 keyless（镜像无需 key，带无效 key 反被镜像网关拒，实测 500）。
@@ -928,7 +929,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
                 }
                 mapped = out;
             } else {
-                reason = [NSString stringWithFormat:@"%@ HTTP=%ld 响应缺少 %@ 数组", base, (long)status, arrayKey];
+                reason = [NSString stringWithFormat:@"%@ HTTP=%ld response missing %@ array", base, (long)status, arrayKey];
                 [self debugLogRequest:request response:response data:data jsonError:nil];
             }
         }
@@ -942,7 +943,7 @@ static NSInteger CFAModLoaderTypeForLoader(NSString *loader) {
             if (completion) completion(mapped, nil);
             return;
         }
-        [failures addObject:reason ?: [NSString stringWithFormat:@"%@ 未知错误", base]];
+        [failures addObject:reason ?: [NSString stringWithFormat:@"%@ unknown error", base]];
         [self cfaFetchListPathQuery:pathQuery candidates:candidates arrayKey:arrayKey mapObject:mapObject index:index + 1 state:state failures:failures completion:completion];
     }];
     [task resume];

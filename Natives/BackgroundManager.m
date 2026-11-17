@@ -319,7 +319,7 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
         [defaults setInteger:_uiEffect forKey:kBackgroundUIEffectKey];
         [defaults setBool:YES forKey:kGlassMigratedKey];
         [defaults synchronize];
-        NSLog(@"[glass] migrated uiEffect: Translucent -> Blur (一次性,可在设置里改回)");
+        NSLog(@"[glass] migrated uiEffect: Translucent -> Blur (one-time, can be changed back in Settings)");
     }
     // ★ [RIM-UI] 高光开关 / 强度(默认:开、1.0)
     id ameRimObj  = [defaults objectForKey:kGlassRimEnabledKey];
@@ -332,13 +332,13 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
     AMEGlassStyleLogResolvedOnce();
     [self ameSyncGlassRimStrengthForCurrentStyle];
 
-    NSLog(@"[glass] settings loaded: uiEffect=%ld (0=半透明,1=毛玻璃) blurIntensity=%.2f uiOpacity=%.2f",
+    NSLog(@"[glass] settings loaded: uiEffect=%ld (0=translucent,1=blur) blurIntensity=%.2f uiOpacity=%.2f",
           (long)_uiEffect, _blurIntensity, _uiOpacity);
     NSLog(@"[glass] rim: enabled=%d strength=%.2f", (int)self.glassRimEnabled, self.glassRimStrength);
     // ★ [GLASS-STYLE] 自证日志:风格判定矩阵现场可判(系统能力 / 用户配置 / 实际生效)
-    NSLog(@"[glass] style: 配置=%@ · 系统支持液态玻璃=%@ · 实际生效=%@",
+    NSLog(@"[glass] style: configured=%@ · system supports Liquid Glass=%@ · effective=%@",
           AMEGlassStyleStringFromEnum(AMEGlassStyleConfigured()),
-          AMEGlassStyleSystemSupportsLiquid() ? @"是" : @"否",
+          AMEGlassStyleSystemSupportsLiquid() ? @"Yes" : @"No",
           AMEGlassStyleStringFromEnum(AMEGlassStyleResolved()));
 }
 
@@ -1022,8 +1022,8 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
         //   · 系统材质:iOS≥26 ⇒ 系统 UIGlassEffect;iOS<26 ⇒ 系统 UIBlurEffect 常规材质。都不自绘。
         BOOL ameSystemMaterial = AMEGlassStyleUsesSystemMaterial();
         NSLog(@"[glass] applyEffectToView: %@ on %@ (blur=%.1f sat=%.2f intensity=%.2f hasBg=%d)",
-              ameSystemMaterial ? @"SYSTEM-material path(系统材质,不自绘)"
-                                : @"HAND-DRAWN overlay path(显式自绘叠加)",
+              ameSystemMaterial ? @"SYSTEM-material path(system material, not hand-drawn)"
+                                : @"HAND-DRAWN overlay path(explicit hand-drawn overlay)",
               NSStringFromClass(view.class), (double)AmeGlassBlurRadius, (double)AmeGlassSaturate,
               (double)self.blurIntensity, (int)[self hasBackground]);
         // 毛玻璃效果 - 创建 UIVisualEffectView 作为子视图
@@ -1539,7 +1539,7 @@ static BOOL gAmeGlassRimApplyScheduled = NO;
             [self ameApplyGlassRimSettingsToViewTree:w];
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundUIEffectChanged" object:nil];
-        NSLog(@"[glass] 界面风格切换已生效: 配置=%@ · 实际生效=%@",
+        NSLog(@"[glass] UI style change applied: configured=%@ · effective=%@",
               AMEGlassStyleStringFromEnum(AMEGlassStyleConfigured()),
               AMEGlassStyleStringFromEnum(AMEGlassStyleResolved()));
     });

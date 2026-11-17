@@ -264,8 +264,11 @@ static NSError *AmeStepError(NSString *stepName, NSString *hint, NSInteger code,
         } else {
             self.authData[@"profileId"] = uuid ?: @"";
         }
-        self.authData[@"profilePicURL"] = [NSString stringWithFormat:@"https://api.rms.net.cn/head/%@", self.authData[@"username"]];
         self.authData[@"username"] = response[@"name"];
+        // ★ [TERRA-GLOBAL] global avatar service (was api.rms.net.cn, mainland China), keyed by UUID
+        //   and set after username (previously built from the stale/nil username).
+        NSString *headKey = ([uuid isKindOfClass:NSString.class] && uuid.length > 0) ? uuid : (response[@"name"] ?: @"");
+        self.authData[@"profilePicURL"] = [NSString stringWithFormat:@"https://mc-heads.net/avatar/%@/120", headKey];
         // 微软账户用 xuid 作为 accountId（全局唯一且稳定），使同名账户可共存
         // ★ [ACCT-DUP-MS] xuid 缺失时不写死 accountId（交给 super saveChanges 按兜底身份键收敛），
         //   避免把 accountId 置为 nil 后每次保存都现场生成随机 id ⇒ 冒出多条同账户。

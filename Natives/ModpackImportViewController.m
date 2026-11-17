@@ -258,7 +258,7 @@
         if (UTTypeZIP) [contentTypes addObject:UTTypeZIP];
         if (UTTypeArchive) [contentTypes addObject:UTTypeArchive];
     }
-    NSLog(@"[MODPACK-LOCAL] 打开文件选择器，可接受类型数=%lu", (unsigned long)contentTypes.count);
+    NSLog(@"[MODPACK-LOCAL] opening file picker, accepted type count=%lu", (unsigned long)contentTypes.count);
     UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:contentTypes.copy];
     picker.delegate = self;
     picker.allowsMultipleSelection = NO;
@@ -272,10 +272,10 @@
     NSURL *fileURL = urls.firstObject;
     NSString *fileExtension = fileURL.pathExtension.lowercaseString;
 
-    NSLog(@"[MODPACK-LOCAL] 选中文件: %@ (ext=%@)", fileURL.absoluteString ?: @"(nil)", fileExtension);
+    NSLog(@"[MODPACK-LOCAL] selected file: %@ (ext=%@)", fileURL.absoluteString ?: @"(nil)", fileExtension);
 
     if (![fileExtension isEqualToString:@"mrpack"] && ![fileExtension isEqualToString:@"zip"]) {
-        NSLog(@"[MODPACK-LOCAL] 扩展名不被接受: %@", fileExtension);
+        NSLog(@"[MODPACK-LOCAL] extension not accepted: %@", fileExtension);
         [self showAlertWithTitle:localize(@"i18n_str_569", nil) message:localize(@"i18n_str_570", nil)];
         return;
     }
@@ -305,14 +305,14 @@
             // @finally 保证异常路径也会 stop（不会泄漏一次 security scope）。
             if (scoped) {
                 [fileURL stopAccessingSecurityScopedResource];
-                NSLog(@"[MODPACK-LOCAL] stopAccessingSecurityScopedResource 已执行");
+                NSLog(@"[MODPACK-LOCAL] stopAccessingSecurityScopedResource done");
             }
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error || !modpackInfo) {
                 [self hideLoadingHUD];
-                NSLog(@"[MODPACK-LOCAL] 解析失败: %@", error.localizedDescription ?: @"(no error)");
+                NSLog(@"[MODPACK-LOCAL] parse failed: %@", error.localizedDescription ?: @"(no error)");
                 [self showAlertWithTitle:localize(@"i18n_str_206", nil) message:error.localizedDescription ?: localize(@"i18n_str_574", nil)];
                 return;
             }

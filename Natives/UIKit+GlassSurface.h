@@ -423,7 +423,7 @@ static inline UIVisualEffect *AmeGlassEffect(UIBlurEffectStyle fallbackStyle) {
     if (!AMEGlassStyleUsesLiquidGlass()) {
         static int s_ameGlassNativeMaterialLogged = 0;
         if (s_ameGlassNativeMaterialLogged++ == 0) {
-            NSLog(@"[glass] 原生风格 ⇒ 材质用系统 UIBlurEffect(style=%ld),不调用 UIGlassEffect", (long)fallbackStyle);
+            NSLog(@"[glass] native style => material uses system UIBlurEffect(style=%ld), UIGlassEffect not called", (long)fallbackStyle);
         }
         return [UIBlurEffect effectWithStyle:fallbackStyle];
     }
@@ -435,22 +435,22 @@ static inline UIVisualEffect *AmeGlassEffect(UIBlurEffectStyle fallbackStyle) {
     dispatch_once(&once, ^{
         glassCls = NSClassFromString(@"UIGlassEffect");
         if (glassCls == Nil) {
-            probeWhy = @"UIGlassEffect 类不存在(系统 < iOS 26 或未链接)";
+            probeWhy = @"UIGlassEffect class missing (system < iOS 26 or not linked)";
         } else {
             SEL sel = @selector(effectWithStyle:);
             if ([glassCls respondsToSelector:sel]) {
                 id g = ((id (*)(id, SEL, NSInteger))objc_msgSend)(glassCls, sel, 0);
                 if (g != nil && [g isKindOfClass:[UIVisualEffect class]]) {
                     glassOK = YES;
-                    probeWhy = [NSString stringWithFormat:@"UIGlassEffect 生效(sdk=%s)", __VERSION__];
+                    probeWhy = [NSString stringWithFormat:@"UIGlassEffect active (sdk=%s)", __VERSION__];
                 } else {
-                    probeWhy = @"UIGlassEffect.effectWithStyle: 返回空/类型不符 ⇒ 回退";
+                    probeWhy = @"UIGlassEffect.effectWithStyle: returned nil/wrong type => fallback";
                 }
             } else {
-                probeWhy = @"UIGlassEffect 无 effectWithStyle: 方法 ⇒ 回退";
+                probeWhy = @"UIGlassEffect has no effectWithStyle: method => fallback";
             }
         }
-        NSLog(@"[glass] 材质解析:%@ ⇒ %@", glassOK ? @"玻璃" : @"常规材质(回退)", probeWhy ?: @"?");
+        NSLog(@"[glass] material resolution: %@ => %@", glassOK ? @"glass" : @"regular material (fallback)", probeWhy ?: @"?");
         probed = YES;
     });
     (void)probed;
@@ -474,7 +474,7 @@ static inline BOOL AmeTuneGlassBackdrop(UIVisualEffectView *vev, CGFloat blurRad
     if (!AMEGlassStyleAllowsHandDrawnGlass()) {
         static int s_ameGlassTuneNativeLogged = 0;
         if (s_ameGlassTuneNativeLogged++ == 0) {
-            NSLog(@"[glass] 原生风格 ⇒ 跳过私有 backdrop 调参(blur=%.0f saturate=%.0f%% 不应用)",
+            NSLog(@"[glass] native style => skipping private backdrop tuning (blur=%.0f saturate=%.0f%% not applied)",
                   blurRadius, saturation * 100.0);
         }
         return NO;
@@ -486,7 +486,7 @@ static inline BOOL AmeTuneGlassBackdrop(UIVisualEffectView *vev, CGFloat blurRad
         // ★ [LOG-CLEAN] 原每次贴玻璃都打(同句 20+ 次 ⇒ 刷屏)。只报第一次。
         static int s_ameGlassNoBackdropLogged = 0;
         if (s_ameGlassNoBackdropLogged++ == 0) {
-            NSLog(@"[glass] blur=%.0f saturate=%.0f%% 未应用(系统材质默认:私有 backdrop 通道不可用)", blurRadius, saturation * 100.0);
+            NSLog(@"[glass] blur=%.0f saturate=%.0f%% not applied (system material default: private backdrop channel unavailable)", blurRadius, saturation * 100.0);
         }
         return NO;
     }
@@ -511,7 +511,7 @@ static inline BOOL AmeTuneGlassBackdrop(UIVisualEffectView *vev, CGFloat blurRad
     static int s_ameGlassTuneLogged = 0;
     if (s_ameGlassTuneLogged++ == 0) {
         NSLog(@"[glass] blur=%.0f saturate=%.0f%% %@", blurRadius, saturation * 100.0,
-              ok ? @"已应用(SPEC §2.5)" : @"未应用(回退系统默认)");
+              ok ? @"applied (SPEC §2.5)" : @"not applied (falling back to system default)");
     }
     return ok;
 }
