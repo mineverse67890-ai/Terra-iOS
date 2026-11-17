@@ -517,6 +517,29 @@ void hooked_exit(int code) {
 // ---------------------------------------------------------------------------
 
 void* hooked_dlopen(const char* path, int mode) {
+    // Terra: java-objc-bridge (Minecraft MacosUtil) always unpacks libjcocoa.dylib
+    // from its jar into a temp dir and System.load()s that unsigned copy. dyld
+    // rejects it whenever the library-validation bypass is off (iOS 26 JIT without
+    // an always-attached debugger), which crashes 26.3 at window creation.
+    // Redirect to the signed, iOS-retagged copy shipped in <app>/Frameworks.
+    if (path != NULL) {
+        const char *slash = strrchr(path, '/');
+        const char *base = slash ? slash + 1 : path;
+        if (strcmp(base, "libjcocoa.dylib") == 0) {
+            static char s_bundledJcocoa[PATH_MAX];
+            static dispatch_once_t s_jcocoaOnce;
+            dispatch_once(&s_jcocoaOnce, ^{
+                NSString *p = [NSBundle.mainBundle.privateFrameworksPath stringByAppendingPathComponent:@"libjcocoa.dylib"];
+                if (p && [NSFileManager.defaultManager fileExistsAtPath:p]) {
+                    strlcpy(s_bundledJcocoa, p.fileSystemRepresentation, sizeof(s_bundledJcocoa));
+                }
+            });
+            if (s_bundledJcocoa[0] != '\0' && strcmp(path, s_bundledJcocoa) != 0) {
+                NSLog(@"[Terra] redirecting %s -> bundled %s", path, s_bundledJcocoa);
+                path = s_bundledJcocoa;
+            }
+        }
+    }
     // ------------------------------------------------------------------
     // Task 106（BMC2 创建存档闪退根治）：拦截 spark 的原生分析器。
     //
